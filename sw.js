@@ -1,6 +1,9 @@
 /* packapp Service Worker: App offline starten, Wetter und Karte immer live. */
-const CACHE = "packapp-v20";
-const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png"];
+const CACHE = "packapp-v21";
+const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
+  "./fonts/barlow-condensed-500.woff2", "./fonts/barlow-condensed-600.woff2", "./fonts/barlow-condensed-700.woff2",
+  "./fonts/source-sans-3-400.woff2", "./fonts/source-sans-3-500.woff2", "./fonts/source-sans-3-600.woff2",
+  "./fonts/ibm-plex-mono-400.woff2", "./fonts/ibm-plex-mono-500.woff2"];
 const CDN = ["https://unpkg.com/leaflet@1.9.4/dist/leaflet.js", "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"];
 
 self.addEventListener("install", (e) => {
@@ -34,9 +37,9 @@ self.addEventListener("fetch", (e) => {
     return;
   }
 
-  // Statische Dateien, Leaflet, Schriften und Lawinen-Regionen: zuerst Cache
+  // Statische Dateien, (auch Schriften), Leaflet und Lawinen-Regionen: zuerst Cache
   const isStatic = url.origin === self.location.origin || url.hostname === "unpkg.com" ||
-    url.hostname === "regions.avalanches.org" || url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com";
+    url.hostname === "regions.avalanches.org";
   if (isStatic) {
     e.respondWith(
       caches.match(req).then((hit) => hit || fetch(req).then((r) => {
