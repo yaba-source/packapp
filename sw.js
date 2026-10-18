@@ -1,5 +1,5 @@
 /* packapp Service Worker: App offline starten, Wetter und Karte immer live. */
-const CACHE = "packapp-v22";
+const CACHE = "packapp-v23";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon-180.png", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png",
   "./fonts/barlow-condensed-500.woff2", "./fonts/barlow-condensed-600.woff2", "./fonts/barlow-condensed-700.woff2",
   "./fonts/source-sans-3-400.woff2", "./fonts/source-sans-3-500.woff2", "./fonts/source-sans-3-600.woff2",
