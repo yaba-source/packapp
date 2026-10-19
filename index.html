@@ -140,26 +140,42 @@ ul.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
 .costs select,.costs input{font-size:16px}
 .costs h3 select{width:auto;min-width:5.5em}
 .meals h3 .meal-p{display:flex;align-items:center;gap:6px;font-size:.85rem;text-transform:none;letter-spacing:0;font-weight:500;color:var(--muted)}
-.meal-persons{width:4.2em!important;padding:6px 8px!important;text-align:center}
-.meal-row{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"t n" "name n";gap:0 10px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
-.meal-t{grid-area:t;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-.meal-name{grid-area:name;background:none;border:0;padding:0;font:inherit;text-align:left;color:var(--ink);cursor:pointer}
-.meal-n{grid-area:n;display:flex;align-items:center;gap:6px}
-.meal-n .step{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--bg);font:inherit;font-size:1.1rem;color:var(--accent);cursor:pointer}
-.meal-acts{display:flex;flex-wrap:wrap;gap:8px}
+.meals{gap:8px}
+.meal-persons{width:3.6em!important;padding:5px 6px!important;text-align:center}
+.meal-days{display:grid;grid-template-columns:auto 1fr auto 1fr;gap:6px;align-items:center}
+.meal-days .meal-sel{padding:6px 8px;font-size:15px}
+@media (max-width:520px){.meal-days{grid-template-columns:auto 1fr}}
+.meal-sec{border-top:1px solid var(--line);padding-top:6px}
+.meal-sec-h{display:flex;justify-content:space-between;align-items:center;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:2px}
+.meal-cnt{font-family:var(--f-mono,monospace);font-size:.75rem;padding:1px 7px;border-radius:999px;background:var(--bg)}
+.meal-cnt.low{background:#FFF1CC;color:#7A5A00}
+.meal-cnt.over{background:#E3EEF7;color:var(--accent)}
+.meal-row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:1px 0}
+.meal-name{background:none;border:0;padding:4px 0;font:inherit;font-size:.95rem;text-align:left;color:var(--ink);cursor:pointer;min-width:0}
+.meal-n{display:flex;align-items:center;gap:4px;flex:none}
+.meal-n b{min-width:1.8em;text-align:center;font-size:.9rem}
+.meal-n .step{width:28px;height:28px;border-radius:50%;border:1px solid var(--line);background:var(--bg);font:inherit;font-size:1rem;line-height:1;color:var(--accent);cursor:pointer;padding:0}
+.meal-add{background:none;border:0;padding:4px 0;font:inherit;font-size:.9rem;color:var(--accent);cursor:pointer}
+.meal-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px solid var(--line);padding-top:8px}
+.meal-sum{margin-left:auto}
 .md-filters{display:flex;flex-direction:column;gap:6px}
 .md-row{display:flex;flex-wrap:wrap;gap:6px}
-.chip-btn{font:inherit;font-size:.85rem;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer}
+.chip-btn{font:inherit;font-size:.8rem;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:5px 10px;cursor:pointer}
 .chip-btn.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.md-list{display:flex;flex-direction:column;gap:8px}
-.md-rec{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface)}
+.md-list{display:flex;flex-direction:column;gap:6px}
+.md-group{font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:8px 0 0}
+.md-gn{font-weight:400}
+.md-rec{border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface)}
 .md-rec.on{border-color:var(--accent)}
-.md-rec summary{cursor:pointer;list-style:none;display:flex;flex-direction:column;gap:2px}
+.md-rec summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}
 .md-rec summary::-webkit-details-marker{display:none}
-.md-name{font-weight:600}
-.md-meta{font-size:.8rem;color:var(--muted)}
-.md-ing{margin:8px 0 4px 18px;font-size:.9rem}
-.md-steps{font-size:.9rem;margin:4px 0}
+.md-sum{display:flex;flex-direction:column;min-width:0;flex:1}
+.md-name{font-weight:600;font-size:.95rem}
+.md-meta{font-size:.75rem;color:var(--muted)}
+.md-quick{flex:none;min-width:34px;height:34px;border-radius:999px;border:1px solid var(--accent);background:transparent;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;padding:0 8px}
+.md-quick.on{background:var(--accent);color:var(--accent-ink)}
+.md-ing{margin:6px 0 4px 18px;font-size:.88rem}
+.md-steps{font-size:.88rem;margin:4px 0}
 .md-rec .btn{margin-top:6px}
 .md-own{align-self:flex-start}
 .rec-grid{display:grid;grid-template-columns:1fr 1fr 5em;gap:8px}
@@ -1852,7 +1868,7 @@ const EN={
 "Krankenversicherungskarte":"Health insurance card","Kühlbox + Kühlakkus":"Cooler + ice packs","LVS-Batterien ins Handgepäck":"Transceiver batteries in carry-on","LVS-Gerät":"Avalanche transceiver",
 "Landstrom-Kabel + Adapter":"Shore power cable + adapter","Langarmshirt dünn":"Thin long-sleeve shirt","Lange Hose":"Long trousers","Laufschuhe":"Running shoes","Laufshirt":"Running shirt",
 "Laufshorts / Tights":"Running shorts / tights","Laufuhr + Ladekabel":"Running watch + charger","Laufweste / Soft-Flasks":"Running vest / soft flasks","Lawinenlagebericht-App":"Avalanche bulletin app",
-"Lawinenrucksack mit Airbag":"Avalanche airbag backpack","Lawinenschaufel":"Avalanche shovel","Ski-Befestigung am Rucksack":"Ski carry system on backpack","Skihelm oder Kletterhelm mit Skitouren-Norm (EN 1077 + EN 12492)":"ski helmet or climbing helmet with ski-touring certification (EN 1077 + EN 12492)","Tourenrucksack 35–45 l":"Touring backpack 35–45 l","Halbseil oder dünnes Gletscherseil, 30–40 m":"half rope or thin glacier rope, 30–40 m","leichter Skitourengurt, mit Skiern anziehbar":"light ski-touring harness, can be put on with skis","Alu oder Stahl, passend zu den Tourenstiefeln":"aluminium or steel, fitting your touring boots","leichter Tourenpickel":"light touring axe","für Gipfelanstieg und Skidepot":"for the summit climb and ski depot","Bericht ↗":"Bulletin ↗","für kühle Abende und Nächte draußen":"for cool evenings and nights outside","für Stand und Abseilen":"for belays and rappelling","+ Eigenes Rezept":"+ My own recipe","Eigenes Rezept":"My own recipe","Rezept bearbeiten":"Edit recipe","Bearbeiten":"Edit","+ Zutat":"+ Ingredient","Zutaten":"Ingredients","Zubereitung":"Method","Mahlzeit":"Meal","Kochen":"Cooking","Mengen für":"Amounts for","Portion(en)":"serving(s)","leicht & haltbar (für Rucksack / Bikepacking)":"light & long-lasting (for backpack / bikepacking)","Zurück":"Back","Kein Rezept passt zu diesem Filter.":"No recipe matches this filter.","Essensplan":"Meal plan","Pers.":"ppl.","Rezepte ansehen":"Browse recipes","+ Rezept":"+ Recipe","Vorschlag erstellen":"Suggest a plan","Leeren":"Clear","Rezepte · vegetarisch":"Recipes · vegetarian","Zum Essensplan":"Add to meal plan","Frühstück":"Breakfast","Mittag / unterwegs":"Lunch / on the go","Abendessen":"Dinner","Snack":"Snack","Gaskocher":"Gas stove","Camper-Küche":"Camper kitchen","ohne Kochen":"no cooking","leicht & haltbar":"light & long-lasting","Einkauf (Essensplan)":"Shopping (meal plan)","Küche":"Kitchen","für den Essensplan":"for the meal plan","Gaskocher + Kartusche":"Gas stove + canister","Topf mit Deckel":"Pot with lid","Pfanne":"Pan","Spork / Besteck":"Spork / cutlery","Taschenmesser + Brettchen":"Pocket knife + board","Dosenöffner":"Can opener","Dose mit Deckel":"Container with lid","Grill / Pfanne":"Grill / pan","Aktuellen Essensplan durch einen Vorschlag ersetzen?":"Replace the current meal plan with a suggestion?","Essensplan und Einkaufsliste leeren?":"Clear meal plan and shopping list?","Vegetarische Outdoor-Rezepte auswählen – die Zutaten landen als Einkaufsliste in der Packliste, Kocher & Topf gleich mit.":"Pick vegetarian outdoor recipes – the ingredients go into the packing list as a shopping list, stove & pot included.","gegen Wind und Kälte im Gesicht":"against wind and cold on the face","Sonnen- und Windschutz":"sun and wind protection","Slackline":"Slackline","mit Baumschutz":"with tree protectors","+ Baumgurte":"+ tree straps","Surfhut / Cap mit Kinnband":"Surf hat / cap with chin strap","hält auch bei Wellen":"stays on in the waves","UV sehr hoch":"UV very high","Netzteile auf 100–240 V prüfen":"Check chargers for 100–240 V","Heimatland (2 Buchstaben, z. B. DE, AT, CH):":"Home country (2 letters, e.g. DE, AT, CH):","+ Eigenen Gegenstand hinzufügen":"+ Add your own item","Was?":"What?","In Kategorie":"In category","z. B. Kamera":"e.g. camera","Keine Mail? Bitte auch den Spam-Ordner prüfen.":"No email? Please check your spam folder too.","Wetter wird neu geladen …":"Reloading weather …","Wetter und Liste aktualisiert":"Weather and list updated","Wetterdaten für die neue Sportart ergänzt":"Added weather data for the new sport","Reise geändert – die Liste konnte nicht automatisch angepasst werden.":"Trip changed – the list could not be updated automatically.","Reise geändert – bitte Zeitraum und Sportart-Auswahl prüfen, dann aktualisieren.":"Trip changed – please check dates and sport selection, then update."," · Lawinen: ":" · Avalanches: ","Lawinensonde":"Avalanche probe","Leash":"Leash","Leichte Jacke":"Light jacket","Leichte Mütze":"Light beanie",
+"Lawinenrucksack mit Airbag":"Avalanche airbag backpack","Lawinenschaufel":"Avalanche shovel","Ski-Befestigung am Rucksack":"Ski carry system on backpack","Skihelm oder Kletterhelm mit Skitouren-Norm (EN 1077 + EN 12492)":"ski helmet or climbing helmet with ski-touring certification (EN 1077 + EN 12492)","Tourenrucksack 35–45 l":"Touring backpack 35–45 l","Halbseil oder dünnes Gletscherseil, 30–40 m":"half rope or thin glacier rope, 30–40 m","leichter Skitourengurt, mit Skiern anziehbar":"light ski-touring harness, can be put on with skis","Alu oder Stahl, passend zu den Tourenstiefeln":"aluminium or steel, fitting your touring boots","leichter Tourenpickel":"light touring axe","für Gipfelanstieg und Skidepot":"for the summit climb and ski depot","Bericht ↗":"Bulletin ↗","Erster Tag":"First day","Letzter Tag":"Last day","ab Frühstück":"from breakfast","ab Mittag":"from lunch","nur Abendessen":"dinner only","bis Frühstück":"until breakfast","bis Mittag":"until lunch","bis Abendessen":"until dinner","Vorschlag":"Suggest","Aus dem Plan":"Remove from plan","leicht":"light","für kühle Abende und Nächte draußen":"for cool evenings and nights outside","für Stand und Abseilen":"for belays and rappelling","+ Eigenes Rezept":"+ My own recipe","Eigenes Rezept":"My own recipe","Rezept bearbeiten":"Edit recipe","Bearbeiten":"Edit","+ Zutat":"+ Ingredient","Zutaten":"Ingredients","Zubereitung":"Method","Mahlzeit":"Meal","Kochen":"Cooking","Mengen für":"Amounts for","Portion(en)":"serving(s)","leicht & haltbar (für Rucksack / Bikepacking)":"light & long-lasting (for backpack / bikepacking)","Zurück":"Back","Kein Rezept passt zu diesem Filter.":"No recipe matches this filter.","Essensplan":"Meal plan","Pers.":"ppl.","Rezepte ansehen":"Browse recipes","+ Rezept":"+ Recipe","Vorschlag erstellen":"Suggest a plan","Leeren":"Clear","Rezepte · vegetarisch":"Recipes · vegetarian","Zum Essensplan":"Add to meal plan","Frühstück":"Breakfast","Mittag / unterwegs":"Lunch / on the go","Abendessen":"Dinner","Snack":"Snack","Gaskocher":"Gas stove","Camper-Küche":"Camper kitchen","ohne Kochen":"no cooking","leicht & haltbar":"light & long-lasting","Einkauf (Essensplan)":"Shopping (meal plan)","Küche":"Kitchen","für den Essensplan":"for the meal plan","Gaskocher + Kartusche":"Gas stove + canister","Topf mit Deckel":"Pot with lid","Pfanne":"Pan","Spork / Besteck":"Spork / cutlery","Taschenmesser + Brettchen":"Pocket knife + board","Dosenöffner":"Can opener","Dose mit Deckel":"Container with lid","Grill / Pfanne":"Grill / pan","Aktuellen Essensplan durch einen Vorschlag ersetzen?":"Replace the current meal plan with a suggestion?","Essensplan und Einkaufsliste leeren?":"Clear meal plan and shopping list?","Vegetarische Outdoor-Rezepte auswählen – die Zutaten landen als Einkaufsliste in der Packliste, Kocher & Topf gleich mit.":"Pick vegetarian outdoor recipes – the ingredients go into the packing list as a shopping list, stove & pot included.","gegen Wind und Kälte im Gesicht":"against wind and cold on the face","Sonnen- und Windschutz":"sun and wind protection","Slackline":"Slackline","mit Baumschutz":"with tree protectors","+ Baumgurte":"+ tree straps","Surfhut / Cap mit Kinnband":"Surf hat / cap with chin strap","hält auch bei Wellen":"stays on in the waves","UV sehr hoch":"UV very high","Netzteile auf 100–240 V prüfen":"Check chargers for 100–240 V","Heimatland (2 Buchstaben, z. B. DE, AT, CH):":"Home country (2 letters, e.g. DE, AT, CH):","+ Eigenen Gegenstand hinzufügen":"+ Add your own item","Was?":"What?","In Kategorie":"In category","z. B. Kamera":"e.g. camera","Keine Mail? Bitte auch den Spam-Ordner prüfen.":"No email? Please check your spam folder too.","Wetter wird neu geladen …":"Reloading weather …","Wetter und Liste aktualisiert":"Weather and list updated","Wetterdaten für die neue Sportart ergänzt":"Added weather data for the new sport","Reise geändert – die Liste konnte nicht automatisch angepasst werden.":"Trip changed – the list could not be updated automatically.","Reise geändert – bitte Zeitraum und Sportart-Auswahl prüfen, dann aktualisieren.":"Trip changed – please check dates and sport selection, then update."," · Lawinen: ":" · Avalanches: ","Lawinensonde":"Avalanche probe","Leash":"Leash","Leichte Jacke":"Light jacket","Leichte Mütze":"Light beanie",
 "Leichte Sandalen":"Light sandals","Leichtes Fahrradschloss":"Light bike lock","Lenkerrolle":"Handlebar roll","Licht vorne + hinten":"Front + rear lights","Lippenpflege mit LSF":"Lip balm with SPF",
 "Lokale Notrufnummer":"Local emergency number","Lycra":"Rash guard","Materialschlinge / Gear Sling":"Gear sling","Messer":"Knife","Mikrofaserhandtuch":"Microfibre towel","Minipumpe":"Mini pump",
 "Minipumpe / CO₂":"Mini pump / CO₂","Multitool":"Multitool","Multitool mit Kettennieter":"Multitool with chain breaker","Müllbeutel":"Rubbish bags","Mütze":"Beanie","Neoprenanzug":"Wetsuit",
@@ -2669,17 +2685,27 @@ function setMeal(id,n){
   const ms=(state.meals||[]).filter(m=>m.id!==id);if(n>0)ms.push({id,n:Math.min(30,n)});
   state.meals=ms;applyMeals();
 }
-/* Vorschlag: pro Tag Frühstück + Abendessen (bei Zelt/Camper) und ein Mittag ohne Kochen, passend zur Unterkunft */
+/* Wie viele Mahlzeiten braucht die Reise? Erster Tag ab (z. B. Freitag nachmittags los → nur Abendessen), letzter Tag bis. */
+const MEAL_ORDER=["fr","mi","ab"];
+const START_T={fr:"ab Frühstück",mi:"ab Mittag",ab:"nur Abendessen"}, END_T={fr:"bis Frühstück",mi:"bis Mittag",ab:"bis Abendessen"};
+function mealNeed(t){
+  if(t==="sn"||!state.inputs)return null;
+  const D=Math.max(1,totalDays(state.inputs)), k=MEAL_ORDER.indexOf(t), s=MEAL_ORDER.indexOf(state.mealStart||"fr"), e=MEAL_ORDER.indexOf(state.mealEnd||"ab");
+  if(D===1)return k>=s&&k<=e?1:0;
+  return D-(k<s?1:0)-(k>e?1:0);
+}
+/* Vorschlag: so viele Frühstücke/Mittag/Abendessen wie die Reise braucht, passend zur Unterkunft */
 function suggestMeals(){
   const inp=state.inputs;if(!inp)return;
-  const days=Math.max(1,totalDays(inp)), stays=new Set(inp.legs.map(l=>l.stay)), S=new Set(inp.legs.flatMap(l=>l.sports));
+  const stays=new Set(inp.legs.map(l=>l.stay)), S=new Set(inp.legs.flatMap(l=>l.sports));
   const light=S.has("backpacking")||S.has("bikepacking")||S.has("hochtour")||S.has("skihochtour");
   const cooks=stays.has("camper")?["camper","gas","none"]:(stays.has("zelt")||light)?["gas","none"]:["none"];
   const pick=(t,k)=>{const L=allRecipes().filter(r=>r.t===t&&cooks.includes(r.c)&&(!light||r.l));const out={};
     for(let d=0;d<k&&L.length;d++){const r=L[d%L.length];out[r.id]=(out[r.id]||0)+1;}return out;};
-  const all=[pick("fr",days),pick("mi",days),cooks.length>1?pick("ab",days):{},pick("sn",Math.ceil(days/2))];
+  const D=Math.max(1,totalDays(inp));
+  const all=[pick("fr",mealNeed("fr")),pick("mi",mealNeed("mi")),cooks.length>1?pick("ab",mealNeed("ab")):{},pick("sn",Math.ceil(D/2))];
   const ms=[];all.forEach(o=>Object.entries(o).forEach(([id,n])=>ms.push({id,n})));
-  state.meals=ms;applyMeals();toast("Vorschlag für "+days+(days>1?" Tage":" Tag")+" erstellt – Rezepte nach Lust tauschen",4000);
+  state.meals=ms;applyMeals();toast("Vorschlag erstellt – Rezepte nach Lust tauschen",3000);
 }
 function renderMeals(){
   const box=$("mealBox");if(!box)return;
@@ -2687,20 +2713,30 @@ function renderMeals(){
   const P=mealPersons(), ms=state.meals||[];
   const per=el("input",{type:"number",min:"1",max:"20",inputmode:"numeric",value:String(P),"aria-label":"Personen",class:"meal-persons"});
   per.addEventListener("change",()=>{state.persons=Math.max(1,Math.min(20,Math.round(+per.value)||1));applyMeals();});
+  const mk=(opts,v,key,lab)=>{const s=el("select",{class:"meal-sel","aria-label":lab},...Object.entries(opts).map(([k,t])=>el("option",{value:k},t)));s.value=v;
+    s.addEventListener("change",()=>{state[key]=s.value;save();render();});return s;};
   const head=el("h3",{},el("span",{},"Essensplan"),el("label",{class:"meal-p"},per,el("span",{},"Pers.")));
-  const parts=[head];
+  const days=el("div",{class:"meal-days"},el("span",{class:"hint"},"Erster Tag"),mk(START_T,state.mealStart||"fr","mealStart","Erster Tag"),
+    el("span",{class:"hint"},"Letzter Tag"),mk(END_T,state.mealEnd||"ab","mealEnd","Letzter Tag"));
+  const parts=[head,days];
   if(!ms.length)parts.push(el("p",{class:"hint"},"Vegetarische Outdoor-Rezepte auswählen – die Zutaten landen als Einkaufsliste in der Packliste, Kocher & Topf gleich mit."));
-  const order=["fr","mi","ab","sn"];
-  ms.slice().sort((a,b)=>order.indexOf((recipeById(a.id)||{}).t)-order.indexOf((recipeById(b.id)||{}).t)).forEach(m=>{const r=recipeById(m.id);if(!r)return;
-    const minus=el("button",{type:"button",class:"step","aria-label":"weniger"},"−"), plus=el("button",{type:"button",class:"step","aria-label":"mehr"},"+");
-    minus.addEventListener("click",()=>setMeal(r.id,m.n-1));plus.addEventListener("click",()=>setMeal(r.id,m.n+1));
-    const name=el("button",{type:"button",class:"meal-name"},r.n);name.addEventListener("click",()=>openMealDlg(r.id));
-    parts.push(el("div",{class:"meal-row"},el("span",{class:"meal-t"},MEAL_T[r.t]),name,el("span",{class:"meal-n"},minus,el("b",{},m.n+"×"),plus)));});
+  ["fr","mi","ab","sn"].forEach(t=>{
+    const rows=ms.filter(m=>(recipeById(m.id)||{}).t===t), need=mealNeed(t), have=rows.reduce((a,m)=>a+m.n,0);
+    if(!rows.length&&!need)return;
+    const cnt=need!=null?el("span",{class:"meal-cnt"+(have<need?" low":have>need?" over":"")},have+" / "+need):el("span",{class:"meal-cnt"},have?have+"×":"");
+    const sec=el("div",{class:"meal-sec"},el("div",{class:"meal-sec-h"},el("span",{},MEAL_T[t]),cnt));
+    rows.forEach(m=>{const r=recipeById(m.id);
+      const minus=el("button",{type:"button",class:"step","aria-label":"weniger"},"−"), plus=el("button",{type:"button",class:"step","aria-label":"mehr"},"+");
+      minus.addEventListener("click",()=>setMeal(r.id,m.n-1));plus.addEventListener("click",()=>setMeal(r.id,m.n+1));
+      const name=el("button",{type:"button",class:"meal-name"},r.n);name.addEventListener("click",()=>openMealDlg(r.id));
+      sec.append(el("div",{class:"meal-row"},name,el("span",{class:"meal-n"},minus,el("b",{},m.n+"×"),plus)));});
+    if(!rows.length){const a=el("button",{type:"button",class:"meal-add"},"+ "+MEAL_T[t]+" wählen");a.addEventListener("click",()=>{mealFilter={t,c:""};openMealDlg();});sec.append(a);}
+    parts.push(sec);});
   const add=el("button",{type:"button",class:"btn small"},ms.length?"+ Rezept":"Rezepte ansehen");add.addEventListener("click",()=>openMealDlg());
-  const sug=el("button",{type:"button",class:"btn ghost small"},"Vorschlag erstellen");sug.addEventListener("click",()=>{if(!ms.length||confirm(tr("Aktuellen Essensplan durch einen Vorschlag ersetzen?")))suggestMeals();});
+  const sug=el("button",{type:"button",class:"btn ghost small"},"Vorschlag");sug.addEventListener("click",()=>{if(!ms.length||confirm(tr("Aktuellen Essensplan durch einen Vorschlag ersetzen?")))suggestMeals();});
   const acts=el("div",{class:"meal-acts"},add,sug);
   if(ms.length){const cl=el("button",{type:"button",class:"btn ghost small"},"Leeren");cl.addEventListener("click",()=>{if(confirm(tr("Essensplan und Einkaufsliste leeren?"))){state.meals=[];applyMeals();}});acts.append(cl);
-    const n=state.items.filter(i=>i.src==="meal"&&i.cat===MEAL_CAT).length;parts.push(el("p",{class:"hint"},n+" Zutaten für "+P+(P>1?" Personen":" Person")+" in „"+MEAL_CAT+"“"));}
+    const n=state.items.filter(i=>i.src==="meal"&&i.cat===MEAL_CAT).length;acts.append(el("span",{class:"hint meal-sum"},n+" Zutaten für "+P+(P>1?" Pers.":" Pers.")+" → „Einkauf“"));}
   parts.push(acts);
   box.replaceChildren(...parts);
 }
@@ -2711,22 +2747,26 @@ function openMealDlg(focus){
   const chip=(key,val,lab)=>{const b=el("button",{type:"button",class:"chip-btn"+(mealFilter[key]===val?" on":"")},lab);
     b.addEventListener("click",()=>{mealFilter[key]=mealFilter[key]===val?"":val;openMealDlg();});return b;};
   fb.replaceChildren(el("div",{class:"md-row"},...Object.entries(MEAL_T).map(([k,v])=>chip("t",k,v))),
-    el("div",{class:"md-row"},...Object.entries(COOK_T).map(([k,v])=>chip("c",k,v)),chip("c","light","leicht & haltbar")));
+    el("div",{class:"md-row"},...Object.entries(COOK_T).map(([k,v])=>chip("c",k,v)),chip("c","light","leicht")));
   const L=allRecipes().filter(r=>(!mealFilter.t||r.t===mealFilter.t)&&(!mealFilter.c||(mealFilter.c==="light"?r.l:r.c===mealFilter.c)));
-  list.replaceChildren(...L.map(r=>{const m=(state.meals||[]).find(x=>x.id===r.id), n=m?m.n:0;
+  const card=r=>{const m=(state.meals||[]).find(x=>x.id===r.id), n=m?m.n:0;
     const det=el("details",{class:"md-rec"+(n?" on":"")});if(focus===r.id)det.open=true;
-    det.append(el("summary",{},el("span",{class:"md-name"},r.n,r.own?el("span",{class:"tag"},"eigen"):""),el("span",{class:"md-meta"},[MEAL_T[r.t],COOK_T[r.c],r.m?r.m+" Min.":"",r.l?"leicht":""].filter(Boolean).join(" · "))),
+    const qa=el("button",{type:"button",class:"md-quick"+(n?" on":""),"aria-label":"Zum Essensplan"},n?n+"×":"+");
+    qa.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();setMeal(r.id,n+1);openMealDlg(det.open?r.id:null);});
+    det.append(el("summary",{},el("span",{class:"md-sum"},el("span",{class:"md-name"},r.n,r.own?el("span",{class:"tag"},"eigen"):""),
+        el("span",{class:"md-meta"},[COOK_T[r.c],r.m?r.m+" Min.":"",r.l?"leicht":""].filter(Boolean).join(" · "))),qa),
       el("ul",{class:"md-ing"},...r.i.map(([nm,q,u])=>el("li",{},String(q).replace(".",",")+" "+u+" "+nm))),
       el("p",{class:"md-steps"},r.s),
       el("p",{class:"hint"},"Mengen für 1 Portion"+(r.g.length?" · braucht: "+r.g.join(", "):"")));
-    const add=el("button",{type:"button",class:"btn small"},n?"Noch einmal (+1) – jetzt "+n+"×":"Zum Essensplan");
-    add.addEventListener("click",e=>{e.preventDefault();setMeal(r.id,n+1);openMealDlg(r.id);});
-    det.append(add);
+    if(n){const rm=el("button",{type:"button",class:"btn ghost small"},"Aus dem Plan");rm.addEventListener("click",e=>{e.preventDefault();setMeal(r.id,0);openMealDlg(r.id);});det.append(rm);}
     if(r.own){const ed=el("button",{type:"button",class:"btn ghost small"},"Bearbeiten");ed.addEventListener("click",e=>{e.preventDefault();openRecEditor(r.id);});det.append(" ",ed);}
-    return det;}));
-  const mine=el("button",{type:"button",class:"btn small md-own"},"+ Eigenes Rezept");mine.addEventListener("click",()=>openRecEditor());
-  list.prepend(mine);
-  if(!L.length)list.append(el("p",{class:"hint"},"Kein Rezept passt zu diesem Filter."));
+    return det;};
+  const out=[];
+  const mine=el("button",{type:"button",class:"btn small md-own"},"+ Eigenes Rezept");mine.addEventListener("click",()=>openRecEditor());out.push(mine);
+  ["fr","mi","ab","sn"].forEach(t=>{const g=L.filter(r=>r.t===t);if(!g.length)return;
+    out.push(el("h4",{class:"md-group"},MEAL_T[t]+" ",el("span",{class:"md-gn"},String(g.length))),...g.map(card));});
+  if(!L.length)out.push(el("p",{class:"hint"},"Kein Rezept passt zu diesem Filter."));
+  list.replaceChildren(...out);
   dlg.hidden=false;
 }
 /* Editor für eigene Rezepte (im selben Fenster) */
@@ -2799,7 +2839,7 @@ function tripOf(){
   return{id:state.tripId,title:(state.inputs.legs.map(l=>placeName(l.place)).filter(Boolean).join(" → ")||state.tplName||"Reise").slice(0,120),
     start:iso(r[0].s),end:iso(r[r.length-1].e),inputs,
     items:state.items.map(i=>({cat:i.cat,name:i.name,qty:i.qty||"",note:i.note||"",done:!!i.done,unused:!!i.unused,src:i.src||"base",detail:i.detail||"",grp:i.grp==null?null:!!i.grp})),
-    wx:state.wx||[],catLegs:state.catLegs||{},costs:(state.costs||[]).map(c=>({...c})),people:state.people||[],cur:state.cur||"EUR",meals:state.meals||[],persons:state.persons||0,
+    wx:state.wx||[],catLegs:state.catLegs||{},costs:(state.costs||[]).map(c=>({...c})),people:state.people||[],cur:state.cur||"EUR",meals:state.meals||[],persons:state.persons||0,mealStart:state.mealStart||"",mealEnd:state.mealEnd||"",
     reviewed:!!state.reviewed,shared:state.shared?state.shared.id:null};
 }
 function saveCurrentTrip(){
@@ -2835,7 +2875,7 @@ function loadTrip(t){
   saveCurrentTrip();
   if(state.shared){if(sbChan&&sb)sb.removeChannel(sbChan);sbChan=null;synced=new Map();saveSynced();try{history.replaceState(null,"",location.pathname);}catch(_){}}
   state={...state,inputs:JSON.parse(JSON.stringify(t.inputs)),items:t.items.map(i=>({...i})),wx:t.wx||[],catLegs:t.catLegs||{},tripId:t.id,
-    costs:(t.costs||[]).map(c=>({...c})),people:t.people||[],cur:t.cur||"EUR",meals:(t.meals||[]).map(m=>({...m})),persons:t.persons||0,reviewed:!!t.reviewed,review:false,tplName:"",shared:null};
+    costs:(t.costs||[]).map(c=>({...c})),people:t.people||[],cur:t.cur||"EUR",meals:(t.meals||[]).map(m=>({...m})),persons:t.persons||0,mealStart:t.mealStart||"",mealEnd:t.mealEnd||"",reviewed:!!t.reviewed,review:false,tplName:"",shared:null};
   saveLocal();renderLegs(state.inputs);render();renderTrips();setView("liste");
   if(t.shared)joinShared(t.shared);
 }
