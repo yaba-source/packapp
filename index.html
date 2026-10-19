@@ -139,6 +139,29 @@ ul.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
 .costs h3{font-size:1.15rem;text-transform:uppercase;letter-spacing:.04em;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .costs select,.costs input{font-size:16px}
 .costs h3 select{width:auto;min-width:5.5em}
+.meals h3 .meal-p{display:flex;align-items:center;gap:6px;font-size:.85rem;text-transform:none;letter-spacing:0;font-weight:500;color:var(--muted)}
+.meal-persons{width:4.2em!important;padding:6px 8px!important;text-align:center}
+.meal-row{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"t n" "name n";gap:0 10px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
+.meal-t{grid-area:t;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.meal-name{grid-area:name;background:none;border:0;padding:0;font:inherit;text-align:left;color:var(--ink);cursor:pointer}
+.meal-n{grid-area:n;display:flex;align-items:center;gap:6px}
+.meal-n .step{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--bg);font:inherit;font-size:1.1rem;color:var(--accent);cursor:pointer}
+.meal-acts{display:flex;flex-wrap:wrap;gap:8px}
+.md-filters{display:flex;flex-direction:column;gap:6px}
+.md-row{display:flex;flex-wrap:wrap;gap:6px}
+.chip-btn{font:inherit;font-size:.85rem;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer}
+.chip-btn.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.md-list{display:flex;flex-direction:column;gap:8px}
+.md-rec{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--surface)}
+.md-rec.on{border-color:var(--accent)}
+.md-rec summary{cursor:pointer;list-style:none;display:flex;flex-direction:column;gap:2px}
+.md-rec summary::-webkit-details-marker{display:none}
+.md-name{font-weight:600}
+.md-meta{font-size:.8rem;color:var(--muted)}
+.md-ing{margin:8px 0 4px 18px;font-size:.9rem}
+.md-steps{font-size:.9rem;margin:4px 0}
+.md-rec .btn{margin-top:6px}
+
 .cost-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:4px 0;border-bottom:1px solid var(--line)}
 .cost-row .amt{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
 .cost-row .by{font-size:.8rem;color:var(--muted);display:block}
@@ -487,6 +510,7 @@ table.fc td.num{font-family:var(--f-mono);font-size:.82rem}
 
     <div class="cats" id="cats"></div>
     <section class="costs" id="costBox" hidden></section>
+    <section class="costs meals" id="mealBox" hidden></section>
     <textarea id="copyArea" aria-hidden="true" tabindex="-1" style="position:absolute;left:-9999px;width:1px;height:1px"></textarea>
   </main>
 </div>
@@ -508,6 +532,13 @@ table.fc td.num{font-family:var(--f-mono);font-size:.82rem}
   </div>
 </div>
 
+<div class="cal-backdrop" id="mealDlg" hidden>
+  <div class="cal" role="dialog" aria-modal="true" aria-labelledby="mdTitle">
+    <div class="cal-head"><h2 id="mdTitle">Rezepte · vegetarisch</h2><button class="del" id="mdClose" type="button" aria-label="Schließen">×</button></div>
+    <div id="mdFilters" class="md-filters"></div>
+    <div id="mdList" class="md-list"></div>
+  </div>
+</div>
 <div class="cal-backdrop" id="sportDlg" hidden>
   <div class="cal" role="dialog" aria-modal="true" aria-labelledby="sdTitle">
     <div class="cal-head"><h2 id="sdTitle">Eigene Sportart</h2><button class="del" id="sdClose" type="button" aria-label="Schließen">×</button></div>
@@ -1367,7 +1398,7 @@ function render(){
   document.querySelectorAll(".status,.tools,#addForm").forEach(x=>{x.hidden=empty;});
   if(empty){
     $("signPlace").textContent="Neue Reise";$("signMeta").textContent="Noch nichts eingetragen";
-    $("notes").hidden=true;$("tabCount").textContent="";if($("costBox"))$("costBox").hidden=true;if($("reviewBar"))$("reviewBar").hidden=true;
+    $("notes").hidden=true;$("tabCount").textContent="";if($("costBox"))$("costBox").hidden=true;if($("mealBox"))$("mealBox").hidden=true;if($("reviewBar"))$("reviewBar").hidden=true;
     const logo=document.querySelector(".brand svg"), go=el("button",{type:"button",class:"btn small"},"Reise planen");
     go.addEventListener("click",()=>setView("reise"));
     $("cats").replaceChildren(el("div",{class:"empty-hero"},logo?logo.cloneNode(true):"",el("span",{class:"eh-name"},"packapp"),
@@ -1471,7 +1502,7 @@ function render(){
   const opts=[...new Set([...cats,"Eigene"])];
   sel.replaceChildren(...opts.map(c=>el("option",{value:c},c)));
   if(opts.includes(cur))sel.value=cur;
-  renderShareBar();renderReview();renderCosts();
+  renderShareBar();renderReview();renderCosts();renderMeals();
   updateLegMarkers(false);
 }
 function toast(msg,ms){$("toast").textContent=msg;clearTimeout(toast.t);toast.t=setTimeout(()=>{$("toast").textContent="";},ms||2500);}
@@ -1512,8 +1543,9 @@ async function generate(){
 /* Liste aus Eingaben + Wetter bauen (Haken, eigene Sachen und Vorlagen bleiben) */
 function applyList(inp,wxs){
   const prevDone=new Set(state.items.filter(i=>i.done).map(i=>i.name.toLowerCase()));
-  const custom=state.items.filter(i=>i.src==="custom"||i.src==="tpl");
-  const items=buildBase(mergedInput(inp,wxs)).map(i=>(i.done=prevDone.has(i.name.toLowerCase()),i)).concat(custom);
+  const custom=state.items.filter(i=>i.src==="custom"||i.src==="tpl"||i.src==="meal");
+  const base=buildBase(mergedInput(inp,wxs)).map(i=>(i.done=prevDone.has(i.name.toLowerCase()),i)), baseNames=new Set(base.map(i=>i.name.toLowerCase()));
+  const items=base.concat(custom.filter(i=>i.src!=="meal"||i.cat===MEAL_CAT||!baseNames.has(i.name.toLowerCase())));
   const us=usageStats();items.forEach(i=>{const u=us[i.name.toLowerCase()];i.hint=u&&u.u>0&&u.u/u.n>=0.5?{u:u.u,n:u.n}:null;});
   const catLegs={};
   inp.legs.forEach((l,i)=>{new Set(buildBase(legInput(l,wxs[i])).map(x=>x.cat)).forEach(c=>{(catLegs[c]=catLegs[c]||[]).push(i);});});
@@ -1808,7 +1840,7 @@ const EN={
 "Krankenversicherungskarte":"Health insurance card","Kühlbox + Kühlakkus":"Cooler + ice packs","LVS-Batterien ins Handgepäck":"Transceiver batteries in carry-on","LVS-Gerät":"Avalanche transceiver",
 "Landstrom-Kabel + Adapter":"Shore power cable + adapter","Langarmshirt dünn":"Thin long-sleeve shirt","Lange Hose":"Long trousers","Laufschuhe":"Running shoes","Laufshirt":"Running shirt",
 "Laufshorts / Tights":"Running shorts / tights","Laufuhr + Ladekabel":"Running watch + charger","Laufweste / Soft-Flasks":"Running vest / soft flasks","Lawinenlagebericht-App":"Avalanche bulletin app",
-"Lawinenrucksack mit Airbag":"Avalanche airbag backpack","Lawinenschaufel":"Avalanche shovel","Ski-Befestigung am Rucksack":"Ski carry system on backpack","Skihelm oder Kletterhelm mit Skitouren-Norm (EN 1077 + EN 12492)":"ski helmet or climbing helmet with ski-touring certification (EN 1077 + EN 12492)","Tourenrucksack 35–45 l":"Touring backpack 35–45 l","Halbseil oder dünnes Gletscherseil, 30–40 m":"half rope or thin glacier rope, 30–40 m","leichter Skitourengurt, mit Skiern anziehbar":"light ski-touring harness, can be put on with skis","Alu oder Stahl, passend zu den Tourenstiefeln":"aluminium or steel, fitting your touring boots","leichter Tourenpickel":"light touring axe","für Gipfelanstieg und Skidepot":"for the summit climb and ski depot","Bericht ↗":"Bulletin ↗","gegen Wind und Kälte im Gesicht":"against wind and cold on the face","Sonnen- und Windschutz":"sun and wind protection","Slackline":"Slackline","mit Baumschutz":"with tree protectors","+ Baumgurte":"+ tree straps","Surfhut / Cap mit Kinnband":"Surf hat / cap with chin strap","hält auch bei Wellen":"stays on in the waves","UV sehr hoch":"UV very high","Netzteile auf 100–240 V prüfen":"Check chargers for 100–240 V","Heimatland (2 Buchstaben, z. B. DE, AT, CH):":"Home country (2 letters, e.g. DE, AT, CH):","+ Eigenen Gegenstand hinzufügen":"+ Add your own item","Was?":"What?","In Kategorie":"In category","z. B. Kamera":"e.g. camera","Keine Mail? Bitte auch den Spam-Ordner prüfen.":"No email? Please check your spam folder too.","Wetter wird neu geladen …":"Reloading weather …","Wetter und Liste aktualisiert":"Weather and list updated","Wetterdaten für die neue Sportart ergänzt":"Added weather data for the new sport","Reise geändert – die Liste konnte nicht automatisch angepasst werden.":"Trip changed – the list could not be updated automatically.","Reise geändert – bitte Zeitraum und Sportart-Auswahl prüfen, dann aktualisieren.":"Trip changed – please check dates and sport selection, then update."," · Lawinen: ":" · Avalanches: ","Lawinensonde":"Avalanche probe","Leash":"Leash","Leichte Jacke":"Light jacket","Leichte Mütze":"Light beanie",
+"Lawinenrucksack mit Airbag":"Avalanche airbag backpack","Lawinenschaufel":"Avalanche shovel","Ski-Befestigung am Rucksack":"Ski carry system on backpack","Skihelm oder Kletterhelm mit Skitouren-Norm (EN 1077 + EN 12492)":"ski helmet or climbing helmet with ski-touring certification (EN 1077 + EN 12492)","Tourenrucksack 35–45 l":"Touring backpack 35–45 l","Halbseil oder dünnes Gletscherseil, 30–40 m":"half rope or thin glacier rope, 30–40 m","leichter Skitourengurt, mit Skiern anziehbar":"light ski-touring harness, can be put on with skis","Alu oder Stahl, passend zu den Tourenstiefeln":"aluminium or steel, fitting your touring boots","leichter Tourenpickel":"light touring axe","für Gipfelanstieg und Skidepot":"for the summit climb and ski depot","Bericht ↗":"Bulletin ↗","Essensplan":"Meal plan","Pers.":"ppl.","Rezepte ansehen":"Browse recipes","+ Rezept":"+ Recipe","Vorschlag erstellen":"Suggest a plan","Leeren":"Clear","Rezepte · vegetarisch":"Recipes · vegetarian","Zum Essensplan":"Add to meal plan","Frühstück":"Breakfast","Mittag / unterwegs":"Lunch / on the go","Abendessen":"Dinner","Snack":"Snack","Gaskocher":"Gas stove","Camper-Küche":"Camper kitchen","ohne Kochen":"no cooking","leicht & haltbar":"light & long-lasting","Einkauf (Essensplan)":"Shopping (meal plan)","Küche":"Kitchen","für den Essensplan":"for the meal plan","Gaskocher + Kartusche":"Gas stove + canister","Topf mit Deckel":"Pot with lid","Pfanne":"Pan","Spork / Besteck":"Spork / cutlery","Taschenmesser + Brettchen":"Pocket knife + board","Dosenöffner":"Can opener","Dose mit Deckel":"Container with lid","Grill / Pfanne":"Grill / pan","Aktuellen Essensplan durch einen Vorschlag ersetzen?":"Replace the current meal plan with a suggestion?","Essensplan und Einkaufsliste leeren?":"Clear meal plan and shopping list?","Vegetarische Outdoor-Rezepte auswählen – die Zutaten landen als Einkaufsliste in der Packliste, Kocher & Topf gleich mit.":"Pick vegetarian outdoor recipes – the ingredients go into the packing list as a shopping list, stove & pot included.","gegen Wind und Kälte im Gesicht":"against wind and cold on the face","Sonnen- und Windschutz":"sun and wind protection","Slackline":"Slackline","mit Baumschutz":"with tree protectors","+ Baumgurte":"+ tree straps","Surfhut / Cap mit Kinnband":"Surf hat / cap with chin strap","hält auch bei Wellen":"stays on in the waves","UV sehr hoch":"UV very high","Netzteile auf 100–240 V prüfen":"Check chargers for 100–240 V","Heimatland (2 Buchstaben, z. B. DE, AT, CH):":"Home country (2 letters, e.g. DE, AT, CH):","+ Eigenen Gegenstand hinzufügen":"+ Add your own item","Was?":"What?","In Kategorie":"In category","z. B. Kamera":"e.g. camera","Keine Mail? Bitte auch den Spam-Ordner prüfen.":"No email? Please check your spam folder too.","Wetter wird neu geladen …":"Reloading weather …","Wetter und Liste aktualisiert":"Weather and list updated","Wetterdaten für die neue Sportart ergänzt":"Added weather data for the new sport","Reise geändert – die Liste konnte nicht automatisch angepasst werden.":"Trip changed – the list could not be updated automatically.","Reise geändert – bitte Zeitraum und Sportart-Auswahl prüfen, dann aktualisieren.":"Trip changed – please check dates and sport selection, then update."," · Lawinen: ":" · Avalanches: ","Lawinensonde":"Avalanche probe","Leash":"Leash","Leichte Jacke":"Light jacket","Leichte Mütze":"Light beanie",
 "Leichte Sandalen":"Light sandals","Leichtes Fahrradschloss":"Light bike lock","Lenkerrolle":"Handlebar roll","Licht vorne + hinten":"Front + rear lights","Lippenpflege mit LSF":"Lip balm with SPF",
 "Lokale Notrufnummer":"Local emergency number","Lycra":"Rash guard","Materialschlinge / Gear Sling":"Gear sling","Messer":"Knife","Mikrofaserhandtuch":"Microfibre towel","Minipumpe":"Mini pump",
 "Minipumpe / CO₂":"Mini pump / CO₂","Multitool":"Multitool","Multitool mit Kettennieter":"Multitool with chain breaker","Müllbeutel":"Rubbish bags","Mütze":"Beanie","Neoprenanzug":"Wetsuit",
@@ -2557,6 +2589,127 @@ function initShare(){
   addEventListener("hashchange",()=>{const h=location.hash.match(/^#l=([0-9a-f-]{36})$/i);if(h)joinShared(h[1].toLowerCase());});
 }
 
+/* ---------- Essensplan: eigene vegetarische Outdoor-Rezepte (offline, ohne API) ----------
+   Mengen pro Portion. cook: gas = Gaskocher/1 Topf, camper = Camper-Küche (Pfanne, 2 Flammen), none = ohne Kochen.
+   light = leicht und haltbar (Rucksack, Bikepacking). */
+const MEAL_T={fr:"Frühstück",mi:"Mittag / unterwegs",ab:"Abendessen",sn:"Snack"};
+const COOK_T={gas:"Gaskocher",camper:"Camper-Küche",none:"ohne Kochen"};
+const RECIPES=[
+  {id:"porridge",n:"Porridge mit Nüssen & Beeren",t:"fr",c:"gas",l:1,m:10,i:[["Haferflocken",80,"g"],["Milchpulver",25,"g"],["Nüsse",20,"g"],["Trockenbeeren",20,"g"],["Honig",15,"g"]],s:"Haferflocken, Milchpulver und 250 ml Wasser aufkochen, 3 Min. rühren. Nüsse, Beeren und Honig drüber.",g:["Topf mit Deckel"]},
+  {id:"muesli",n:"Müsli mit Milchpulver",t:"fr",c:"none",l:1,m:3,i:[["Müsli",90,"g"],["Milchpulver",25,"g"]],s:"Milchpulver mit 200 ml kaltem Wasser anrühren und übers Müsli.",g:[]},
+  {id:"oats",n:"Overnight Oats",t:"fr",c:"none",l:1,m:5,i:[["Haferflocken",70,"g"],["Milchpulver",25,"g"],["Chiasamen",10,"g"],["Trockenobst",30,"g"]],s:"Abends alles mit 200 ml Wasser in einer Dose mischen, über Nacht quellen lassen.",g:["Dose mit Deckel"]},
+  {id:"ruehrei",n:"Rührei mit Brot",t:"fr",c:"camper",l:0,m:10,i:[["Eier",2,"Stk"],["Butter",10,"g"],["Brot",100,"g"],["Schnittlauch / Kräuter",5,"g"]],s:"Eier verquirlen, in Butter bei mittlerer Hitze stocken lassen, salzen. Mit Brot.",g:["Pfanne"]},
+  {id:"pancakes",n:"Pancakes",t:"fr",c:"camper",l:0,m:20,i:[["Mehl",60,"g"],["Eier",1,"Stk"],["Milch",100,"ml"],["Öl",10,"ml"],["Ahornsirup",20,"ml"]],s:"Mehl, Ei und Milch glatt rühren. Kleine Pancakes in wenig Öl ausbacken, mit Sirup.",g:["Pfanne"]},
+  {id:"brotzeitfr",n:"Brot mit Käse & Aufstrich",t:"fr",c:"none",l:0,m:5,i:[["Brot",120,"g"],["Käse",50,"g"],["Veggie-Aufstrich",40,"g"],["Tomaten",1,"Stk"]],s:"Belegen, fertig.",g:["Taschenmesser + Brettchen"]},
+  {id:"wraphummus",n:"Wraps mit Hummus & Gemüse",t:"mi",c:"none",l:0,m:10,i:[["Tortilla-Wraps",2,"Stk"],["Hummus",60,"g"],["Paprika",0.5,"Stk"],["Gurke",0.25,"Stk"],["Feta",40,"g"]],s:"Wraps mit Hummus bestreichen, Gemüse in Streifen und Feta drauf, einrollen.",g:["Taschenmesser + Brettchen"]},
+  {id:"brotzeit",n:"Brotzeit",t:"mi",c:"none",l:0,m:5,i:[["Brot",100,"g"],["Käse",60,"g"],["Tomaten",1,"Stk"],["Karotten",1,"Stk"],["Nüsse",20,"g"]],s:"Auspacken, aufschneiden, genießen.",g:["Taschenmesser + Brettchen"]},
+  {id:"couscoussalat",n:"Couscous-Salat mit Feta",t:"mi",c:"gas",l:1,m:10,i:[["Couscous",80,"g"],["Tomaten",1,"Stk"],["Gurke",0.25,"Stk"],["Feta",50,"g"],["Olivenöl",10,"ml"],["Gemüsebrühe",0.25,"Würfel"]],s:"Couscous mit gleicher Menge kochendem Wasser + Brühe übergießen, 5 Min. quellen. Gemüse, Feta und Öl unterheben. Schmeckt auch kalt.",g:["Topf mit Deckel"]},
+  {id:"wrapbohnen",n:"Bohnen-Mais-Wrap",t:"mi",c:"none",l:0,m:10,i:[["Tortilla-Wraps",2,"Stk"],["Kidneybohnen",0.25,"Dose"],["Mais",0.25,"Dose"],["Frischkäse",30,"g"],["Salsa",30,"g"]],s:"Bohnen und Mais abtropfen, mit Frischkäse und Salsa in die Wraps.",g:["Dosenöffner"]},
+  {id:"trailmix",n:"Trail-Mix & Riegel",t:"sn",c:"none",l:1,m:0,i:[["Nüsse",50,"g"],["Trockenobst",50,"g"],["Schokolade",30,"g"],["Müsliriegel",2,"Stk"]],s:"Für unterwegs in die Deckeltasche.",g:[]},
+  {id:"couscous",n:"Couscous mit Kichererbsen & Paprika",t:"ab",c:"gas",l:1,m:15,i:[["Couscous",100,"g"],["Kichererbsen",0.5,"Dose"],["Paprika",0.5,"Stk"],["Zwiebeln",0.5,"Stk"],["Gemüsebrühe",0.5,"Würfel"],["Ras el Hanout / Paprikapulver",1,"TL"]],s:"Zwiebel und Paprika kurz anbraten, Kichererbsen und Gewürz dazu. 120 ml Wasser + Brühe aufkochen, Couscous einrühren, Deckel drauf, 5 Min. ziehen lassen.",g:["Topf mit Deckel"]},
+  {id:"ramen",n:"Ramen-Upgrade",t:"ab",c:"gas",l:1,m:10,i:[["Instant-Ramen (vegetarisch)",1,"Pck"],["Eier",1,"Stk"],["Frühlingszwiebeln",1,"Stk"],["Erdnussbutter",15,"g"],["Sojasauce",10,"ml"]],s:"Nudeln kochen, Ei 6 Min. mitkochen. Erdnussbutter und Sojasauce in die Brühe rühren, Frühlingszwiebel drüber.",g:["Topf mit Deckel"]},
+  {id:"pesto",n:"Pasta Pesto mit getrockneten Tomaten",t:"ab",c:"gas",l:1,m:15,i:[["Pasta",125,"g"],["Pesto",50,"g"],["Parmesan (vegetarisch)",20,"g"],["Getrocknete Tomaten",20,"g"]],s:"Pasta in wenig Wasser kochen (spart Gas), abgießen, Pesto und klein geschnittene Tomaten unterrühren, Käse drüber.",g:["Topf mit Deckel"]},
+  {id:"dal",n:"Rote-Linsen-Dal",t:"ab",c:"gas",l:1,m:20,i:[["Rote Linsen",90,"g"],["Kokosmilch",0.25,"Dose"],["Currypulver",1,"TL"],["Zwiebeln",0.5,"Stk"],["Fladenbrot",0.5,"Stk"]],s:"Zwiebel anschwitzen, Curry kurz mitrösten. Linsen mit 300 ml Wasser 12 Min. köcheln, Kokosmilch dazu, salzen. Mit Fladenbrot.",g:["Topf mit Deckel"]},
+  {id:"risotto",n:"Pilzrisotto",t:"ab",c:"gas",l:1,m:25,i:[["Risotto-Reis",90,"g"],["Getrocknete Pilze",10,"g"],["Gemüsebrühe",0.5,"Würfel"],["Parmesan (vegetarisch)",20,"g"],["Butter",10,"g"]],s:"Pilze einweichen. Reis in Butter glasig, nach und nach Pilzwasser + Brühe (ca. 300 ml) zugeben und rühren, bis er cremig ist. Käse unterrühren.",g:["Topf mit Deckel"]},
+  {id:"puree",n:"Kartoffelbrei mit Röstzwiebeln & Erbsen",t:"ab",c:"gas",l:1,m:10,i:[["Kartoffelpüree (Pulver)",60,"g"],["Milchpulver",15,"g"],["Erbsen (gefriergetrocknet oder Dose)",50,"g"],["Röstzwiebeln",15,"g"],["Käse",30,"g"]],s:"Wasser aufkochen, Erbsen 2 Min. mitkochen, vom Feuer nehmen, Püree- und Milchpulver einrühren. Käse und Röstzwiebeln drauf.",g:["Topf mit Deckel"]},
+  {id:"trekking",n:"Trekkingmahlzeit (gefriergetrocknet)",t:"ab",c:"gas",l:1,m:10,i:[["Gefriergetrocknete Mahlzeit (vegetarisch)",1,"Pck"]],s:"Kochendes Wasser in den Beutel, umrühren, 8 Min. warten.",g:["Topf mit Deckel"]},
+  {id:"chili",n:"Chili sin Carne mit Reis",t:"ab",c:"camper",l:0,m:30,i:[["Kidneybohnen",0.5,"Dose"],["Mais",0.25,"Dose"],["Gehackte Tomaten",0.5,"Dose"],["Zwiebeln",0.5,"Stk"],["Reis",75,"g"],["Chilipulver / Kreuzkümmel",1,"TL"]],s:"Reis kochen. Zwiebel anbraten, Tomaten, Bohnen, Mais und Gewürze 15 Min. köcheln, salzen.",g:["Topf mit Deckel","Pfanne","Dosenöffner"]},
+  {id:"kaiserschmarrn",n:"Kaiserschmarrn mit Apfelmus",t:"ab",c:"camper",l:0,m:25,i:[["Mehl",70,"g"],["Eier",2,"Stk"],["Milch",120,"ml"],["Zucker",15,"g"],["Rosinen",20,"g"],["Butter",15,"g"],["Apfelmus",100,"g"]],s:"Teig rühren, in Butter dick einfüllen, wenden, mit zwei Gabeln zerreißen, Rosinen und Zucker dazu, kurz karamellisieren. Mit Apfelmus.",g:["Pfanne"]},
+  {id:"gnocchi",n:"Gnocchi in Tomatensauce mit Mozzarella",t:"ab",c:"camper",l:0,m:15,i:[["Gnocchi",200,"g"],["Passierte Tomaten",150,"ml"],["Mozzarella",0.5,"Stk"],["Knoblauch",1,"Zehe"],["Olivenöl",10,"ml"]],s:"Gnocchi in Öl goldbraun braten, Knoblauch und Tomaten dazu, 5 Min. köcheln, Mozzarella zerzupft drauf.",g:["Pfanne"]},
+  {id:"tortellini",n:"Spinat-Tortellini in Sahnesauce",t:"ab",c:"camper",l:0,m:15,i:[["Tortellini (Käse/Spinat)",200,"g"],["Sahne",60,"ml"],["Parmesan (vegetarisch)",15,"g"],["Babyspinat",30,"g"]],s:"Tortellini kochen, abgießen, Sahne und Spinat dazu, kurz einkochen, Käse drüber.",g:["Topf mit Deckel"]},
+  {id:"halloumi",n:"Halloumi-Grillabend",t:"ab",c:"camper",l:0,m:25,i:[["Halloumi",125,"g"],["Maiskolben",1,"Stk"],["Baguette",0.5,"Stk"],["Paprika",0.5,"Stk"],["Kräuterquark",50,"g"]],s:"Halloumi in Scheiben, Paprika und Mais grillen oder in der Pfanne braten. Mit Baguette und Quark.",g:["Grill / Pfanne"]},
+  {id:"pizzawrap",n:"Pfannen-Pizza aus Wraps",t:"ab",c:"camper",l:0,m:15,i:[["Tortilla-Wraps",2,"Stk"],["Tomatenmark",25,"g"],["Käse",60,"g"],["Paprika",0.5,"Stk"],["Oliven",20,"g"]],s:"Wrap mit Tomatenmark bestreichen, belegen, Käse drüber, bei kleiner Hitze mit Deckel 5 Min. in der Pfanne backen.",g:["Pfanne"]}
+];
+const recipeById=id=>RECIPES.find(r=>r.id===id);
+const GEAR_BASE={gas:["Gaskocher + Kartusche","Feuerzeug","Spork / Besteck"],camper:["Feuerzeug"],none:[]};
+/* Menge hübsch runden: g/ml auf 10 (ab 100) bzw. 5, Stück/Dosen/Packungen aufrunden */
+function niceQty(v,u){if(["g","ml"].includes(u)){const st=v>=100?10:5;return Math.max(st,Math.round(v/st)*st);}
+  if(["TL","EL"].includes(u))return Math.max(1,Math.ceil(v));return Math.ceil(v-1e-9);}
+function mealPersons(){return Math.max(1,Math.min(20,+state.persons||(state.shared?(state.shared.members||[]).length:0)||(state.people||[]).length||1));}
+/* Zutaten aller Rezepte × Portionen addieren, Ausrüstung sammeln */
+function mealShopping(){
+  const P=mealPersons(), sum=new Map(), gear=new Set();
+  (state.meals||[]).forEach(m=>{const r=recipeById(m.id);if(!r)return;
+    r.i.forEach(([name,q,u])=>{const k=name+"|"+u, o=sum.get(k)||{name,u,q:0,for:new Set()};o.q+=q*P*m.n;o.for.add(r.n);sum.set(k,o);});
+    (GEAR_BASE[r.c]||[]).concat(r.g).forEach(x=>gear.add(x));});
+  return{P,ings:[...sum.values()].map(o=>({name:o.name,amount:niceQty(o.q,o.u)+" "+o.u,for:[...o.for]})),gear:[...gear]};
+}
+const MEAL_CAT="Einkauf (Essensplan)", MEAL_GEAR_CAT="Küche";
+/* Einkaufs- und Küchen-Einträge in der Packliste neu aufbauen; Haken bleiben erhalten */
+function applyMeals(){
+  const done=new Set(state.items.filter(i=>i.src==="meal"&&i.done).map(i=>i.name.toLowerCase()));
+  state.items=state.items.filter(i=>i.src!=="meal");
+  const have=new Set(state.items.map(i=>i.name.toLowerCase())), hasKit=state.items.some(i=>/kochgeschirr/i.test(i.name));
+  const {ings,gear}=mealShopping();
+  gear.forEach(g=>{if(have.has(g.toLowerCase())||(hasKit&&/Topf|Pfanne|Besteck|Spork/.test(g)))return;
+    state.items.push({cat:MEAL_GEAR_CAT,name:g,qty:"",note:"für den Essensplan",src:"meal",done:done.has(g.toLowerCase())});});
+  ings.forEach(x=>state.items.push({cat:MEAL_CAT,name:x.name,qty:"",note:x.amount+" – für "+x.for.join(", "),src:"meal",done:done.has(x.name.toLowerCase())}));
+  save();render();
+}
+function setMeal(id,n){
+  const ms=(state.meals||[]).filter(m=>m.id!==id);if(n>0)ms.push({id,n:Math.min(30,n)});
+  state.meals=ms;applyMeals();
+}
+/* Vorschlag: pro Tag Frühstück + Abendessen (bei Zelt/Camper) und ein Mittag ohne Kochen, passend zur Unterkunft */
+function suggestMeals(){
+  const inp=state.inputs;if(!inp)return;
+  const days=Math.max(1,totalDays(inp)), stays=new Set(inp.legs.map(l=>l.stay)), S=new Set(inp.legs.flatMap(l=>l.sports));
+  const light=S.has("backpacking")||S.has("bikepacking")||S.has("hochtour")||S.has("skihochtour");
+  const cooks=stays.has("camper")?["camper","gas","none"]:(stays.has("zelt")||light)?["gas","none"]:["none"];
+  const pick=(t,k)=>{const L=RECIPES.filter(r=>r.t===t&&cooks.includes(r.c)&&(!light||r.l));const out={};
+    for(let d=0;d<k&&L.length;d++){const r=L[d%L.length];out[r.id]=(out[r.id]||0)+1;}return out;};
+  const all=[pick("fr",days),pick("mi",days),cooks.length>1?pick("ab",days):{},pick("sn",Math.ceil(days/2))];
+  const ms=[];all.forEach(o=>Object.entries(o).forEach(([id,n])=>ms.push({id,n})));
+  state.meals=ms;applyMeals();toast("Vorschlag für "+days+(days>1?" Tage":" Tag")+" erstellt – Rezepte nach Lust tauschen",4000);
+}
+function renderMeals(){
+  const box=$("mealBox");if(!box)return;
+  box.hidden=!state.items.length;if(box.hidden)return;
+  const P=mealPersons(), ms=state.meals||[];
+  const per=el("input",{type:"number",min:"1",max:"20",inputmode:"numeric",value:String(P),"aria-label":"Personen",class:"meal-persons"});
+  per.addEventListener("change",()=>{state.persons=Math.max(1,Math.min(20,Math.round(+per.value)||1));applyMeals();});
+  const head=el("h3",{},el("span",{},"Essensplan"),el("label",{class:"meal-p"},per,el("span",{},"Pers.")));
+  const parts=[head];
+  if(!ms.length)parts.push(el("p",{class:"hint"},"Vegetarische Outdoor-Rezepte auswählen – die Zutaten landen als Einkaufsliste in der Packliste, Kocher & Topf gleich mit."));
+  const order=["fr","mi","ab","sn"];
+  ms.slice().sort((a,b)=>order.indexOf((recipeById(a.id)||{}).t)-order.indexOf((recipeById(b.id)||{}).t)).forEach(m=>{const r=recipeById(m.id);if(!r)return;
+    const minus=el("button",{type:"button",class:"step","aria-label":"weniger"},"−"), plus=el("button",{type:"button",class:"step","aria-label":"mehr"},"+");
+    minus.addEventListener("click",()=>setMeal(r.id,m.n-1));plus.addEventListener("click",()=>setMeal(r.id,m.n+1));
+    const name=el("button",{type:"button",class:"meal-name"},r.n);name.addEventListener("click",()=>openMealDlg(r.id));
+    parts.push(el("div",{class:"meal-row"},el("span",{class:"meal-t"},MEAL_T[r.t]),name,el("span",{class:"meal-n"},minus,el("b",{},m.n+"×"),plus)));});
+  const add=el("button",{type:"button",class:"btn small"},ms.length?"+ Rezept":"Rezepte ansehen");add.addEventListener("click",()=>openMealDlg());
+  const sug=el("button",{type:"button",class:"btn ghost small"},"Vorschlag erstellen");sug.addEventListener("click",()=>{if(!ms.length||confirm(tr("Aktuellen Essensplan durch einen Vorschlag ersetzen?")))suggestMeals();});
+  const acts=el("div",{class:"meal-acts"},add,sug);
+  if(ms.length){const cl=el("button",{type:"button",class:"btn ghost small"},"Leeren");cl.addEventListener("click",()=>{if(confirm(tr("Essensplan und Einkaufsliste leeren?"))){state.meals=[];applyMeals();}});acts.append(cl);
+    const n=state.items.filter(i=>i.src==="meal"&&i.cat===MEAL_CAT).length;parts.push(el("p",{class:"hint"},n+" Zutaten für "+P+(P>1?" Personen":" Person")+" in „"+MEAL_CAT+"“"));}
+  parts.push(acts);
+  box.replaceChildren(...parts);
+}
+let mealFilter={t:"",c:""};
+function openMealDlg(focus){
+  const dlg=$("mealDlg"), list=$("mdList"), fb=$("mdFilters");
+  const chip=(key,val,lab)=>{const b=el("button",{type:"button",class:"chip-btn"+(mealFilter[key]===val?" on":"")},lab);
+    b.addEventListener("click",()=>{mealFilter[key]=mealFilter[key]===val?"":val;openMealDlg();});return b;};
+  fb.replaceChildren(el("div",{class:"md-row"},...Object.entries(MEAL_T).map(([k,v])=>chip("t",k,v))),
+    el("div",{class:"md-row"},...Object.entries(COOK_T).map(([k,v])=>chip("c",k,v)),chip("c","light","leicht & haltbar")));
+  const L=RECIPES.filter(r=>(!mealFilter.t||r.t===mealFilter.t)&&(!mealFilter.c||(mealFilter.c==="light"?r.l:r.c===mealFilter.c)));
+  list.replaceChildren(...L.map(r=>{const m=(state.meals||[]).find(x=>x.id===r.id), n=m?m.n:0;
+    const det=el("details",{class:"md-rec"+(n?" on":"")});if(focus===r.id)det.open=true;
+    det.append(el("summary",{},el("span",{class:"md-name"},r.n),el("span",{class:"md-meta"},[MEAL_T[r.t],COOK_T[r.c],r.m?r.m+" Min.":"",r.l?"leicht":""].filter(Boolean).join(" · "))),
+      el("ul",{class:"md-ing"},...r.i.map(([nm,q,u])=>el("li",{},String(q).replace(".",",")+" "+u+" "+nm))),
+      el("p",{class:"md-steps"},r.s),
+      el("p",{class:"hint"},"Mengen für 1 Portion"+(r.g.length?" · braucht: "+r.g.join(", "):"")));
+    const add=el("button",{type:"button",class:"btn small"},n?"Noch einmal (+1) – jetzt "+n+"×":"Zum Essensplan");
+    add.addEventListener("click",e=>{e.preventDefault();setMeal(r.id,n+1);openMealDlg(r.id);});
+    det.append(add);return det;}));
+  dlg.hidden=false;
+}
+function initMeals(){
+  $("mdClose").addEventListener("click",()=>{$("mealDlg").hidden=true;});
+  $("mealDlg").addEventListener("click",e=>{if(e.target===$("mealDlg"))$("mealDlg").hidden=true;});
+  $("mealDlg").addEventListener("keydown",e=>{if(e.key==="Escape")$("mealDlg").hidden=true;});
+}
+
 /* ---------- Meine Reisen: jede Liste wird automatisch archiviert ---------- */
 const TRIPS_L="packapp.trips", TOMBS_L="packapp.tombs", ACCT_L="packapp.acct";
 let trips=[], tombs={};
@@ -2574,7 +2727,7 @@ function tripOf(){
   return{id:state.tripId,title:(state.inputs.legs.map(l=>placeName(l.place)).filter(Boolean).join(" → ")||state.tplName||"Reise").slice(0,120),
     start:iso(r[0].s),end:iso(r[r.length-1].e),inputs,
     items:state.items.map(i=>({cat:i.cat,name:i.name,qty:i.qty||"",note:i.note||"",done:!!i.done,unused:!!i.unused,src:i.src||"base",detail:i.detail||"",grp:i.grp==null?null:!!i.grp})),
-    wx:state.wx||[],catLegs:state.catLegs||{},costs:(state.costs||[]).map(c=>({...c})),people:state.people||[],cur:state.cur||"EUR",
+    wx:state.wx||[],catLegs:state.catLegs||{},costs:(state.costs||[]).map(c=>({...c})),people:state.people||[],cur:state.cur||"EUR",meals:state.meals||[],persons:state.persons||0,
     reviewed:!!state.reviewed,shared:state.shared?state.shared.id:null};
 }
 function saveCurrentTrip(){
@@ -2610,7 +2763,7 @@ function loadTrip(t){
   saveCurrentTrip();
   if(state.shared){if(sbChan&&sb)sb.removeChannel(sbChan);sbChan=null;synced=new Map();saveSynced();try{history.replaceState(null,"",location.pathname);}catch(_){}}
   state={...state,inputs:JSON.parse(JSON.stringify(t.inputs)),items:t.items.map(i=>({...i})),wx:t.wx||[],catLegs:t.catLegs||{},tripId:t.id,
-    costs:(t.costs||[]).map(c=>({...c})),people:t.people||[],cur:t.cur||"EUR",reviewed:!!t.reviewed,review:false,tplName:"",shared:null};
+    costs:(t.costs||[]).map(c=>({...c})),people:t.people||[],cur:t.cur||"EUR",meals:(t.meals||[]).map(m=>({...m})),persons:t.persons||0,reviewed:!!t.reviewed,review:false,tplName:"",shared:null};
   saveLocal();renderLegs(state.inputs);render();renderTrips();setView("liste");
   if(t.shared)joinShared(t.shared);
 }
@@ -2820,7 +2973,7 @@ function init(){
   try{matchMedia("(max-width: 860px)").addEventListener("change",()=>{if(map)setTimeout(()=>map.invalidateSize(),0);});}catch(_){}
   $("mapToggle").addEventListener("click",()=>{state.mapHidden=!state.mapHidden;save();setMapHidden(state.mapHidden);});
 
-  initCal();initSportDlg();initI18n();
+  initCal();initSportDlg();initMeals();initI18n();
   loadTpls();renderTpls();$("tplSave").addEventListener("click",saveAsTpl);
   const th=location.hash.match(/^#t=([zj][A-Za-z0-9_-]+)$/);if(th)importTpl(th[1]);
   addEventListener("hashchange",()=>{const h=location.hash.match(/^#t=([zj][A-Za-z0-9_-]+)$/);if(h)importTpl(h[1]);});
