@@ -161,6 +161,16 @@ ul.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
 .md-ing{margin:8px 0 4px 18px;font-size:.9rem}
 .md-steps{font-size:.9rem;margin:4px 0}
 .md-rec .btn{margin-top:6px}
+.md-own{align-self:flex-start}
+.rec-grid{display:grid;grid-template-columns:1fr 1fr 5em;gap:8px}
+.rec-light{display:flex;gap:8px;align-items:center;font-size:.9rem}
+.rec-por{display:flex;align-items:center;gap:6px;font-size:.9rem;color:var(--muted)}
+.rec-por input{width:4em}
+.rec-ings{display:flex;flex-direction:column;gap:6px}
+.rec-ing{display:grid;grid-template-columns:minmax(0,1fr) 5em 5.5em 32px;gap:6px;align-items:center}
+.cal textarea{font:inherit;font-size:16px;width:100%;border:1px solid var(--line);border-radius:6px;padding:9px 10px;background:var(--bg);color:var(--ink)}
+.cal select,.cal input{font-size:16px}
+
 
 .cost-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:8px;align-items:center;padding:4px 0;border-bottom:1px solid var(--line)}
 .cost-row .amt{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -1840,7 +1850,7 @@ const EN={
 "Krankenversicherungskarte":"Health insurance card","Kühlbox + Kühlakkus":"Cooler + ice packs","LVS-Batterien ins Handgepäck":"Transceiver batteries in carry-on","LVS-Gerät":"Avalanche transceiver",
 "Landstrom-Kabel + Adapter":"Shore power cable + adapter","Langarmshirt dünn":"Thin long-sleeve shirt","Lange Hose":"Long trousers","Laufschuhe":"Running shoes","Laufshirt":"Running shirt",
 "Laufshorts / Tights":"Running shorts / tights","Laufuhr + Ladekabel":"Running watch + charger","Laufweste / Soft-Flasks":"Running vest / soft flasks","Lawinenlagebericht-App":"Avalanche bulletin app",
-"Lawinenrucksack mit Airbag":"Avalanche airbag backpack","Lawinenschaufel":"Avalanche shovel","Ski-Befestigung am Rucksack":"Ski carry system on backpack","Skihelm oder Kletterhelm mit Skitouren-Norm (EN 1077 + EN 12492)":"ski helmet or climbing helmet with ski-touring certification (EN 1077 + EN 12492)","Tourenrucksack 35–45 l":"Touring backpack 35–45 l","Halbseil oder dünnes Gletscherseil, 30–40 m":"half rope or thin glacier rope, 30–40 m","leichter Skitourengurt, mit Skiern anziehbar":"light ski-touring harness, can be put on with skis","Alu oder Stahl, passend zu den Tourenstiefeln":"aluminium or steel, fitting your touring boots","leichter Tourenpickel":"light touring axe","für Gipfelanstieg und Skidepot":"for the summit climb and ski depot","Bericht ↗":"Bulletin ↗","Essensplan":"Meal plan","Pers.":"ppl.","Rezepte ansehen":"Browse recipes","+ Rezept":"+ Recipe","Vorschlag erstellen":"Suggest a plan","Leeren":"Clear","Rezepte · vegetarisch":"Recipes · vegetarian","Zum Essensplan":"Add to meal plan","Frühstück":"Breakfast","Mittag / unterwegs":"Lunch / on the go","Abendessen":"Dinner","Snack":"Snack","Gaskocher":"Gas stove","Camper-Küche":"Camper kitchen","ohne Kochen":"no cooking","leicht & haltbar":"light & long-lasting","Einkauf (Essensplan)":"Shopping (meal plan)","Küche":"Kitchen","für den Essensplan":"for the meal plan","Gaskocher + Kartusche":"Gas stove + canister","Topf mit Deckel":"Pot with lid","Pfanne":"Pan","Spork / Besteck":"Spork / cutlery","Taschenmesser + Brettchen":"Pocket knife + board","Dosenöffner":"Can opener","Dose mit Deckel":"Container with lid","Grill / Pfanne":"Grill / pan","Aktuellen Essensplan durch einen Vorschlag ersetzen?":"Replace the current meal plan with a suggestion?","Essensplan und Einkaufsliste leeren?":"Clear meal plan and shopping list?","Vegetarische Outdoor-Rezepte auswählen – die Zutaten landen als Einkaufsliste in der Packliste, Kocher & Topf gleich mit.":"Pick vegetarian outdoor recipes – the ingredients go into the packing list as a shopping list, stove & pot included.","gegen Wind und Kälte im Gesicht":"against wind and cold on the face","Sonnen- und Windschutz":"sun and wind protection","Slackline":"Slackline","mit Baumschutz":"with tree protectors","+ Baumgurte":"+ tree straps","Surfhut / Cap mit Kinnband":"Surf hat / cap with chin strap","hält auch bei Wellen":"stays on in the waves","UV sehr hoch":"UV very high","Netzteile auf 100–240 V prüfen":"Check chargers for 100–240 V","Heimatland (2 Buchstaben, z. B. DE, AT, CH):":"Home country (2 letters, e.g. DE, AT, CH):","+ Eigenen Gegenstand hinzufügen":"+ Add your own item","Was?":"What?","In Kategorie":"In category","z. B. Kamera":"e.g. camera","Keine Mail? Bitte auch den Spam-Ordner prüfen.":"No email? Please check your spam folder too.","Wetter wird neu geladen …":"Reloading weather …","Wetter und Liste aktualisiert":"Weather and list updated","Wetterdaten für die neue Sportart ergänzt":"Added weather data for the new sport","Reise geändert – die Liste konnte nicht automatisch angepasst werden.":"Trip changed – the list could not be updated automatically.","Reise geändert – bitte Zeitraum und Sportart-Auswahl prüfen, dann aktualisieren.":"Trip changed – please check dates and sport selection, then update."," · Lawinen: ":" · Avalanches: ","Lawinensonde":"Avalanche probe","Leash":"Leash","Leichte Jacke":"Light jacket","Leichte Mütze":"Light beanie",
+"Lawinenrucksack mit Airbag":"Avalanche airbag backpack","Lawinenschaufel":"Avalanche shovel","Ski-Befestigung am Rucksack":"Ski carry system on backpack","Skihelm oder Kletterhelm mit Skitouren-Norm (EN 1077 + EN 12492)":"ski helmet or climbing helmet with ski-touring certification (EN 1077 + EN 12492)","Tourenrucksack 35–45 l":"Touring backpack 35–45 l","Halbseil oder dünnes Gletscherseil, 30–40 m":"half rope or thin glacier rope, 30–40 m","leichter Skitourengurt, mit Skiern anziehbar":"light ski-touring harness, can be put on with skis","Alu oder Stahl, passend zu den Tourenstiefeln":"aluminium or steel, fitting your touring boots","leichter Tourenpickel":"light touring axe","für Gipfelanstieg und Skidepot":"for the summit climb and ski depot","Bericht ↗":"Bulletin ↗","+ Eigenes Rezept":"+ My own recipe","Eigenes Rezept":"My own recipe","Rezept bearbeiten":"Edit recipe","Bearbeiten":"Edit","+ Zutat":"+ Ingredient","Zutaten":"Ingredients","Zubereitung":"Method","Mahlzeit":"Meal","Kochen":"Cooking","Mengen für":"Amounts for","Portion(en)":"serving(s)","leicht & haltbar (für Rucksack / Bikepacking)":"light & long-lasting (for backpack / bikepacking)","Zurück":"Back","Kein Rezept passt zu diesem Filter.":"No recipe matches this filter.","Essensplan":"Meal plan","Pers.":"ppl.","Rezepte ansehen":"Browse recipes","+ Rezept":"+ Recipe","Vorschlag erstellen":"Suggest a plan","Leeren":"Clear","Rezepte · vegetarisch":"Recipes · vegetarian","Zum Essensplan":"Add to meal plan","Frühstück":"Breakfast","Mittag / unterwegs":"Lunch / on the go","Abendessen":"Dinner","Snack":"Snack","Gaskocher":"Gas stove","Camper-Küche":"Camper kitchen","ohne Kochen":"no cooking","leicht & haltbar":"light & long-lasting","Einkauf (Essensplan)":"Shopping (meal plan)","Küche":"Kitchen","für den Essensplan":"for the meal plan","Gaskocher + Kartusche":"Gas stove + canister","Topf mit Deckel":"Pot with lid","Pfanne":"Pan","Spork / Besteck":"Spork / cutlery","Taschenmesser + Brettchen":"Pocket knife + board","Dosenöffner":"Can opener","Dose mit Deckel":"Container with lid","Grill / Pfanne":"Grill / pan","Aktuellen Essensplan durch einen Vorschlag ersetzen?":"Replace the current meal plan with a suggestion?","Essensplan und Einkaufsliste leeren?":"Clear meal plan and shopping list?","Vegetarische Outdoor-Rezepte auswählen – die Zutaten landen als Einkaufsliste in der Packliste, Kocher & Topf gleich mit.":"Pick vegetarian outdoor recipes – the ingredients go into the packing list as a shopping list, stove & pot included.","gegen Wind und Kälte im Gesicht":"against wind and cold on the face","Sonnen- und Windschutz":"sun and wind protection","Slackline":"Slackline","mit Baumschutz":"with tree protectors","+ Baumgurte":"+ tree straps","Surfhut / Cap mit Kinnband":"Surf hat / cap with chin strap","hält auch bei Wellen":"stays on in the waves","UV sehr hoch":"UV very high","Netzteile auf 100–240 V prüfen":"Check chargers for 100–240 V","Heimatland (2 Buchstaben, z. B. DE, AT, CH):":"Home country (2 letters, e.g. DE, AT, CH):","+ Eigenen Gegenstand hinzufügen":"+ Add your own item","Was?":"What?","In Kategorie":"In category","z. B. Kamera":"e.g. camera","Keine Mail? Bitte auch den Spam-Ordner prüfen.":"No email? Please check your spam folder too.","Wetter wird neu geladen …":"Reloading weather …","Wetter und Liste aktualisiert":"Weather and list updated","Wetterdaten für die neue Sportart ergänzt":"Added weather data for the new sport","Reise geändert – die Liste konnte nicht automatisch angepasst werden.":"Trip changed – the list could not be updated automatically.","Reise geändert – bitte Zeitraum und Sportart-Auswahl prüfen, dann aktualisieren.":"Trip changed – please check dates and sport selection, then update."," · Lawinen: ":" · Avalanches: ","Lawinensonde":"Avalanche probe","Leash":"Leash","Leichte Jacke":"Light jacket","Leichte Mütze":"Light beanie",
 "Leichte Sandalen":"Light sandals","Leichtes Fahrradschloss":"Light bike lock","Lenkerrolle":"Handlebar roll","Licht vorne + hinten":"Front + rear lights","Lippenpflege mit LSF":"Lip balm with SPF",
 "Lokale Notrufnummer":"Local emergency number","Lycra":"Rash guard","Materialschlinge / Gear Sling":"Gear sling","Messer":"Knife","Mikrofaserhandtuch":"Microfibre towel","Minipumpe":"Mini pump",
 "Minipumpe / CO₂":"Mini pump / CO₂","Multitool":"Multitool","Multitool mit Kettennieter":"Multitool with chain breaker","Müllbeutel":"Rubbish bags","Mütze":"Beanie","Neoprenanzug":"Wetsuit",
@@ -2620,7 +2630,14 @@ const RECIPES=[
   {id:"halloumi",n:"Halloumi-Grillabend",t:"ab",c:"camper",l:0,m:25,i:[["Halloumi",125,"g"],["Maiskolben",1,"Stk"],["Baguette",0.5,"Stk"],["Paprika",0.5,"Stk"],["Kräuterquark",50,"g"]],s:"Halloumi in Scheiben, Paprika und Mais grillen oder in der Pfanne braten. Mit Baguette und Quark.",g:["Grill / Pfanne"]},
   {id:"pizzawrap",n:"Pfannen-Pizza aus Wraps",t:"ab",c:"camper",l:0,m:15,i:[["Tortilla-Wraps",2,"Stk"],["Tomatenmark",25,"g"],["Käse",60,"g"],["Paprika",0.5,"Stk"],["Oliven",20,"g"]],s:"Wrap mit Tomatenmark bestreichen, belegen, Käse drüber, bei kleiner Hitze mit Deckel 5 Min. in der Pfanne backen.",g:["Pfanne"]}
 ];
-const recipeById=id=>RECIPES.find(r=>r.id===id);
+/* Eigene Rezepte: lokal gespeichert, mit Konto über user_data.custom (kind:"recipe", ohne name-Feld → ältere App-Versionen ignorieren sie) */
+const REC_L="packapp.recipes";
+let myRecipes=[];
+function loadRecipes(){try{const r=JSON.parse(localStorage.getItem(REC_L)||"[]");myRecipes=Array.isArray(r)?r.filter(x=>x&&x.id&&x.n&&Array.isArray(x.i)):[];}catch(_){myRecipes=[];}}
+function saveRecipes(){try{localStorage.setItem(REC_L,JSON.stringify(myRecipes));}catch(_){toast("Speicher voll – Rezept nicht gespeichert");}if(typeof scheduleCloud==="function")scheduleCloud();}
+const allRecipes=()=>myRecipes.map(r=>({...r,own:1,g:r.c==="gas"?["Topf mit Deckel"]:r.c==="camper"?["Pfanne"]:[]})).concat(RECIPES);
+const recipeById=id=>allRecipes().find(r=>r.id===id);
+const UNITS=["g","ml","Stk","EL","TL","Pck","Dose","Würfel","Zehe","Prise"];
 const GEAR_BASE={gas:["Gaskocher + Kartusche","Feuerzeug","Spork / Besteck"],camper:["Feuerzeug"],none:[]};
 /* Menge hübsch runden: g/ml auf 10 (ab 100) bzw. 5, Stück/Dosen/Packungen aufrunden */
 function niceQty(v,u){if(["g","ml"].includes(u)){const st=v>=100?10:5;return Math.max(st,Math.round(v/st)*st);}
@@ -2656,7 +2673,7 @@ function suggestMeals(){
   const days=Math.max(1,totalDays(inp)), stays=new Set(inp.legs.map(l=>l.stay)), S=new Set(inp.legs.flatMap(l=>l.sports));
   const light=S.has("backpacking")||S.has("bikepacking")||S.has("hochtour")||S.has("skihochtour");
   const cooks=stays.has("camper")?["camper","gas","none"]:(stays.has("zelt")||light)?["gas","none"]:["none"];
-  const pick=(t,k)=>{const L=RECIPES.filter(r=>r.t===t&&cooks.includes(r.c)&&(!light||r.l));const out={};
+  const pick=(t,k)=>{const L=allRecipes().filter(r=>r.t===t&&cooks.includes(r.c)&&(!light||r.l));const out={};
     for(let d=0;d<k&&L.length;d++){const r=L[d%L.length];out[r.id]=(out[r.id]||0)+1;}return out;};
   const all=[pick("fr",days),pick("mi",days),cooks.length>1?pick("ab",days):{},pick("sn",Math.ceil(days/2))];
   const ms=[];all.forEach(o=>Object.entries(o).forEach(([id,n])=>ms.push({id,n})));
@@ -2688,23 +2705,76 @@ function renderMeals(){
 let mealFilter={t:"",c:""};
 function openMealDlg(focus){
   const dlg=$("mealDlg"), list=$("mdList"), fb=$("mdFilters");
+  $("mdTitle").textContent="Rezepte · vegetarisch";
   const chip=(key,val,lab)=>{const b=el("button",{type:"button",class:"chip-btn"+(mealFilter[key]===val?" on":"")},lab);
     b.addEventListener("click",()=>{mealFilter[key]=mealFilter[key]===val?"":val;openMealDlg();});return b;};
   fb.replaceChildren(el("div",{class:"md-row"},...Object.entries(MEAL_T).map(([k,v])=>chip("t",k,v))),
     el("div",{class:"md-row"},...Object.entries(COOK_T).map(([k,v])=>chip("c",k,v)),chip("c","light","leicht & haltbar")));
-  const L=RECIPES.filter(r=>(!mealFilter.t||r.t===mealFilter.t)&&(!mealFilter.c||(mealFilter.c==="light"?r.l:r.c===mealFilter.c)));
+  const L=allRecipes().filter(r=>(!mealFilter.t||r.t===mealFilter.t)&&(!mealFilter.c||(mealFilter.c==="light"?r.l:r.c===mealFilter.c)));
   list.replaceChildren(...L.map(r=>{const m=(state.meals||[]).find(x=>x.id===r.id), n=m?m.n:0;
     const det=el("details",{class:"md-rec"+(n?" on":"")});if(focus===r.id)det.open=true;
-    det.append(el("summary",{},el("span",{class:"md-name"},r.n),el("span",{class:"md-meta"},[MEAL_T[r.t],COOK_T[r.c],r.m?r.m+" Min.":"",r.l?"leicht":""].filter(Boolean).join(" · "))),
+    det.append(el("summary",{},el("span",{class:"md-name"},r.n,r.own?el("span",{class:"tag"},"eigen"):""),el("span",{class:"md-meta"},[MEAL_T[r.t],COOK_T[r.c],r.m?r.m+" Min.":"",r.l?"leicht":""].filter(Boolean).join(" · "))),
       el("ul",{class:"md-ing"},...r.i.map(([nm,q,u])=>el("li",{},String(q).replace(".",",")+" "+u+" "+nm))),
       el("p",{class:"md-steps"},r.s),
       el("p",{class:"hint"},"Mengen für 1 Portion"+(r.g.length?" · braucht: "+r.g.join(", "):"")));
     const add=el("button",{type:"button",class:"btn small"},n?"Noch einmal (+1) – jetzt "+n+"×":"Zum Essensplan");
     add.addEventListener("click",e=>{e.preventDefault();setMeal(r.id,n+1);openMealDlg(r.id);});
-    det.append(add);return det;}));
+    det.append(add);
+    if(r.own){const ed=el("button",{type:"button",class:"btn ghost small"},"Bearbeiten");ed.addEventListener("click",e=>{e.preventDefault();openRecEditor(r.id);});det.append(" ",ed);}
+    return det;}));
+  const mine=el("button",{type:"button",class:"btn small md-own"},"+ Eigenes Rezept");mine.addEventListener("click",()=>openRecEditor());
+  list.prepend(mine);
+  if(!L.length)list.append(el("p",{class:"hint"},"Kein Rezept passt zu diesem Filter."));
   dlg.hidden=false;
 }
+/* Editor für eigene Rezepte (im selben Fenster) */
+function openRecEditor(id){
+  const r=id?myRecipes.find(x=>x.id===id):null, list=$("mdList"), fb=$("mdFilters");
+  fb.replaceChildren();$("mdTitle").textContent=r?"Rezept bearbeiten":"Eigenes Rezept";
+  const sel=(opts,v)=>{const s=el("select",{},...Object.entries(opts).map(([k,t])=>el("option",{value:k},t)));s.value=v;return s;};
+  const name=el("input",{type:"text",maxLength:80,placeholder:"z. B. Omas Linseneintopf",value:r?r.n:""});
+  const t=sel(MEAL_T,r?r.t:"ab"), c=sel(COOK_T,r?r.c:"gas");
+  const light=el("input",{type:"checkbox"});light.checked=!!(r&&r.l);
+  const min=el("input",{type:"number",min:"0",max:"300",inputmode:"numeric",placeholder:"Min.",value:r&&r.m?String(r.m):""});
+  const por=el("input",{type:"number",min:"1",max:"20",inputmode:"numeric",value:"1"});
+  const rows=el("div",{class:"rec-ings"});
+  const addRow=(nm,q,u)=>{const n=el("input",{type:"text",maxLength:60,placeholder:"Zutat",value:nm||""}), qq=el("input",{type:"text",inputmode:"decimal",placeholder:"Menge",value:q!=null?String(q).replace(".",","):""});
+    const uu=el("select",{},...UNITS.map(x=>el("option",{value:x},x)));uu.value=u||"g";
+    const x=el("button",{type:"button",class:"del","aria-label":"Zutat entfernen"},"×");x.addEventListener("click",()=>{row.remove();});
+    const row=el("div",{class:"rec-ing"},n,qq,uu,x);rows.append(row);return n;};
+  (r?r.i:[["",null,"g"],["",null,"g"],["",null,"g"]]).forEach(([a,b,u])=>addRow(a,b,u));
+  const more=el("button",{type:"button",class:"chip-add"},"+ Zutat");more.addEventListener("click",()=>addRow().focus());
+  const steps=el("textarea",{rows:"4",maxLength:1000,placeholder:"Zubereitung (kurz)"});steps.value=r?r.s:"";
+  const err=el("p",{class:"err",role:"alert",hidden:true});
+  const f=(lab,inp)=>el("div",{class:"field"},el("span",{class:"label"},lab),inp);
+  const save=el("button",{type:"button",class:"btn"},"Speichern"), back=el("button",{type:"button",class:"btn ghost small"},"Zurück");
+  back.addEventListener("click",()=>{$("mdTitle").textContent="Rezepte · vegetarisch";openMealDlg();});
+  save.addEventListener("click",()=>{
+    const P=Math.max(1,Math.min(20,Math.round(+por.value)||1));
+    const ings=[...rows.querySelectorAll(".rec-ing")].map(row=>{const [n,q,u]=row.querySelectorAll("input,select");
+      const v=parseFloat(String(q.value).replace(",","."));return[n.value.trim().slice(0,60),v>0?Math.round(v/P*100)/100:0,u.value];}).filter(x=>x[0]&&x[1]>0);
+    if(!name.value.trim()){err.textContent="Bitte einen Namen eingeben.";err.hidden=false;name.focus();return;}
+    if(!ings.length){err.textContent="Bitte mindestens eine Zutat mit Menge eintragen.";err.hidden=false;return;}
+    const rec={id:r?r.id:"r_"+Date.now().toString(36),kind:"recipe",n:name.value.trim().slice(0,80),t:t.value,c:c.value,l:light.checked?1:0,m:Math.max(0,Math.min(300,Math.round(+min.value)||0)),
+      i:ings,s:steps.value.trim().slice(0,1000),upd:Date.now()};
+    myRecipes=myRecipes.filter(x=>x.id!==rec.id).concat(rec);saveRecipes();
+    if((state.meals||[]).some(m=>m.id===rec.id))applyMeals();else render();
+    toast("„"+rec.n+"“ gespeichert",2500);$("mdTitle").textContent="Rezepte · vegetarisch";openMealDlg(rec.id);});
+  const acts=el("div",{class:"cal-actions"},back);
+  if(r){const del=el("button",{type:"button",class:"btn ghost small"},"Löschen");let armed=0;
+    del.addEventListener("click",()=>{if(Date.now()-armed>4000){armed=Date.now();del.textContent="Wirklich löschen?";return;}
+      myRecipes=myRecipes.filter(x=>x.id!==r.id);if(typeof addTomb==="function")addTomb(r.id);saveRecipes();
+      if((state.meals||[]).some(m=>m.id===r.id)){state.meals=state.meals.filter(m=>m.id!==r.id);applyMeals();}
+      $("mdTitle").textContent="Rezepte · vegetarisch";openMealDlg();});acts.append(del);}
+  acts.append(save);
+  list.replaceChildren(f("Name",name),el("div",{class:"rec-grid"},f("Mahlzeit",t),f("Kochen",c),f("Zeit",min)),
+    el("label",{class:"rec-light"},light,el("span",{},"leicht & haltbar (für Rucksack / Bikepacking)")),
+    el("div",{class:"field"},el("span",{class:"label"},"Zutaten"),el("div",{class:"rec-por"},el("span",{},"Mengen für"),por,el("span",{},"Portion(en)")),rows,more),
+    f("Zubereitung",steps),err,acts);
+  $("mealDlg").hidden=false;name.focus();
+}
 function initMeals(){
+  loadRecipes();
   $("mdClose").addEventListener("click",()=>{$("mealDlg").hidden=true;});
   $("mealDlg").addEventListener("click",e=>{if(e.target===$("mealDlg"))$("mealDlg").hidden=true;});
   $("mealDlg").addEventListener("keydown",e=>{if(e.key==="Escape")$("mealDlg").hidden=true;});
@@ -2928,10 +2998,10 @@ async function cloudSync(){
     const {data:uds,error:e1}=await c.from("user_data").select("*").eq("user_id",u.id);if(e1)throw e1;
     const ud=(uds||[])[0]||{};
     Object.entries(ud.tombs||{}).forEach(([k,v])=>{if(!tombs[k]||tombs[k]<v)tombs[k]=v;});
-    custom=mergeById(custom,ud.custom||[]);templates=mergeById(templates,ud.templates||[]);
+    const allC=mergeById([...custom,...myRecipes],ud.custom||[]);custom=allC.filter(x=>x.kind!=="recipe");myRecipes=allC.filter(x=>x.kind==="recipe");try{localStorage.setItem(REC_L,JSON.stringify(myRecipes));}catch(_){}templates=mergeById(templates,ud.templates||[]);
     try{localStorage.setItem(CUSTOM_KEY,JSON.stringify(custom));localStorage.setItem(TPL_L,JSON.stringify(templates));}catch(_){}
     const tb={};const cut=Date.now()-400*864e5;Object.entries(tombs).forEach(([k,v])=>{if(v>cut)tb[k]=v;});tombs=tb;saveTombs();
-    const {error:e2}=await c.from("user_data").upsert({user_id:u.id,custom,templates,tombs,updated_at:new Date().toISOString()});if(e2)throw e2;
+    const {error:e2}=await c.from("user_data").upsert({user_id:u.id,custom:[...custom,...myRecipes],templates,tombs,updated_at:new Date().toISOString()});if(e2)throw e2;
     /* Reisen */
     const {data:rows,error:e3}=await c.from("trips").select("id,upd,deleted,data");if(e3)throw e3;
     let curChanged=null;
