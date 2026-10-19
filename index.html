@@ -290,17 +290,29 @@ table.fc td.num{font-family:var(--f-mono);font-size:.82rem}
 .apply .label{margin-right:4px}
 .row-place{grid-template-columns:minmax(0,1fr) 84px}
 .tabbar{display:none}
+.pages{display:flex;gap:4px;padding:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px;align-self:flex-start}
+.pg{font:inherit;font-weight:600;font-size:.9rem;background:none;border:0;color:var(--muted);padding:8px 16px;border-radius:9px;cursor:pointer}
+.pg[aria-current="page"]{background:var(--new-bg);color:var(--accent)}
+.page-empty{display:none}
+body.view-essen .main > :not(.sign):not(.pages):not(#mealBox):not(.toast):not(.page-empty),
+body.view-kosten .main > :not(.sign):not(.pages):not(#costBox):not(.toast):not(.page-empty){display:none}
+body.view-essen .page-empty:not([hidden]),body.view-kosten .page-empty:not([hidden]){display:block}
+body:not(.view-essen) #mealBox,body:not(.view-kosten) #costBox{display:none}
+body.view-essen .toast:empty,body.view-kosten .toast:empty{display:none}
+body.view-essen #mealBox,body.view-kosten #costBox{margin-top:0}
 @media (max-width:860px){
   body{padding-block:14px calc(86px + env(safe-area-inset-bottom,0px))}
   .wrap{gap:16px}
-  .tabbar{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;position:fixed;left:0;right:0;bottom:0;z-index:1000;background:var(--surface);border-top:1px solid var(--line);
+  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;position:fixed;left:0;right:0;bottom:0;z-index:1000;background:var(--surface);border-top:1px solid var(--line);
     padding:6px max(10px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
   .tab{font:inherit;background:none;border:0;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 4px;border-radius:10px;font-size:.8rem;font-weight:600;cursor:pointer;min-height:54px}
   .tab svg{width:24px;height:24px;flex:none}
   .tab[aria-current="page"]{color:var(--accent);background:var(--new-bg)}
   .tab .count{font-family:var(--f-mono);font-weight:500;font-size:.7rem;font-variant-numeric:tabular-nums}
   body.view-reise .main{display:none}
-  body.view-karte .panel,body.view-liste .panel{display:none}
+  body.view-karte .panel,body.view-liste .panel,body.view-essen .panel,body.view-kosten .panel{display:none}
+  .pages{display:none!important}
+  .tab{font-size:.72rem}
   body.view-karte .main > :not(.mapcard){display:none}
   body.view-liste .main > .mapcard{display:none}
   .map-head .btn{display:none}
@@ -491,6 +503,13 @@ table.fc td.num{font-family:var(--f-mono);font-size:.82rem}
       <div class="sign-arrow" aria-hidden="true"></div>
     </div>
 
+    <nav class="pages" aria-label="Seite">
+      <button class="pg" type="button" data-view="liste">Packliste</button>
+      <button class="pg" type="button" data-view="essen">Essen</button>
+      <button class="pg" type="button" data-view="kosten">Kosten</button>
+    </nav>
+    <p class="hint page-empty" id="pageEmpty">Erstelle zuerst unter „Reise“ eine Packliste – dann kannst du hier planen.</p>
+
     <section class="mapcard" aria-label="Karte und Bedingungen">
       <div class="map-head">
         <div>
@@ -598,6 +617,8 @@ table.fc td.num{font-family:var(--f-mono);font-size:.82rem}
   <button class="tab" type="button" data-view="reise"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V12M12 6V3"/><path d="M5 6h12l3 3-3 3H5z"/></svg>Reise</button>
   <button class="tab" type="button" data-view="karte"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5l6-3 6 3 6-3v14l-6 3-6-3-6 3z"/><path d="M9 3.5v14M15 6.5v14"/></svg>Karte</button>
   <button class="tab" type="button" data-view="liste"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l1.8 1.8L9 5.5M4 14l1.8 1.8L9 12.5"/><path d="M12 7.5h8M12 14.5h8M5 20h15"/></svg><span>Liste <span class="count" id="tabCount"></span></span></button>
+  <button class="tab" type="button" data-view="essen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11h18"/><path d="M5 11v5a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4v-5"/><path d="M9 7c0-1 1-1.5 1-2.5M13 7c0-1 1-1.5 1-2.5"/></svg>Essen</button>
+  <button class="tab" type="button" data-view="kosten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M15 9.2a3.2 3.2 0 1 0 0 5.6M8 11h5M8 13h5"/></svg>Kosten</button>
 </nav>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
@@ -1437,7 +1458,7 @@ function render(){
   document.querySelectorAll(".status,.tools,#addForm").forEach(x=>{x.hidden=empty;});
   if(empty){
     $("signPlace").textContent="Neue Reise";$("signMeta").textContent="Noch nichts eingetragen";
-    $("notes").hidden=true;$("tabCount").textContent="";if($("costBox"))$("costBox").hidden=true;if($("mealBox"))$("mealBox").hidden=true;if($("reviewBar"))$("reviewBar").hidden=true;
+    $("notes").hidden=true;$("tabCount").textContent="";if($("costBox"))$("costBox").hidden=true;if($("mealBox"))$("mealBox").hidden=true;if($("pageEmpty"))$("pageEmpty").hidden=false;if($("reviewBar"))$("reviewBar").hidden=true;
     const logo=document.querySelector(".brand svg"), go=el("button",{type:"button",class:"btn small"},"Reise planen");
     go.addEventListener("click",()=>setView("reise"));
     $("cats").replaceChildren(el("div",{class:"empty-hero"},logo?logo.cloneNode(true):"",el("span",{class:"eh-name"},"packapp"),
@@ -1814,7 +1835,7 @@ const EN={
 "Ausblenden":"Hide","Einblenden":"Show","Karte, zum Abfragen klicken":"Map, tap to check conditions",
 "Gepacktes ausblenden":"Hide packed","Für Erinnerungen kopieren":"Copy for Reminders","Als Text kopieren":"Copy as text","Alle Haken entfernen":"Uncheck all","Neue Reise":"New trip",
 "Eigenen Gegenstand hinzufügen":"Add your own item","Gegenstand":"Item","Kategorie":"Category","Hinzufügen":"Add","Stopp":"Stop",
-"Wetter wird abgefragt …":"Fetching weather …","Wetter wird abgefragt":"Fetching weather","Ansicht":"View","Reise":"Trip","Karte":"Map","Liste":"List",
+"Wetter wird abgefragt …":"Fetching weather …","Wetter wird abgefragt":"Fetching weather","Ansicht":"View","Seite":"Page","Packliste":"Packing list","Essen":"Food","Erstelle zuerst unter „Reise“ eine Packliste – dann kannst du hier planen.":"First create a packing list under “Trip” – then you can plan here.","Reise":"Trip","Karte":"Map","Liste":"List",
 "Zeitraum":"Dates","Liste teilen":"Share list","Link senden":"Send link","Nicht mehr teilen":"Stop sharing","Wirklich?":"Sure?","wer?":"who?","Meine Reisen":"My trips","Jede Liste wird automatisch gespeichert. Nach der Reise „Auswerten“: packapp merkt sich, was du nicht gebraucht hast.":"Every list is saved automatically. After the trip, “Review”: packapp remembers what you did not use.","Konto & Sync":"Account & sync","Melde dich an, um Reisen, Vorlagen und eigene Sportarten auf allen Geräten zu haben.":"Sign in to have trips, templates and your own activities on all devices.","Mit E-Mail anmelden":"Sign in with email","Abmelden":"Sign out","Jetzt synchronisieren":"Sync now","Auswerten: Tippe bei allem, was du auf dieser Reise nicht benutzt hast, auf „✓ gebraucht“ – es wird zu „✕ nicht gebraucht“.":"Review: tap “✓ used” on everything you did not use on this trip – it turns into “✕ not used”.","Fertig":"Done","Reise auswerten":"Review trip","Auswertung ändern":"Edit review","nicht gebraucht":"not used","gebraucht":"used","Antippen zum Umschalten":"Tap to toggle","letztes Mal nicht gebraucht":"not used last time","weglassen":"drop","aktuell":"current","ausgewertet":"reviewed","Laden":"Load","Auswerten":"Review","Aus dem Archiv löschen":"Delete from archive","Reise aus dem Archiv löschen?":"Delete trip from archive?","Kosten":"Costs","Wer teilt:":"Shared by:","+ Person":"+ Person","Was? z. B. Sprit":"What? e.g. fuel","Betrag":"Amount","Alles ausgeglichen.":"All settled.","Bitte „Was“ und einen Betrag eingeben":"Please enter “what” and an amount","Name:":"Name:","Währung":"Currency","Bezahlt von":"Paid by","Was":"What","E-Mail-Adresse:":"Email address:","Ungültige E-Mail-Adresse":"Invalid email address","Angemeldet – deine Daten werden synchronisiert":"Signed in – your data is being synced","Zu viele Versuche – bitte kurz warten":"Too many attempts – please wait a moment","Code falsch oder abgelaufen":"Code wrong or expired","Abmelden? Deine Daten bleiben auf diesem Gerät.":"Sign out? Your data stays on this device.","Tippe an, was du nicht gebraucht hast":"Tap what you did not use","Gespeichert – packapp merkt sich das für die nächste Reise":"Saved – packapp will remember this for the next trip","Speicher voll – Reise nicht archiviert":"Storage full – trip not archived","Liste aktualisiert":"List updated","Packliste aktualisieren":"Update packing list","Reise geändert (Ort, Zeitraum oder Höhe) – das Wetter muss neu geladen werden.":"Trip changed (place, dates or altitude) – the weather needs to be reloaded.","🌊 Die Wellenvorhersage gibt es etwa 7 Tage vorher. Bis dahin: auf der Karte aufs Meer tippen.":"🌊 Wave forecasts are available about 7 days ahead. Until then: tap on the sea on the map.","Boardshorts / Bikini":"Boardshorts / bikini","Neopren-Booties":"Wetsuit booties","Neopren-Haube":"Wetsuit hood","Neopren-Handschuhe":"Wetsuit gloves","🌊 Keine Wellendaten für diesen Ort – auf der Karte direkt aufs Meer tippen.":"🌊 No wave data for this place – tap directly on the sea on the map.","🌊 Wellen gibt es ab 16 Tage vorher als Vorhersage. Bis dahin: auf der Karte aufs Meer tippen.":"🌊 Wave forecasts start 16 days ahead. Until then: tap on the sea on the map.","Reise planen":"Plan a trip","Meine Vorlagen":"My templates","Als Vorlage speichern":"Save as template","Tippen zum Laden, Hinzufügen oder Teilen. Vorlagen bleiben auch bei „Neue Reise“ erhalten.":"Tap to load, add or share. Templates are kept when you start a new trip.","Name der Vorlage:":"Template name:","Vorlage überschreiben?":"Overwrite template?","Aktuelle Liste durch die Vorlage ersetzen?":"Replace the current list with the template?","Als neue Liste laden":"Load as new list","Zur aktuellen Liste hinzufügen":"Add to current list","Vorlage teilen":"Share template","Vorlage löschen?":"Delete template?","Vorlage speichern?":"Save template?","Sachen":"items","Packliste als Vorlage":"Packing list template","Ungültiger Vorlagen-Link":"Invalid template link","Dieser Browser kann die Vorlage nicht öffnen":"This browser cannot open the template","Speicher voll – Vorlage nicht gespeichert":"Storage full – template not saved","Sicherheitsprüfung fehlgeschlagen":"Security check failed","Sicherheitsprüfung abgelaufen":"Security check expired","Eintrag ist zu lang":"Entry is too long","jeder":"each","gemeinsam":"shared","Als persönlich markieren":"Mark as personal","Als gemeinsam markieren":"Mark as shared","Persönlich: jeder packt sein eigenes und hakt selbst ab.":"Personal: everyone packs their own and ticks it off themselves.","Länge / Art, z. B. 60 m Einfachseil":"Length / type, e.g. 60 m single rope","Details, z. B. Art oder Größe":"Details, e.g. type or size","– niemand":"– nobody","Noch keine Namen":"No names yet","Geteilte Liste":"Shared list","● live":"● live","verbinde …":"connecting …","offline – wird abgeglichen, sobald du wieder online bist":"offline – will sync when you are back online","Link kopiert – z. B. in WhatsApp einfügen":"Link copied – paste it into WhatsApp, for example","Geteilte Liste geöffnet":"Shared list opened","Liste ist jetzt nur noch auf diesem Gerät":"The list is now only on this device","Teilen braucht eine Internetverbindung":"Sharing needs an internet connection","Teilen ist noch nicht eingerichtet":"Sharing is not set up yet","Anonyme Anmeldung ist in Supabase noch ausgeschaltet":"Anonymous sign-in is still disabled in Supabase","Dein Name (sehen die anderen in der Liste):":"Your name (shown to the others on the list):","Packliste zum gemeinsamen Abhaken":"Packing list to tick off together","Die geteilte Liste ersetzt deine aktuelle Liste auf diesem Gerät. Fortfahren?":"The shared list replaces your current list on this device. Continue?","Liste nicht gefunden – vielleicht wurde der Link falsch kopiert":"List not found – maybe the link was copied incorrectly","GPX laden":"Load GPX","GPX ersetzen":"Replace GPX","GPX entfernen":"Remove GPX","GPX wird gelesen …":"Reading GPX …","Keine Trackpunkte in der Datei gefunden":"No track points found in the file","Datei konnte nicht gelesen werden":"Could not read the file","Datei ist zu groß (max. 15 MB)":"File is too large (max. 15 MB)","Höchster Punkt (m, optional)":"Highest point (m, optional)","z. B. 2400 für Pass oder Gipfel":"e.g. 2400 for a pass or summit","Kalender schließen":"Close calendar","Voriger Monat":"Previous month","Nächster Monat":"Next month","Zurücksetzen":"Reset","Übernehmen":"Apply",
 "Eigene Sportart":"Own activity","Name":"Name","z. B. Kanu, Paragliding, Fotografie":"e.g. canoe, paragliding, photography","Packliste dieser Sportart":"Packing list for this activity",
 "Anz.":"Qty","Anzahl":"Quantity","Löschen":"Delete","Speichern":"Save","Schließen":"Close","Sportart bearbeiten":"Edit activity",
@@ -2278,10 +2299,11 @@ function applyPoint(i){
 }
 const isMobile=()=>{try{return matchMedia("(max-width: 860px)").matches;}catch(_){return false;}};
 function setView(v,scroll){
-  if(!["reise","karte","liste"].includes(v))v="liste";
+  if(!["reise","karte","liste","essen","kosten"].includes(v))v="liste";
   state.view=v;save();
-  const b=document.body;b.classList.remove("view-reise","view-karte","view-liste");b.classList.add("view-"+v);
-  document.querySelectorAll(".tab").forEach(t=>{if(t.dataset.view===v)t.setAttribute("aria-current","page");else t.removeAttribute("aria-current");});
+  const b=document.body;b.classList.remove("view-reise","view-karte","view-liste","view-essen","view-kosten");b.classList.add("view-"+v);
+  const pv=["essen","kosten"].includes(v)?v:"liste";
+  document.querySelectorAll(".tab,.pg").forEach(t=>{if(t.dataset.view===(t.classList.contains("pg")?pv:v))t.setAttribute("aria-current","page");else t.removeAttribute("aria-current");});
   if(v==="karte"&&map)setTimeout(()=>map.invalidateSize(),0);
   if(scroll!==false&&isMobile())window.scrollTo(0,0);
 }
@@ -2731,6 +2753,7 @@ function suggestMeals(){
 }
 function renderMeals(){
   const box=$("mealBox");if(!box)return;
+  if($("pageEmpty"))$("pageEmpty").hidden=!!state.items.length;
   box.hidden=!state.items.length;if(box.hidden)return;
   const P=mealPersons(), ms=state.meals||[];
   const per=el("input",{type:"number",min:"1",max:"20",inputmode:"numeric",value:String(P),"aria-label":"Personen",class:"meal-persons"});
@@ -3128,7 +3151,7 @@ function init(){
   renderLegs(state.inputs);render();
   initMap();setMapHidden(!!state.mapHidden);
   setView(first?"reise":(state.view||"liste"),false);
-  document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>setView(t.dataset.view)));
+  document.querySelectorAll(".tab,.pg").forEach(t=>t.addEventListener("click",()=>setView(t.dataset.view)));
   try{matchMedia("(max-width: 860px)").addEventListener("change",()=>{if(map)setTimeout(()=>map.invalidateSize(),0);});}catch(_){}
   $("mapToggle").addEventListener("click",()=>{state.mapHidden=!state.mapHidden;save();setMapHidden(state.mapHidden);});
 
