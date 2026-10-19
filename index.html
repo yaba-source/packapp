@@ -723,8 +723,8 @@ function buildBase(inp){
   const MS=S.has("mehrseil"), big=S.has("trad")||MS;
   if(S.has("sport")||big){const R="Klettern";
     add(R,"Klettergurt");climbPants(R);add(R,"Sicherungsgerät","",big?"Tube mit Plate-Modus für "+(MS?"Mehrseillängen":"Trad"):"");add(R,"Kletterhelm");add(R,"Kletterschuhe");
-    add(R,"Chalkbag + Chalk");add(R,"Tape");add(R,"Hautpflege-Balm");add(R,"Schraubkarabiner",MS?5:3,MS?"für Stand und Abseilen":"");
-    add(R,"Bandschlingen",MS?4:2);if(MS&&!S.has("hochtour"))add(R,"Prusikschlinge","","als Abseil-Backup");add(R,"Kletterführer / Topo");add(R,"Zustieg-Schuhe","",MS?"leicht, zum Mitnehmen am Gurt":"");
+    add(R,"Chalkbag + Chalk");add(R,"Tape");add(R,"Hautpflege-Balm");add(R,"Schraubkarabiner",big?5:3,big?"für Stand und Abseilen":"");
+    add(R,"Bandschlingen",S.has("trad")?4:2);if(MS&&!S.has("hochtour"))add(R,"Prusikschlinge","","als Abseil-Backup");add(R,"Kletterführer / Topo");add(R,"Zustieg-Schuhe","",MS?"leicht, zum Mitnehmen am Gurt":"");
     const cd=Math.max(...["sport","trad","mehrseil"].filter(x=>S.has(x)).map(daysOf));if(cd>=5)add(R,"Chalk zum Nachfüllen",Math.floor(cd/5),"ab 5 Klettertagen");}
   if(S.has("sport")){const R="Sportklettern";
     add(R,"Einfachseil","","Länge für die Routen prüfen");add(R,"Expressen",14);add(R,"Seilsack");add(R,"Umlenk-Karabiner / Ablass-Set");}
@@ -739,7 +739,7 @@ function buildBase(inp){
   if(S.has("bouldern")){const BO="Bouldern";
     add(BO,"Boulder-Chalkbag","","Chalkbucket zum Hinstellen");add(BO,"Crashpad",2);
     add(BO,"Chalk zum Nachfüllen",Math.max(1,Math.floor(daysOf("bouldern")/5)));
-    add(BO,"Kletterschuhe");climbPants(BO);add(BO,"Bürste");add(BO,"Tape");add(BO,"Hautpflege-Balm");}
+    add(BO,"Kletterschuhe");climbPants(BO);add(BO,"Bürste");add(BO,"Tape");add(BO,"Hautpflege-Balm");add(BO,"Prusikschlinge 5 m",1);}
   if(S.has("eis")){const I="Eisklettern";
     add(I,"Eisgeräte",2,"Hauen vorher schärfen");add(I,"Steigeisen","","Frontzacker, auf Schuhe angepasst");add(I,"Steigeisenfeste Bergschuhe");
     add(I,"Eisschrauben",10,"für lange Mehrseillängen mehr");add(I,"Abalakov-Fädler");add(I,"Reepschnur für Abalakov",2);add(I,"Halb- / Doppelseil");
