@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://unpkg.com; font-src 'self'; img-src 'self' data: blob: https://unpkg.com https://*.tile.opentopomap.org https://tile.openstreetmap.org https://server.arcgisonline.com; connect-src 'self' https://*.open-meteo.com https://my.meteoblue.com https://photon.komoot.io https://nominatim.openstreetmap.org https://regions.avalanches.org https://static.avalanche.report https://xcuiygrxvmtipjdplgzm.supabase.co wss://xcuiygrxvmtipjdplgzm.supabase.co; frame-src https://challenges.cloudflare.com; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://unpkg.com; font-src 'self'; img-src 'self' data: blob: https://unpkg.com https://*.tile.opentopomap.org https://tile.openstreetmap.org https://server.arcgisonline.com; connect-src 'self' https://*.open-meteo.com https://my.meteoblue.com https://photon.komoot.io https://nominatim.openstreetmap.org https://regions.avalanches.org https://static.avalanche.report https://overpass-api.de https://xcuiygrxvmtipjdplgzm.supabase.co wss://xcuiygrxvmtipjdplgzm.supabase.co; frame-src https://challenges.cloudflare.com; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>packapp</title>
 <meta name="description" content="Packliste nach Ort, Etappen und Sportarten, mit Wetter, Schnee und Wellen auf der Karte">
@@ -167,6 +167,17 @@ ul.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
 .meal-add{background:none;border:0;padding:4px 0;font:inherit;font-size:.9rem;color:var(--accent);cursor:pointer}
 .meal-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px solid var(--line);padding-top:8px}
 .meal-shop{margin-top:6px}
+.near-leg{display:flex;flex-direction:column;gap:6px}
+.near-leg+.near-leg{border-top:1px solid var(--line);padding-top:10px}
+.near-leg h4{margin:0;font-size:.95rem}
+.near-h{font-weight:600;font-size:.85rem;margin-top:4px}
+.near-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.near-list li{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;font-size:.92rem}
+.near-km{font-family:var(--f-mono);font-size:.78rem;color:var(--muted)}
+.near-info{font-size:.8rem;color:var(--muted)}
+.near-osm{text-decoration:none;font-size:.85rem}
+.near-links{margin:0;font-size:.9rem;line-height:1.7}
+.near-pin span{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--surface);border:1.5px solid var(--accent);font-size:13px;box-shadow:0 1px 3px rgba(0,0,0,.25)}
 .meal-sum{margin-left:auto}
 .md-filters{display:flex;flex-direction:column;gap:6px}
 .md-row{display:flex;flex-wrap:wrap;gap:6px}
@@ -538,6 +549,7 @@ body.view-essen #mealBox,body.view-kosten #costBox{margin-top:0}
     <div class="stale-bar review-bar" id="reviewBar" hidden><span>Auswerten: Tippe bei allem, was du auf dieser Reise nicht benutzt hast, auf „✓ gebraucht“ – es wird zu „✕ nicht gebraucht“.</span>
       <button class="btn small" id="reviewDone" type="button">Fertig</button></div>
     <section class="notes" id="notes" hidden></section>
+    <section class="costs near" id="nearBox" hidden></section>
 
     <div class="share-bar" id="shareBar" hidden>
       <span class="sb-text"><span id="sbWho" class="no-tr"></span><span class="sb-state" id="sbState"></span></span>
@@ -1460,7 +1472,7 @@ function render(){
   document.querySelectorAll(".status,.tools,#addForm").forEach(x=>{x.hidden=empty;});
   if(empty){
     $("signPlace").textContent="Neue Reise";$("signMeta").textContent="Noch nichts eingetragen";
-    $("notes").hidden=true;$("tabCount").textContent="";if($("costBox"))$("costBox").hidden=true;if($("mealBox"))$("mealBox").hidden=true;if($("pageEmpty"))$("pageEmpty").hidden=false;if($("reviewBar"))$("reviewBar").hidden=true;
+    $("notes").hidden=true;$("tabCount").textContent="";if($("costBox"))$("costBox").hidden=true;if($("mealBox"))$("mealBox").hidden=true;if($("nearBox"))$("nearBox").hidden=true;if($("pageEmpty"))$("pageEmpty").hidden=false;if($("reviewBar"))$("reviewBar").hidden=true;
     const logo=document.querySelector(".brand svg"), go=el("button",{type:"button",class:"btn small"},"Reise planen");
     go.addEventListener("click",()=>setView("reise"));
     $("cats").replaceChildren(el("div",{class:"empty-hero"},logo?logo.cloneNode(true):"",el("span",{class:"eh-name"},"packapp"),
@@ -1569,7 +1581,7 @@ function render(){
   const opts=[...new Set([...cats,"Eigene"])];
   sel.replaceChildren(...opts.map(c=>el("option",{value:c},c)));
   if(opts.includes(cur))sel.value=cur;
-  renderShareBar();renderReview();renderCosts();renderMeals();
+  renderShareBar();renderReview();renderCosts();renderMeals();renderNear();
   updateLegMarkers(false);
 }
 function toast(msg,ms){$("toast").textContent=msg;clearTimeout(toast.t);toast.t=setTimeout(()=>{$("toast").textContent="";},ms||2500);}
@@ -1842,7 +1854,7 @@ const EN={
 "Ausblenden":"Hide","Einblenden":"Show","Karte, zum Abfragen klicken":"Map, tap to check conditions",
 "Gepacktes ausblenden":"Hide packed","Für Erinnerungen kopieren":"Copy for Reminders","Als Text kopieren":"Copy as text","Alle Haken entfernen":"Uncheck all","Neue Reise":"New trip",
 "Eigenen Gegenstand hinzufügen":"Add your own item","Gegenstand":"Item","Kategorie":"Category","Hinzufügen":"Add","Stopp":"Stop",
-"Wetter wird abgefragt …":"Fetching weather …","Wetter wird abgefragt":"Fetching weather","Ansicht":"View","Seite":"Page","Packliste":"Packing list","Essen":"Food","Erstelle zuerst unter „Reise“ eine Packliste – dann kannst du hier planen.":"First create a packing list under “Trip” – then you can plan here.","Reise":"Trip","Karte":"Map","Liste":"List",
+"Wetter wird abgefragt …":"Fetching weather …","Wetter wird abgefragt":"Fetching weather","Ansicht":"View","In der Nähe":"Nearby","Klettergebiete":"Climbing areas","Klettersteige":"Via ferratas","Hütten":"Huts","Camping & Stellplätze":"Campsites & pitches","Seiten & Apps:":"Sites & apps:","Führer:":"Guidebooks:","Bergführer vor Ort":"Local mountain guides","Suche in OpenStreetMap …":"Searching OpenStreetMap …","Im Umkreis von 20 km nichts eingetragen.":"Nothing mapped within 20 km.","neu suchen":"search again","OpenStreetMap-Mitwirkende":"OpenStreetMap contributors","In OpenStreetMap öffnen":"Open in OpenStreetMap","OpenStreetMap antwortet gerade nicht – bitte später nochmal versuchen.":"OpenStreetMap is not responding – please try again later.","Camptocamp (Touren & Berichte)":"Camptocamp (routes & reports)","Seite":"Page","Packliste":"Packing list","Essen":"Food","Erstelle zuerst unter „Reise“ eine Packliste – dann kannst du hier planen.":"First create a packing list under “Trip” – then you can plan here.","Reise":"Trip","Karte":"Map","Liste":"List",
 "Zeitraum":"Dates","Liste teilen":"Share list","Link senden":"Send link","Nicht mehr teilen":"Stop sharing","Wirklich?":"Sure?","wer?":"who?","Meine Reisen":"My trips","Jede Liste wird automatisch gespeichert. Nach der Reise „Auswerten“: packapp merkt sich, was du nicht gebraucht hast.":"Every list is saved automatically. After the trip, “Review”: packapp remembers what you did not use.","Konto & Sync":"Account & sync","Melde dich an, um Reisen, Vorlagen und eigene Sportarten auf allen Geräten zu haben.":"Sign in to have trips, templates and your own activities on all devices.","Mit E-Mail anmelden":"Sign in with email","Abmelden":"Sign out","Jetzt synchronisieren":"Sync now","Auswerten: Tippe bei allem, was du auf dieser Reise nicht benutzt hast, auf „✓ gebraucht“ – es wird zu „✕ nicht gebraucht“.":"Review: tap “✓ used” on everything you did not use on this trip – it turns into “✕ not used”.","Fertig":"Done","Reise auswerten":"Review trip","Auswertung ändern":"Edit review","nicht gebraucht":"not used","gebraucht":"used","Antippen zum Umschalten":"Tap to toggle","letztes Mal nicht gebraucht":"not used last time","weglassen":"drop","aktuell":"current","ausgewertet":"reviewed","Laden":"Load","Auswerten":"Review","Aus dem Archiv löschen":"Delete from archive","Reise aus dem Archiv löschen?":"Delete trip from archive?","Kosten":"Costs","Wer teilt:":"Shared by:","+ Person":"+ Person","Was? z. B. Sprit":"What? e.g. fuel","Betrag":"Amount","Alles ausgeglichen.":"All settled.","Bitte „Was“ und einen Betrag eingeben":"Please enter “what” and an amount","Name:":"Name:","Währung":"Currency","Bezahlt von":"Paid by","Was":"What","E-Mail-Adresse:":"Email address:","Ungültige E-Mail-Adresse":"Invalid email address","Angemeldet – deine Daten werden synchronisiert":"Signed in – your data is being synced","Zu viele Versuche – bitte kurz warten":"Too many attempts – please wait a moment","Code falsch oder abgelaufen":"Code wrong or expired","Abmelden? Deine Daten bleiben auf diesem Gerät.":"Sign out? Your data stays on this device.","Tippe an, was du nicht gebraucht hast":"Tap what you did not use","Gespeichert – packapp merkt sich das für die nächste Reise":"Saved – packapp will remember this for the next trip","Speicher voll – Reise nicht archiviert":"Storage full – trip not archived","Liste aktualisiert":"List updated","Packliste aktualisieren":"Update packing list","Reise geändert (Ort, Zeitraum oder Höhe) – das Wetter muss neu geladen werden.":"Trip changed (place, dates or altitude) – the weather needs to be reloaded.","🌊 Die Wellenvorhersage gibt es etwa 7 Tage vorher. Bis dahin: auf der Karte aufs Meer tippen.":"🌊 Wave forecasts are available about 7 days ahead. Until then: tap on the sea on the map.","Boardshorts / Bikini":"Boardshorts / bikini","Neopren-Booties":"Wetsuit booties","Neopren-Haube":"Wetsuit hood","Neopren-Handschuhe":"Wetsuit gloves","🌊 Keine Wellendaten für diesen Ort – auf der Karte direkt aufs Meer tippen.":"🌊 No wave data for this place – tap directly on the sea on the map.","🌊 Wellen gibt es ab 16 Tage vorher als Vorhersage. Bis dahin: auf der Karte aufs Meer tippen.":"🌊 Wave forecasts start 16 days ahead. Until then: tap on the sea on the map.","Reise planen":"Plan a trip","Meine Vorlagen":"My templates","Als Vorlage speichern":"Save as template","Tippen zum Laden, Hinzufügen oder Teilen. Vorlagen bleiben auch bei „Neue Reise“ erhalten.":"Tap to load, add or share. Templates are kept when you start a new trip.","Name der Vorlage:":"Template name:","Vorlage überschreiben?":"Overwrite template?","Aktuelle Liste durch die Vorlage ersetzen?":"Replace the current list with the template?","Als neue Liste laden":"Load as new list","Zur aktuellen Liste hinzufügen":"Add to current list","Vorlage teilen":"Share template","Vorlage löschen?":"Delete template?","Vorlage speichern?":"Save template?","Sachen":"items","Packliste als Vorlage":"Packing list template","Ungültiger Vorlagen-Link":"Invalid template link","Dieser Browser kann die Vorlage nicht öffnen":"This browser cannot open the template","Speicher voll – Vorlage nicht gespeichert":"Storage full – template not saved","Sicherheitsprüfung fehlgeschlagen":"Security check failed","Sicherheitsprüfung abgelaufen":"Security check expired","Eintrag ist zu lang":"Entry is too long","jeder":"each","gemeinsam":"shared","Als persönlich markieren":"Mark as personal","Als gemeinsam markieren":"Mark as shared","Persönlich: jeder packt sein eigenes und hakt selbst ab.":"Personal: everyone packs their own and ticks it off themselves.","Länge / Art, z. B. 60 m Einfachseil":"Length / type, e.g. 60 m single rope","Details, z. B. Art oder Größe":"Details, e.g. type or size","– niemand":"– nobody","Noch keine Namen":"No names yet","Geteilte Liste":"Shared list","● live":"● live","verbinde …":"connecting …","offline – wird abgeglichen, sobald du wieder online bist":"offline – will sync when you are back online","Link kopiert – z. B. in WhatsApp einfügen":"Link copied – paste it into WhatsApp, for example","Geteilte Liste geöffnet":"Shared list opened","Liste ist jetzt nur noch auf diesem Gerät":"The list is now only on this device","Teilen braucht eine Internetverbindung":"Sharing needs an internet connection","Teilen ist noch nicht eingerichtet":"Sharing is not set up yet","Anonyme Anmeldung ist in Supabase noch ausgeschaltet":"Anonymous sign-in is still disabled in Supabase","Dein Name (sehen die anderen in der Liste):":"Your name (shown to the others on the list):","Packliste zum gemeinsamen Abhaken":"Packing list to tick off together","Die geteilte Liste ersetzt deine aktuelle Liste auf diesem Gerät. Fortfahren?":"The shared list replaces your current list on this device. Continue?","Liste nicht gefunden – vielleicht wurde der Link falsch kopiert oder erneuert":"List not found – maybe the link was copied incorrectly or renewed","Verwalten":"Manage","entfernen":"remove","Link erneuern":"Renew link","Liste verlassen":"Leave list","Liste für alle löschen":"Delete list for everyone","wiederherstellen":"restore","Wiederhergestellt":"Restored","Neuer Link – die alten Links gelten nicht mehr":"New link – the old links no longer work","Neuen Link erstellen? Alte Links gelten danach nicht mehr – wer schon dabei ist, bleibt dabei.":"Create a new link? Old links will stop working – people who already joined stay in.","Liste verlassen? Sie bleibt als Kopie auf diesem Gerät.":"Leave the list? A copy stays on this device.","Liste für alle löschen? Das lässt sich nicht rückgängig machen.":"Delete the list for everyone? This cannot be undone.","Aus der Liste entfernen?":"Remove from the list?","GPX laden":"Load GPX","GPX ersetzen":"Replace GPX","GPX entfernen":"Remove GPX","GPX wird gelesen …":"Reading GPX …","Keine Trackpunkte in der Datei gefunden":"No track points found in the file","Datei konnte nicht gelesen werden":"Could not read the file","Datei ist zu groß (max. 15 MB)":"File is too large (max. 15 MB)","Höchster Punkt (m, optional)":"Highest point (m, optional)","z. B. 2400 für Pass oder Gipfel":"e.g. 2400 for a pass or summit","Kalender schließen":"Close calendar","Voriger Monat":"Previous month","Nächster Monat":"Next month","Zurücksetzen":"Reset","Übernehmen":"Apply",
 "Eigene Sportart":"Own activity","Name":"Name","z. B. Kanu, Paragliding, Fotografie":"e.g. canoe, paragliding, photography","Packliste dieser Sportart":"Packing list for this activity",
 "Anz.":"Qty","Anzahl":"Quantity","Löschen":"Delete","Speichern":"Save","Schließen":"Close","Sportart bearbeiten":"Edit activity",
@@ -2173,6 +2185,10 @@ function updateLegMarkers(fit){
     m.bindTooltip(el("span",{},"Etappe "+(i+1)+" · "+((leg&&placeName(leg.place))||w.loc)));
     m.on("click",()=>showPoint(w.lat,w.lon));
     legLayer.addLayer(m);pts.push([w.lat,w.lon]);
+    const n=(state.near||{})[i];
+    if(n&&n.items&&n.key===w.lat+","+w.lon)n.items.forEach(x=>{const p=L.marker([x.lat,x.lon],{keyboard:false,title:x.name,
+      icon:L.divIcon({className:"near-pin",html:"<span>"+NEAR_KIND[x.kind][0]+"</span>",iconSize:[24,24],iconAnchor:[12,12]})});
+      p.bindTooltip(el("span",{},x.name+(x.info?" · "+x.info:"")));p.on("click",()=>showPoint(x.lat,x.lon));legLayer.addLayer(p);});
   });
   if(fit&&pts.length){if(pts.length===1)map.setView(pts[0],9);else map.fitBounds(pts,{padding:[40,40],maxZoom:10});}
 }
@@ -2792,6 +2808,96 @@ function suggestMeals(){
   const ms=[];all.forEach(o=>Object.entries(o).forEach(([id,n])=>ms.push({id,n})));
   state.meals=ms;applyMeals();toast("Vorschlag erstellt – Rezepte nach Lust tauschen",3000);
 }
+/* ---------- In der Nähe: Gebiete aus OpenStreetMap + Links zu Seiten/Apps und Führern ---------- */
+const NEAR_R=20000;
+const NEAR_KIND={climb:["🧗","Klettergebiete"],vf:["⛓","Klettersteige"],hut:["🏠","Hütten"],camp:["⛺","Camping & Stellplätze"]};
+const ALPINE=["skitour","skihochtour","hochtour","mehrseil","eis","klettersteig"];
+function nearKinds(l){const S=new Set(l.sports||[]),k=[];
+  if(CLIMB_SUBS.some(x=>x!=="klettersteig"&&S.has(x)))k.push("climb");
+  if(S.has("klettersteig"))k.push("vf");
+  if(["skitour","skihochtour","hochtour","backpacking"].some(x=>S.has(x)))k.push("hut");
+  if(l.stay==="zelt"||l.stay==="camper")k.push("camp");
+  return k;}
+function nearQuery(kinds,lat,lon,camper){
+  const a="(around:"+NEAR_R+","+lat.toFixed(4)+","+lon.toFixed(4)+")", q=[];
+  if(kinds.includes("climb"))q.push('nwr["sport"="climbing"]["leisure"!="sports_centre"]["building"!~"."]'+a,'nwr["climbing"~"^(crag|area|boulder)$"]'+a);
+  if(kinds.includes("vf"))q.push('way["highway"="via_ferrata"]["name"]'+a);
+  if(kinds.includes("hut"))q.push('nwr["tourism"~"^(alpine_hut|wilderness_hut)$"]'+a);
+  if(kinds.includes("camp"))q.push('nwr["tourism"="camp_site"]'+a,...(camper?['nwr["tourism"="caravan_site"]'+a]:[]));
+  return "[out:json][timeout:25];("+q.join(";")+";);out center tags 300;";}
+const kmBetween=(a,b,c,d)=>{const R=6371,r=Math.PI/180,x=Math.sin((c-a)*r/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin((d-b)*r/2)**2;return 2*R*Math.asin(Math.sqrt(x));};
+function nearParse(j,lat,lon){
+  const seen=new Set(),out=[];
+  (j.elements||[]).forEach(e=>{const t=e.tags||{},n=(t["name:"+LANG]||t.name||"").trim();if(!n)return;
+    const kind=t.tourism==="camp_site"||t.tourism==="caravan_site"?"camp":/hut$/.test(t.tourism||"")?"hut":t.highway==="via_ferrata"||t.climbing==="via_ferrata"?"vf":"climb";
+    const k=kind+"|"+n.toLowerCase();if(seen.has(k))return;seen.add(k);
+    const la=e.lat??(e.center&&e.center.lat),lo=e.lon??(e.center&&e.center.lon);if(la==null)return;
+    const g=["french","uiaa","uia","yds_class"].map(s=>[t["climbing:grade:"+s+":min"],t["climbing:grade:"+s+":max"]]).find(x=>x[0]||x[1]);
+    const info=[kind==="climb"&&(t.climbing==="boulder"||t["climbing:boulder"]==="yes")?"Bouldern":"",
+      t["climbing:routes"]?t["climbing:routes"]+" Routen":"",g?[g[0],g[1]].filter(Boolean).join("–"):"",
+      t.via_ferrata_scale?"Schwierigkeit "+t.via_ferrata_scale:"",t.ele?Math.round(+t.ele)+" m":"",t.tourism==="caravan_site"?"Stellplatz":""].filter(Boolean).join(" · ");
+    out.push({kind,name:n.slice(0,80),lat:la,lon:lo,km:kmBetween(lat,lon,la,lo),info,osm:e.type+"/"+e.id});});
+  out.sort((a,b)=>a.km-b.km);
+  const per={};return out.filter(x=>(per[x.kind]=(per[x.kind]||0)+1)<=8);}
+async function loadNear(i){
+  const w=state.wx[i],l=state.inputs.legs[i];if(!w||w.lat==null)return;
+  state.near=state.near||{};state.near[i]={key:w.lat+","+w.lon,busy:true};renderNear();
+  try{const j=await getJSON("https://overpass-api.de/api/interpreter?data="+encodeURIComponent(nearQuery(nearKinds(l),w.lat,w.lon,l.stay==="camper")));
+    state.near[i]={key:w.lat+","+w.lon,items:nearParse(j,w.lat,w.lon)};}
+  catch(e){state.near[i]={key:w.lat+","+w.lon,err:"OpenStreetMap antwortet gerade nicht – bitte später nochmal versuchen."};}
+  save();renderNear();updateLegMarkers(false);}
+const gSearch=q=>"https://www.google.com/search?q="+encodeURIComponent(q);
+function c2cLink(lat,lon,acts){const m=20037508.34,x=lon*m/180,y=Math.log(Math.tan((90+lat)*Math.PI/360))/(Math.PI/180)*m/180,d=15000/Math.cos(lat*Math.PI/180);
+  return "https://www.camptocamp.org/routes?bbox="+[x-d,y-d,x+d,y+d].map(Math.round).join(",")+"&act="+acts.join(",");}
+function nearLinks(l,w){
+  const S=new Set(l.sports||[]),p=placeName(l.place)||w.loc||"",cc=(w.country&&w.country.cc)||"",links=[],books=[];
+  const climb=CLIMB_SUBS.some(x=>x!=="klettersteig"&&S.has(x));
+  const tirol=cc==="AT"&&w.lat>46.6&&w.lat<47.8&&w.lon>10.1&&w.lon<12.97;
+  if(climb){links.push(["theCrag",gSearch("site:thecrag.com "+p)],["27crags",gSearch("site:27crags.com "+p)],["Vertical-Life","https://www.vertical-life.info"]);
+    if(tirol)links.push(["Climbers Paradise",gSearch("site:climbers-paradise.com "+p)]);
+    if(cc==="JP")links.push(["ROCKTOPO","https://www.rocktopo.net/en"]);}
+  const ACT={skitour:"skitouring",skihochtour:"skitouring",hochtour:"snow_ice_mixed",mehrseil:"rock_climbing",trad:"rock_climbing",sport:"rock_climbing",klettersteig:"via_ferrata",eis:"ice_climbing",backpacking:"hiking",mtb:"mountain_biking"};
+  const acts=[...new Set([...S].map(x=>ACT[x]).filter(Boolean))];
+  if(acts.length)links.push(["Camptocamp (Touren & Berichte)",c2cLink(w.lat,w.lon,acts)]);
+  if(S.has("mtb")||S.has("gravel"))links.push(["Trailforks",gSearch("site:trailforks.com "+p)]);
+  /* Führer: Verlage passend zu Land und Sportart – Link sucht „Verlag + Führer + Ort“ */
+  const CLIMB_PUB={DE:["Panico","Gebro","Geoquest","TMMS"],AT:["Panico","TMMS","Alpinverlag"],IT:["Versante Sud","Panico","TMMS"],CH:["SAC Verlag","Filidor","Panico"],
+    FR:["TMMS","Rockfax","Panico"],ES:["Rockfax"],PT:["Rockfax"],GR:["Rockfax","Panico"],GB:["Rockfax"],HR:["Panico"],SI:["Panico"]};
+  const TOUR_PUB={DE:["Rother","Panico"],AT:["Rother","Alpinverlag","Panico"],IT:["Rother","Versante Sud"],CH:["SAC Verlag","Rother"],FR:["Rother"]};
+  const typ=climb?"Kletterführer":S.has("klettersteig")?"Klettersteigführer":S.has("skitour")||S.has("skihochtour")?"Skitourenführer":S.has("hochtour")?"Hochtourenführer":S.has("mtb")?"MTB-Führer":"";
+  if(typ){const pubs=climb?CLIMB_PUB[cc]:S.has("klettersteig")?(["DE","AT","CH","IT"].includes(cc)?["Alpinverlag","Rother"]:[]):TOUR_PUB[cc];
+    (pubs||[]).forEach(n=>books.push([n,gSearch(n+" "+typ+" "+p)]));
+    books.push([typ+" "+p+" suchen",gSearch(typ+" "+p)]);}
+  if(["hochtour","skihochtour","eis","mehrseil"].some(x=>S.has(x)))books.push(["Bergführer vor Ort",gSearch("staatlich geprüfter Bergführer "+p)]);
+  return{links,books};}
+function renderNear(){
+  const box=$("nearBox");if(!box)return;
+  const legs=state.items.length?state.inputs.legs.map((l,i)=>({l,i,w:state.wx[i]})).filter(x=>x.w&&x.w.lat!=null):[];
+  const blocks=legs.map(({l,i,w})=>{const kinds=nearKinds(l),{links,books}=nearLinks(l,w);
+    if(!kinds.length&&!links.length&&!books.length)return null;
+    const b=el("div",{class:"near-leg"});
+    if(legs.length>1)b.append(el("h4",{},"Etappe "+(i+1)+" · "+(placeName(l.place)||w.loc)));
+    const n=(state.near||{})[i],fresh=n&&n.key===w.lat+","+w.lon;
+    if(kinds.length){
+      if(fresh&&n.busy)b.append(el("p",{class:"hint"},"Suche in OpenStreetMap …"));
+      else if(fresh&&n.items){
+        if(!n.items.length)b.append(el("p",{class:"hint"},"Im Umkreis von 20 km nichts eingetragen."));
+        kinds.forEach(k=>{const its=n.items.filter(x=>x.kind===k);if(!its.length)return;
+          b.append(el("div",{class:"near-h"},NEAR_KIND[k][0]+" "+NEAR_KIND[k][1]),el("ul",{class:"near-list"},...its.map(x=>{
+            const go=el("button",{type:"button",class:"linkbtn near-name"},x.name);
+            go.addEventListener("click",()=>{if(isMobile())setView("karte");else setMapHidden(false);if(map){map.setView([x.lat,x.lon],14);showPoint(x.lat,x.lon);}});
+            return el("li",{},go,el("span",{class:"near-km"},nf1.format(x.km)+" km"),x.info?el("span",{class:"near-info"},x.info):"",
+              el("a",{href:"https://www.openstreetmap.org/"+x.osm,target:"_blank",rel:"noopener",class:"near-osm","aria-label":"In OpenStreetMap öffnen"},"↗"));})));});
+        const again=el("button",{type:"button",class:"linkbtn"},"neu suchen");again.addEventListener("click",()=>loadNear(i));
+        b.append(el("p",{class:"hint"},"Daten © ",el("a",{href:"https://www.openstreetmap.org/copyright",target:"_blank",rel:"noopener"},"OpenStreetMap-Mitwirkende")," · ",again));
+      }else{const go=el("button",{type:"button",class:"btn ghost small"},"In der Nähe suchen: "+kinds.map(k=>NEAR_KIND[k][1]).join(", "));
+        go.addEventListener("click",()=>loadNear(i));b.append(go);
+        if(fresh&&n.err)b.append(el("p",{class:"err"},n.err));}}
+    const row=(lab,L)=>L.length?el("p",{class:"near-links"},el("span",{class:"hint"},lab+" "),...L.flatMap(([t,u],k)=>[k?" · ":"",el("a",{href:u,target:"_blank",rel:"noopener"},t+" ↗")])):"";
+    b.append(row("Seiten & Apps:",links),row("Führer:",books));
+    return b;}).filter(Boolean);
+  box.hidden=!blocks.length;if(!blocks.length)return;
+  box.replaceChildren(el("h3",{},el("span",{},"In der Nähe")),...blocks);}
 let mealShopSec=null;
 function renderMeals(){
   const box=$("mealBox");if(!box)return;
