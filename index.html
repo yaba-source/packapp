@@ -2856,9 +2856,9 @@ function nearLinks(l,w){
   if(climb){links.push(["theCrag",gSearch("site:thecrag.com "+p)],["27crags",gSearch("site:27crags.com "+p)],["Vertical-Life","https://www.vertical-life.info"]);
     if(tirol)links.push(["Climbers Paradise",gSearch("site:climbers-paradise.com "+p)]);
     if(cc==="JP")links.push(["ROCKTOPO","https://www.rocktopo.net/en"]);}
-  const ACT={skitour:"skitouring",skihochtour:"skitouring",hochtour:"snow_ice_mixed",mehrseil:"rock_climbing",trad:"rock_climbing",sport:"rock_climbing",klettersteig:"via_ferrata",eis:"ice_climbing",backpacking:"hiking",mtb:"mountain_biking"};
+  const ACT={offpiste:"skitouring",skitour:"skitouring",skihochtour:"skitouring",hochtour:"snow_ice_mixed",mehrseil:"rock_climbing",trad:"rock_climbing",sport:"rock_climbing",klettersteig:"via_ferrata",eis:"ice_climbing",backpacking:"hiking",mtb:"mountain_biking"};
   const acts=[...new Set([...S].map(x=>ACT[x]).filter(Boolean))];
-  if((S.has("skitour")||S.has("skihochtour"))&&["CH","AT","DE","IT","FR","SI","LI"].includes(cc))links.push(["Skitourenguru","https://www.skitourenguru.ch"]);
+  if((S.has("skitour")||S.has("skihochtour")||S.has("offpiste"))&&["CH","AT","DE","IT","FR","SI","LI"].includes(cc))links.push(["Skitourenguru","https://www.skitourenguru.ch"]);
   if(acts.length)links.push(["Camptocamp (Touren & Berichte)",c2cLink(w.lat,w.lon,acts)]);
   /* Alpenvereine je nach Land (Touren, Hütten, Bedingungen) */
   if(acts.length){if(["DE","AT","IT"].includes(cc))links.push(["alpenvereinaktiv (DAV/ÖAV/AVS)","https://www.alpenvereinaktiv.com"]);
