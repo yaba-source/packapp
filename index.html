@@ -2883,11 +2883,11 @@ const gSearch=q=>"https://www.google.com/search?q="+encodeURIComponent(q);
 function c2cLink(lat,lon,acts){const m=20037508.34,x=lon*m/180,y=Math.log(Math.tan((90+lat)*Math.PI/360))/(Math.PI/180)*m/180,d=15000/Math.cos(lat*Math.PI/180);
   return "https://www.camptocamp.org/routes?bbox="+[x-d,y-d,x+d,y+d].map(Math.round).join(",")+"&act="+acts.join(",");}
 function nearLinks(l,w){
-  const S=new Set(l.sports||[]),p=placeName(l.place)||w.loc||"",cc=(w.country&&w.country.cc)||"",links=[],books=[];
+  const S=new Set(l.sports||[]),p=(placeName(l.place)||w.loc||"").split(/\s+[-–]\s+|,/)[0].trim(),cc=(w.country&&w.country.cc)||"",links=[],books=[];
   const climb=CLIMB_SUBS.some(x=>x!=="klettersteig"&&S.has(x));
   const tirol=cc==="AT"&&w.lat>46.6&&w.lat<47.8&&w.lon>10.1&&w.lon<12.97;
-  if(climb){links.push(["theCrag",gSearch("site:thecrag.com "+p)],["27crags",gSearch("site:27crags.com "+p)],["Vertical-Life","https://www.vertical-life.info"]);
-    if(tirol)links.push(["Climbers Paradise",gSearch("site:climbers-paradise.com "+p)]);
+  if(climb){links.push(["theCrag",gSearch("theCrag "+p)],["27crags",gSearch("27crags "+p)],["Vertical-Life","https://www.vertical-life.info"]);
+    if(tirol)links.push(["Climbers Paradise",gSearch("Climbers Paradise "+p)]);
     if(cc==="JP")links.push(["ROCKTOPO","https://www.rocktopo.net/en"]);}
   const ACT={offpiste:"skitouring",skitour:"skitouring",skihochtour:"skitouring",hochtour:"snow_ice_mixed",mehrseil:"rock_climbing",trad:"rock_climbing",sport:"rock_climbing",klettersteig:"via_ferrata",eis:"ice_climbing",backpacking:"hiking",mtb:"mountain_biking"};
   const acts=[...new Set([...S].map(x=>ACT[x]).filter(Boolean))];
@@ -2897,13 +2897,13 @@ function nearLinks(l,w){
   if(acts.length){if(["DE","AT","IT"].includes(cc))links.push(["alpenvereinaktiv (DAV/ÖAV/AVS)","https://www.alpenvereinaktiv.com"]);
     ({CH:[["SAC-Tourenportal","https://www.sac-cas.ch/en/huts-and-tours/sac-route-portal/"]],IT:[["CAI","https://www.cai.it"]],FR:[["FFCAM","https://www.ffcam.fr"]]}[cc]||[]).forEach(x=>links.push(x));}
   /* Außerhalb der Alpen: Lawinendienst, Tourenportale und Alpenclub je nach Land */
-  const MP=["Mountain Project",gSearch("site:mountainproject.com "+p)];
+  const MP=["Mountain Project",gSearch("Mountain Project "+p)];
   const XL={JP:{ava:[["Japan Avalanche Network (Hokkaido)","https://nadare.jp/"]],tour:[["YAMAP","https://yamap.com"],["Yamareco","https://www.yamareco.com"],["Japanese Alpine Club",gSearch("Japanese Alpine Club")]]},
     US:{ava:[["avalanche.org","https://avalanche.org"]],climb:[MP],tour:[["American Alpine Club","https://americanalpineclub.org"]]},
     CA:{ava:[["Avalanche Canada","https://avalanche.ca/map"]],climb:[MP],tour:[["Alpine Club of Canada","https://www.alpineclubofcanada.ca"]]},
     NO:{ava:[["Varsom","https://www.varsom.no"]],tour:[["UT.no (DNT)","https://ut.no"]]}}[cc];
   if(XL){if(AVA_SPORTS.some(x=>S.has(x)))links.push(...(XL.ava||[]));if(climb)links.push(...(XL.climb||[]));if(acts.length)links.push(...(XL.tour||[]));}
-  if(S.has("mtb")||S.has("gravel"))links.push(["Trailforks",gSearch("site:trailforks.com "+p)]);
+  if(S.has("mtb")||S.has("gravel"))links.push(["Trailforks",gSearch("Trailforks "+p)]);
   /* Führer: Verlage passend zu Land und Sportart – Link sucht „Verlag + Führer + Ort“ */
   const CLIMB_PUB={DE:["Panico","Gebro","Geoquest","TMMS"],AT:["Panico","TMMS","Alpinverlag"],IT:["Versante Sud","Panico","TMMS"],CH:["SAC Verlag","Filidor","Panico"],
     FR:["TMMS","Rockfax","Panico"],ES:["Rockfax"],PT:["Rockfax"],GR:["Rockfax","Panico"],GB:["Rockfax"],HR:["Panico"],SI:["Panico"]};
