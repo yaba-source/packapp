@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://unpkg.com; font-src 'self'; img-src 'self' data: blob: https://unpkg.com https://*.tile.opentopomap.org https://tile.openstreetmap.org https://server.arcgisonline.com; connect-src 'self' https://*.open-meteo.com https://my.meteoblue.com https://photon.komoot.io https://nominatim.openstreetmap.org https://regions.avalanches.org https://static.avalanche.report https://overpass-api.de https://xcuiygrxvmtipjdplgzm.supabase.co wss://xcuiygrxvmtipjdplgzm.supabase.co; frame-src https://challenges.cloudflare.com; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://unpkg.com; font-src 'self'; img-src 'self' data: blob: https://unpkg.com https://*.tile.opentopomap.org https://tile.openstreetmap.org https://server.arcgisonline.com; connect-src 'self' https://*.open-meteo.com https://my.meteoblue.com https://photon.komoot.io https://nominatim.openstreetmap.org https://regions.avalanches.org https://static.avalanche.report https://api.avalanche.org https://avcan-services-api.prod.avalanche.ca https://api01.nve.no https://overpass-api.de https://xcuiygrxvmtipjdplgzm.supabase.co wss://xcuiygrxvmtipjdplgzm.supabase.co; frame-src https://challenges.cloudflare.com; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>packapp</title>
 <meta name="description" content="Packliste nach Ort, Etappen und Sportarten, mit Wetter, Schnee und Wellen auf der Karte">
@@ -1240,7 +1240,38 @@ function avaPick(r,id){
   return{max:+r[id],high:v(":high"),low:v(":low"),am:v(":am"),pm:v(":pm")};
 }
 /* Berichte gibt es nur für heute und (ab dem Nachmittag) morgen. Liegt die Reise weiter weg, zeigen wir die heutige Lage als Orientierung. */
+/* Außerhalb Europas: USA (avalanche.org), Kanada (Avalanche Canada), Norwegen (Varsom/NVE) */
+const AVA_SRC={EAWS:["EAWS","https://www.avalanches.org"],US:["avalanche.org","https://avalanche.org"],CA:["Avalanche Canada","https://avalanche.ca/map"],NO:["Varsom","https://www.varsom.no"]};
+function avaDays(s,e){const today=todayUTC(),tom=addDays(today,2),days=[];
+  for(let d=s<today?today:s;d<=e&&d<=tom;d=addDays(d,1))days.push(iso(d));return{now:!days.length,days:days.length?days:[iso(today)]};}
+async function avaUS(loc,s,e,signal){
+  const j=await avaJSON("https://api.avalanche.org/v2/public/products/map-layer",signal);
+  const f=(j.features||[]).find(f=>inGeom(f.geometry,+loc.lon,+loc.lat));if(!f)return null;
+  const p=f.properties||{},{now,days}=avaDays(s,e),today=iso(todayUTC());
+  const out=days.includes(today)&&!p.off_season&&p.danger_level>0?[{d:today,max:+p.danger_level}]:[];
+  return{src:"US",id:p.name||p.center_id||"",link:p.link||p.center_link||"",now:now||!days.includes(today),days:out,max:out.length?out[0].max:null};
+}
+const CA_LV={low:1,moderate:2,considerable:3,high:4,extreme:5};
+async function avaCA(loc,s,e,signal){
+  const j=await avaJSON("https://avcan-services-api.prod.avalanche.ca/forecasts/en/products/point?lat="+(+loc.lat).toFixed(4)+"&long="+(+loc.lon).toFixed(4),signal);
+  const r=j&&j.report;if(!r)return null;
+  const all=(r.dangerRatings||[]).map(x=>{const R=x.ratings||{},v=k=>R[k]&&R[k].rating?CA_LV[R[k].rating.value]??null:null;
+    const L=[v("alp"),v("tln"),v("btl")].filter(n=>n!=null);return L.length?{d:String(x.date&&x.date.value||"").slice(0,10),max:Math.max(...L),high:v("alp"),low:v("btl")}:null;}).filter(Boolean);
+  const {now,days}=avaDays(s,e),hit=all.filter(x=>days.includes(x.d)),out=hit.length?hit:all.slice(0,1);
+  return{src:"CA",id:r.title||"Avalanche Canada",link:"https://avalanche.ca/map",now:now||!hit.length,days:out,max:out.length?Math.max(...out.map(x=>x.max)):null};
+}
+async function avaNO(loc,s,e,signal){
+  const {now,days}=avaDays(s,e);
+  const j=await avaJSON("https://api01.nve.no/hydrology/forecast/avalanche/v6.3.2/api/AvalancheWarningByCoordinates/Simple/"+(+loc.lat).toFixed(4)+"/"+(+loc.lon).toFixed(4)+"/"+(LANG==="en"?2:1)+"/"+days[0]+"/"+days[days.length-1],signal);
+  const L=Array.isArray(j)?j:[];if(!L.length)return null;
+  const out=L.map(x=>({d:String(x.ValidFrom||"").slice(0,10),max:+x.DangerLevel})).filter(x=>x.max>0);
+  return{src:"NO",id:L[0].RegionName||"",link:"https://www.varsom.no",now,days:out,max:out.length?Math.max(...out.map(x=>x.max)):null};
+}
 async function fetchAva(loc,s,e,signal){
+  const cc=String(loc.cc||"").toUpperCase();
+  if(cc==="US")return avaUS(loc,s,e,signal);
+  if(cc==="CA")return avaCA(loc,s,e,signal);
+  if(cc==="NO")return avaNO(loc,s,e,signal);
   const reg=await avaRegion(+loc.lat,+loc.lon,signal);if(!reg)return null;
   const today=todayUTC(), tom=addDays(today,1), days=[];
   for(let d=s<today?today:s;d<=e&&d<=tom;d=addDays(d,1))days.push(d);
@@ -1249,6 +1280,7 @@ async function fetchAva(loc,s,e,signal){
   return{...reg,now,days:out,max:out.length?Math.max(...out.map(x=>x.max)):null};
 }
 function avaLink(a){
+  if(a.link)return a.link;
   const id=a.id||"", t=a.top||"", d=a.days&&a.days.length?a.days[a.days.length-1].d:iso(todayUTC());
   if(/^(AT-07|IT-32-BZ|IT-32-TN)/.test(id))return(LANG==="en"?"https://avalanche.report":"https://lawinen.report")+"/bulletin/"+d;
   if(t.startsWith("CH"))return"https://www.slf.ch/de/lawinenbulletin-und-schneesituation/";
@@ -1378,7 +1410,7 @@ async function fetchWeather(inp,signal){
   const loc=await geocode(inp.place,signal);
   const {s,e}=tripRange(inp), today=todayUTC(), key=getKey();
   const ccP=countryOf(loc,signal).catch(()=>"");
-  const avaP=(inp.sports||[]).some(x=>AVA_SPORTS.includes(x))?fetchAva(loc,s,e,signal).catch(()=>null):Promise.resolve(null);
+  const avaP=(inp.sports||[]).some(x=>AVA_SPORTS.includes(x))?ccP.then(cc=>fetchAva({...loc,cc:loc.cc||cc},s,e,signal)).catch(()=>null):Promise.resolve(null);
   const locLabel=loc.name+(loc.region?", "+loc.region:"")+(loc.cc?" ("+loc.cc+", "+loc.elev+" m)":"");
   if(e<today)throw new Error("Diese Etappe liegt in der Vergangenheit");
   if(s<=addDays(today,15)){
@@ -1509,7 +1541,8 @@ function render(){
   if(srcs.has("meteoblue"))attrib.append(srcs.size>1?", ":"",el("a",{href:"https://www.meteoblue.com",target:"_blank",rel:"noopener"},"meteoblue"));
   if(wxs.some(x=>x.w.country)){const hb=el("button",{type:"button",class:"linkbtn"},"Heimatland: "+countryName(homeCC())+" – ändern");
     hb.addEventListener("click",setHome);attrib.append(el("br"),hb);}
-  if(wxs.some(x=>x.w.ava))attrib.append(" · Lawinen: ",el("a",{href:"https://www.avalanches.org",target:"_blank",rel:"noopener"},"EAWS"));
+  const avs=[...new Set(wxs.filter(x=>x.w.ava).map(x=>x.w.ava.src||"EAWS"))];
+  if(avs.length)attrib.append(" · Lawinen: ",...avs.flatMap((k,n)=>{const[t,u]=AVA_SRC[k]||AVA_SRC.EAWS;return[n?", ":"",el("a",{href:u,target:"_blank",rel:"noopener"},t)];}));
   notes.replaceChildren(...blocks,attrib);
 
   const cats=catOrder(state.items), box=$("cats");
@@ -2863,6 +2896,13 @@ function nearLinks(l,w){
   /* Alpenvereine je nach Land (Touren, Hütten, Bedingungen) */
   if(acts.length){if(["DE","AT","IT"].includes(cc))links.push(["alpenvereinaktiv (DAV/ÖAV/AVS)","https://www.alpenvereinaktiv.com"]);
     ({CH:[["SAC-Tourenportal","https://www.sac-cas.ch/en/huts-and-tours/sac-route-portal/"]],IT:[["CAI","https://www.cai.it"]],FR:[["FFCAM","https://www.ffcam.fr"]]}[cc]||[]).forEach(x=>links.push(x));}
+  /* Außerhalb der Alpen: Lawinendienst, Tourenportale und Alpenclub je nach Land */
+  const MP=["Mountain Project",gSearch("site:mountainproject.com "+p)];
+  const XL={JP:{ava:[["Japan Avalanche Network (Hokkaido)","https://nadare.jp/"]],tour:[["YAMAP","https://yamap.com"],["Yamareco","https://www.yamareco.com"],["Japanese Alpine Club",gSearch("Japanese Alpine Club")]]},
+    US:{ava:[["avalanche.org","https://avalanche.org"]],climb:[MP],tour:[["American Alpine Club","https://americanalpineclub.org"]]},
+    CA:{ava:[["Avalanche Canada","https://avalanche.ca/map"]],climb:[MP],tour:[["Alpine Club of Canada","https://www.alpineclubofcanada.ca"]]},
+    NO:{ava:[["Varsom","https://www.varsom.no"]],tour:[["UT.no (DNT)","https://ut.no"]]}}[cc];
+  if(XL){if(AVA_SPORTS.some(x=>S.has(x)))links.push(...(XL.ava||[]));if(climb)links.push(...(XL.climb||[]));if(acts.length)links.push(...(XL.tour||[]));}
   if(S.has("mtb")||S.has("gravel"))links.push(["Trailforks",gSearch("site:trailforks.com "+p)]);
   /* Führer: Verlage passend zu Land und Sportart – Link sucht „Verlag + Führer + Ort“ */
   const CLIMB_PUB={DE:["Panico","Gebro","Geoquest","TMMS"],AT:["Panico","TMMS","Alpinverlag"],IT:["Versante Sud","Panico","TMMS"],CH:["SAC Verlag","Filidor","Panico"],
