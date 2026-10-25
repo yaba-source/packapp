@@ -311,22 +311,30 @@ table.fc td.num{font-family:var(--f-mono);font-size:.82rem}
 body.view-essen .main > :not(.sign):not(.pages):not(#mealBox):not(.toast):not(.page-empty),
 body.view-kosten .main > :not(.sign):not(.pages):not(#costBox):not(.toast):not(.page-empty){display:none}
 body.view-essen .page-empty:not([hidden]),body.view-kosten .page-empty:not([hidden]){display:block}
-body:not(.view-essen) #mealBox,body:not(.view-kosten) #costBox{display:none}
+body:not(.view-essen) #mealBox,body:not(.view-kosten) #costBox,body:not(.view-ausruestung) #gearBox{display:none}
+body.view-ausruestung .main > :not(.sign):not(.pages):not(#gearBox):not(.toast){display:none}
+body.view-ausruestung #gearBox{margin-top:0}
+.gear-add{display:flex;gap:8px}.gear-add input{flex:1;min-width:0}
+.gear-cat{display:flex;flex-direction:column;gap:2px}.gear-cat-h{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:6px}
+.gear-it{font-size:.92rem}
+.gear-all{display:flex;flex-wrap:wrap;gap:6px}.gear-chip{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:999px;padding:2px 4px 2px 10px;font-size:.88rem}
+.gear-chip .del{width:26px;height:26px}
+.tag.miss{background:#FDECEA;color:#B42318}
 body.view-essen .toast:empty,body.view-kosten .toast:empty{display:none}
 body.view-essen #mealBox,body.view-kosten #costBox{margin-top:0}
 @media (max-width:860px){
   body{padding-block:14px calc(86px + env(safe-area-inset-bottom,0px))}
   .wrap{gap:16px}
-  .tabbar{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;position:fixed;left:0;right:0;bottom:0;z-index:1000;background:var(--surface);border-top:1px solid var(--line);
+  .tabbar{display:grid;grid-template-columns:repeat(6,1fr);gap:2px;position:fixed;left:0;right:0;bottom:0;z-index:1000;background:var(--surface);border-top:1px solid var(--line);
     padding:6px max(10px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px))}
   .tab{font:inherit;background:none;border:0;color:var(--muted);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 4px;border-radius:10px;font-size:.8rem;font-weight:600;cursor:pointer;min-height:54px}
   .tab svg{width:24px;height:24px;flex:none}
   .tab[aria-current="page"]{color:var(--accent);background:var(--new-bg)}
   .tab .count{font-family:var(--f-mono);font-weight:500;font-size:.7rem;font-variant-numeric:tabular-nums}
   body.view-reise .main{display:none}
-  body.view-karte .panel,body.view-liste .panel,body.view-essen .panel,body.view-kosten .panel{display:none}
+  body.view-karte .panel,body.view-liste .panel,body.view-essen .panel,body.view-kosten .panel,body.view-ausruestung .panel{display:none}
   .pages{display:none!important}
-  .tab{font-size:.72rem}
+  .tab{font-size:.66rem;padding:6px 1px}
   body.view-karte .main > :not(.mapcard){display:none}
   body.view-liste .main > .mapcard{display:none}
   .map-head .btn{display:none}
@@ -521,6 +529,7 @@ body.view-essen #mealBox,body.view-kosten #costBox{margin-top:0}
       <button class="pg" type="button" data-view="liste">Packliste</button>
       <button class="pg" type="button" data-view="essen">Essen</button>
       <button class="pg" type="button" data-view="kosten">Kosten</button>
+      <button class="pg" type="button" data-view="ausruestung">Ausrüstung</button>
     </nav>
     <p class="hint page-empty" id="pageEmpty">Erstelle zuerst unter „Reise“ eine Packliste – dann kannst du hier planen.</p>
 
@@ -583,6 +592,7 @@ body.view-essen #mealBox,body.view-kosten #costBox{margin-top:0}
     <div class="cats" id="cats"></div>
     <section class="costs" id="costBox" hidden></section>
     <section class="costs meals" id="mealBox" hidden></section>
+    <section class="costs gear" id="gearBox"></section>
     <textarea id="copyArea" aria-hidden="true" tabindex="-1" style="position:absolute;left:-9999px;width:1px;height:1px"></textarea>
   </main>
 </div>
@@ -635,6 +645,7 @@ body.view-essen #mealBox,body.view-kosten #costBox{margin-top:0}
   <button class="tab" type="button" data-view="liste"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l1.8 1.8L9 5.5M4 14l1.8 1.8L9 12.5"/><path d="M12 7.5h8M12 14.5h8M5 20h15"/></svg><span>Liste <span class="count" id="tabCount"></span></span></button>
   <button class="tab" type="button" data-view="essen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11h18"/><path d="M5 11v5a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4v-5"/><path d="M9 7c0-1 1-1.5 1-2.5M13 7c0-1 1-1.5 1-2.5"/></svg>Essen</button>
   <button class="tab" type="button" data-view="kosten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M15 9.2a3.2 3.2 0 1 0 0 5.6M8 11h5M8 13h5"/></svg>Kosten</button>
+  <button class="tab" type="button" data-view="ausruestung"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7V5a4 4 0 0 1 8 0v2"/><rect x="5" y="7" width="14" height="14" rx="3"/><path d="M9 14h6v3H9z"/></svg>Ausrüstung</button>
 </nav>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
@@ -1511,7 +1522,7 @@ function render(){
     go.addEventListener("click",()=>setView("reise"));
     $("cats").replaceChildren(el("div",{class:"empty-hero"},logo?logo.cloneNode(true):"",el("span",{class:"eh-name"},"packapp"),
       el("p",{class:"empty"},"Noch keine Packliste. Trag unter „Reise“ Ort, Zeitraum und Sportarten ein und tippe auf „Packliste erstellen“."),go));
-    updateLegMarkers(false);return;
+    renderGear();updateLegMarkers(false);return;
   }
   const noPlace=inp.legs.every(l=>!placeName(l.place));
   $("signPlace").textContent=noPlace&&state.tplName?state.tplName:(inp.legs.map(l=>placeName(l.place)||"?").join(" → ")||"Ohne Ort");
@@ -1569,6 +1580,7 @@ function render(){
       const lab=el("label",{htmlFor:id},el("span",{class:"name"},it.name));
       if(it.qty)lab.append(el("span",{class:"qty"},"×"+it.qty));
       if(it.src==="custom")lab.append(el("span",{class:"tag"},"eigen"));
+      if(gearMissing(it))lab.append(el("span",{class:"tag miss",title:"Nicht in deiner Ausrüstung – kaufen oder leihen"},"fehlt"));
       if(state.shared&&grp)lab.append(el("span",{class:"tag grp"},"gemeinsam"));
       if(state.shared){const by=grp?(it.done?splitNames(it.done_by):[]):splitNames(it.done_by).filter(n=>n!==me);
         if(by.length)lab.append(el("span",{class:"by no-tr"},"✓ "+by.join(", ")));}
@@ -1616,7 +1628,7 @@ function render(){
   const opts=[...new Set([...cats,"Eigene"])];
   sel.replaceChildren(...opts.map(c=>el("option",{value:c},c)));
   if(opts.includes(cur))sel.value=cur;
-  renderShareBar();renderReview();renderCosts();renderMeals();renderNear();
+  renderShareBar();renderReview();renderCosts();renderMeals();renderNear();renderGear();
   updateLegMarkers(false);
 }
 function toast(msg,ms){$("toast").textContent=msg;clearTimeout(toast.t);toast.t=setTimeout(()=>{$("toast").textContent="";},ms||2500);}
@@ -1889,7 +1901,7 @@ const EN={
 "Ausblenden":"Hide","Einblenden":"Show","Karte, zum Abfragen klicken":"Map, tap to check conditions",
 "Gepacktes ausblenden":"Hide packed","Für Erinnerungen kopieren":"Copy for Reminders","Als Text kopieren":"Copy as text","Alle Haken entfernen":"Uncheck all","Neue Reise":"New trip",
 "Eigenen Gegenstand hinzufügen":"Add your own item","Gegenstand":"Item","Kategorie":"Category","Hinzufügen":"Add","Stopp":"Stop",
-"Wetter wird abgefragt …":"Fetching weather …","Wetter wird abgefragt":"Fetching weather","Ansicht":"View","Suchen mit ":"Search with ","Suchmaschine":"Search engine","In der Nähe":"Nearby","Klettergebiete":"Climbing areas","Klettersteige":"Via ferratas","Hütten":"Huts","Camping & Stellplätze":"Campsites & pitches","Seiten & Apps:":"Sites & apps:","Führer:":"Guidebooks:","Bergführer vor Ort":"Local mountain guides","Suche in OpenStreetMap …":"Searching OpenStreetMap …","Im Umkreis von 20 km nichts eingetragen.":"Nothing mapped within 20 km.","neu suchen":"search again","OpenStreetMap-Mitwirkende":"OpenStreetMap contributors","In OpenStreetMap öffnen":"Open in OpenStreetMap","OpenStreetMap antwortet gerade nicht – bitte später nochmal versuchen.":"OpenStreetMap is not responding – please try again later.","Camptocamp (Touren & Berichte)":"Camptocamp (routes & reports)","Seite":"Page","Packliste":"Packing list","Essen":"Food","Erstelle zuerst unter „Reise“ eine Packliste – dann kannst du hier planen.":"First create a packing list under “Trip” – then you can plan here.","Reise":"Trip","Karte":"Map","Liste":"List",
+"Wetter wird abgefragt …":"Fetching weather …","Wetter wird abgefragt":"Fetching weather","Ansicht":"View","Suchen mit ":"Search with ","Suchmaschine":"Search engine","In der Nähe":"Nearby","Restday: Schwimmbäder & Badeplätze":"Rest day: pools & swimming spots","Restday: Sehenswertes & Aussicht":"Rest day: sights & viewpoints","Ausrüstung":"Gear","Meine Ausrüstung":"My gear","alle hab ich":"own all","z. B. Kletterseil 60 m":"e.g. climbing rope 60 m","Ausrüstung hinzufügen":"Add gear","Trag ein, was du besitzt. In der Packliste steht dann bei allem, was dir noch fehlt, „fehlt“ – zum Kaufen oder Leihen.":"Add what you own. The packing list then marks everything you are missing with “missing” – to buy or borrow.","Aus der aktuellen Packliste":"From the current packing list","Hak an, was du schon hast.":"Tick what you already own.","Du hast alles für diese Reise.":"You have everything for this trip.","Alles, was ich habe":"Everything I own","Noch nichts eingetragen.":"Nothing added yet.","fehlt":"missing","Nicht in deiner Ausrüstung – kaufen oder leihen":"Not in your gear – buy or borrow","Speicher voll – Ausrüstung nicht gespeichert":"Storage full – gear not saved","Kletter- & Boulderhallen (Plan B bei Regen)":"Climbing & bouldering gyms (plan B for rain)","🌧 Regen angesagt – Plan B: Kletter- und Boulderhallen in der Nähe (bis 30 km).":"🌧 Rain forecast – plan B: climbing and bouldering gyms nearby (up to 30 km).","Klettergebiete":"Climbing areas","Klettersteige":"Via ferratas","Hütten":"Huts","Camping & Stellplätze":"Campsites & pitches","Seiten & Apps:":"Sites & apps:","Führer:":"Guidebooks:","Bergführer vor Ort":"Local mountain guides","Suche in OpenStreetMap …":"Searching OpenStreetMap …","Im Umkreis von 20 km nichts eingetragen.":"Nothing mapped within 20 km.","neu suchen":"search again","OpenStreetMap-Mitwirkende":"OpenStreetMap contributors","In OpenStreetMap öffnen":"Open in OpenStreetMap","OpenStreetMap antwortet gerade nicht – bitte später nochmal versuchen.":"OpenStreetMap is not responding – please try again later.","Camptocamp (Touren & Berichte)":"Camptocamp (routes & reports)","Seite":"Page","Packliste":"Packing list","Essen":"Food","Erstelle zuerst unter „Reise“ eine Packliste – dann kannst du hier planen.":"First create a packing list under “Trip” – then you can plan here.","Reise":"Trip","Karte":"Map","Liste":"List",
 "Zeitraum":"Dates","Liste teilen":"Share list","Link senden":"Send link","Nicht mehr teilen":"Stop sharing","Wirklich?":"Sure?","wer?":"who?","Meine Reisen":"My trips","Jede Liste wird automatisch gespeichert. Nach der Reise „Auswerten“: packapp merkt sich, was du nicht gebraucht hast.":"Every list is saved automatically. After the trip, “Review”: packapp remembers what you did not use.","Konto & Sync":"Account & sync","Melde dich an, um Reisen, Vorlagen und eigene Sportarten auf allen Geräten zu haben.":"Sign in to have trips, templates and your own activities on all devices.","Mit E-Mail anmelden":"Sign in with email","Abmelden":"Sign out","Jetzt synchronisieren":"Sync now","Auswerten: Tippe bei allem, was du auf dieser Reise nicht benutzt hast, auf „✓ gebraucht“ – es wird zu „✕ nicht gebraucht“.":"Review: tap “✓ used” on everything you did not use on this trip – it turns into “✕ not used”.","Fertig":"Done","Reise auswerten":"Review trip","Auswertung ändern":"Edit review","nicht gebraucht":"not used","gebraucht":"used","Antippen zum Umschalten":"Tap to toggle","letztes Mal nicht gebraucht":"not used last time","weglassen":"drop","aktuell":"current","ausgewertet":"reviewed","Laden":"Load","Auswerten":"Review","Aus dem Archiv löschen":"Delete from archive","Reise aus dem Archiv löschen?":"Delete trip from archive?","Kosten":"Costs","Wer teilt:":"Shared by:","+ Person":"+ Person","Was? z. B. Sprit":"What? e.g. fuel","Betrag":"Amount","Alles ausgeglichen.":"All settled.","Bitte „Was“ und einen Betrag eingeben":"Please enter “what” and an amount","Name:":"Name:","Währung":"Currency","Bezahlt von":"Paid by","Was":"What","E-Mail-Adresse:":"Email address:","Ungültige E-Mail-Adresse":"Invalid email address","Angemeldet – deine Daten werden synchronisiert":"Signed in – your data is being synced","Zu viele Versuche – bitte kurz warten":"Too many attempts – please wait a moment","Code falsch oder abgelaufen":"Code wrong or expired","Abmelden? Deine Daten bleiben auf diesem Gerät.":"Sign out? Your data stays on this device.","Tippe an, was du nicht gebraucht hast":"Tap what you did not use","Gespeichert – packapp merkt sich das für die nächste Reise":"Saved – packapp will remember this for the next trip","Speicher voll – Reise nicht archiviert":"Storage full – trip not archived","Liste aktualisiert":"List updated","Packliste aktualisieren":"Update packing list","Reise geändert (Ort, Zeitraum oder Höhe) – das Wetter muss neu geladen werden.":"Trip changed (place, dates or altitude) – the weather needs to be reloaded.","🌊 Die Wellenvorhersage gibt es etwa 7 Tage vorher. Bis dahin: auf der Karte aufs Meer tippen.":"🌊 Wave forecasts are available about 7 days ahead. Until then: tap on the sea on the map.","Boardshorts / Bikini":"Boardshorts / bikini","Neopren-Booties":"Wetsuit booties","Neopren-Haube":"Wetsuit hood","Neopren-Handschuhe":"Wetsuit gloves","🌊 Keine Wellendaten für diesen Ort – auf der Karte direkt aufs Meer tippen.":"🌊 No wave data for this place – tap directly on the sea on the map.","🌊 Wellen gibt es ab 16 Tage vorher als Vorhersage. Bis dahin: auf der Karte aufs Meer tippen.":"🌊 Wave forecasts start 16 days ahead. Until then: tap on the sea on the map.","Reise planen":"Plan a trip","Meine Vorlagen":"My templates","Als Vorlage speichern":"Save as template","Tippen zum Laden, Hinzufügen oder Teilen. Vorlagen bleiben auch bei „Neue Reise“ erhalten.":"Tap to load, add or share. Templates are kept when you start a new trip.","Name der Vorlage:":"Template name:","Vorlage überschreiben?":"Overwrite template?","Aktuelle Liste durch die Vorlage ersetzen?":"Replace the current list with the template?","Als neue Liste laden":"Load as new list","Zur aktuellen Liste hinzufügen":"Add to current list","Vorlage teilen":"Share template","Vorlage löschen?":"Delete template?","Vorlage speichern?":"Save template?","Sachen":"items","Packliste als Vorlage":"Packing list template","Ungültiger Vorlagen-Link":"Invalid template link","Dieser Browser kann die Vorlage nicht öffnen":"This browser cannot open the template","Speicher voll – Vorlage nicht gespeichert":"Storage full – template not saved","Sicherheitsprüfung fehlgeschlagen":"Security check failed","Sicherheitsprüfung abgelaufen":"Security check expired","Eintrag ist zu lang":"Entry is too long","jeder":"each","gemeinsam":"shared","Als persönlich markieren":"Mark as personal","Als gemeinsam markieren":"Mark as shared","Persönlich: jeder packt sein eigenes und hakt selbst ab.":"Personal: everyone packs their own and ticks it off themselves.","Länge / Art, z. B. 60 m Einfachseil":"Length / type, e.g. 60 m single rope","Details, z. B. Art oder Größe":"Details, e.g. type or size","– niemand":"– nobody","Noch keine Namen":"No names yet","Geteilte Liste":"Shared list","● live":"● live","verbinde …":"connecting …","offline – wird abgeglichen, sobald du wieder online bist":"offline – will sync when you are back online","Link kopiert – z. B. in WhatsApp einfügen":"Link copied – paste it into WhatsApp, for example","Geteilte Liste geöffnet":"Shared list opened","Liste ist jetzt nur noch auf diesem Gerät":"The list is now only on this device","Teilen braucht eine Internetverbindung":"Sharing needs an internet connection","Teilen ist noch nicht eingerichtet":"Sharing is not set up yet","Anonyme Anmeldung ist in Supabase noch ausgeschaltet":"Anonymous sign-in is still disabled in Supabase","Dein Name (sehen die anderen in der Liste):":"Your name (shown to the others on the list):","Packliste zum gemeinsamen Abhaken":"Packing list to tick off together","Die geteilte Liste ersetzt deine aktuelle Liste auf diesem Gerät. Fortfahren?":"The shared list replaces your current list on this device. Continue?","Liste nicht gefunden – vielleicht wurde der Link falsch kopiert oder erneuert":"List not found – maybe the link was copied incorrectly or renewed","Verwalten":"Manage","entfernen":"remove","Link erneuern":"Renew link","Liste verlassen":"Leave list","Liste für alle löschen":"Delete list for everyone","wiederherstellen":"restore","Wiederhergestellt":"Restored","Neuer Link – die alten Links gelten nicht mehr":"New link – the old links no longer work","Neuen Link erstellen? Alte Links gelten danach nicht mehr – wer schon dabei ist, bleibt dabei.":"Create a new link? Old links will stop working – people who already joined stay in.","Liste verlassen? Sie bleibt als Kopie auf diesem Gerät.":"Leave the list? A copy stays on this device.","Liste für alle löschen? Das lässt sich nicht rückgängig machen.":"Delete the list for everyone? This cannot be undone.","Aus der Liste entfernen?":"Remove from the list?","GPX laden":"Load GPX","GPX ersetzen":"Replace GPX","GPX entfernen":"Remove GPX","GPX wird gelesen …":"Reading GPX …","Keine Trackpunkte in der Datei gefunden":"No track points found in the file","Datei konnte nicht gelesen werden":"Could not read the file","Datei ist zu groß (max. 15 MB)":"File is too large (max. 15 MB)","Höchster Punkt (m, optional)":"Highest point (m, optional)","z. B. 2400 für Pass oder Gipfel":"e.g. 2400 for a pass or summit","Kalender schließen":"Close calendar","Voriger Monat":"Previous month","Nächster Monat":"Next month","Zurücksetzen":"Reset","Übernehmen":"Apply",
 "Eigene Sportart":"Own activity","Name":"Name","z. B. Kanu, Paragliding, Fotografie":"e.g. canoe, paragliding, photography","Packliste dieser Sportart":"Packing list for this activity",
 "Anz.":"Qty","Anzahl":"Quantity","Löschen":"Delete","Speichern":"Save","Schließen":"Close","Sportart bearbeiten":"Edit activity",
@@ -2016,11 +2028,71 @@ const EN={
 "Rucksack 20–30 l":"Backpack 20–30 l","Klettersteigführer / Topo":"Via ferrata guide / topo","für kühle Morgen und Abfahrten":"for cool mornings and descents","für kühle Morgen":"for cool mornings","für die Passabfahrt":"for the descent from the pass","leicht, für alle Fälle":"light, just in case","für Abfahrten":"for descents",
 "statt langer Hose an wechselhaften Tagen":"instead of tights on changeable days","Kletterhose kurz":"Climbing shorts","Kletterhose lang":"Climbing pants","Sportgepäck":"sports luggage"
 };
+/* Rezepte auf Englisch: Namen, Zutaten, Zubereitung */
+Object.assign(EN,{
+"Porridge mit Nüssen & Beeren":"Porridge with nuts & berries","Müsli mit Milchpulver":"Muesli with milk powder","Overnight Oats":"Overnight oats","Rührei mit Brot":"Scrambled eggs with bread","Pancakes":"Pancakes",
+"Brot mit Käse & Aufstrich":"Bread with cheese & spread","Wraps mit Hummus & Gemüse":"Wraps with hummus & veg","Brotzeit":"Picnic snack plate","Couscous-Salat mit Feta":"Couscous salad with feta","Bohnen-Mais-Wrap":"Bean & corn wrap",
+"Trail-Mix & Riegel":"Trail mix & bars","Couscous mit Kichererbsen & Paprika":"Couscous with chickpeas & pepper","Ramen-Upgrade":"Ramen upgrade","Pasta Pesto mit getrockneten Tomaten":"Pesto pasta with sun-dried tomatoes",
+"Rote-Linsen-Dal mit Reis":"Red lentil dal with rice","Pilzrisotto":"Mushroom risotto","Kartoffelbrei mit Röstzwiebeln & Erbsen":"Mashed potatoes with crispy onions & peas","Trekkingmahlzeit (gefriergetrocknet)":"Trekking meal (freeze-dried)",
+"Vegan Mapo Tofu Udon":"Vegan mapo tofu udon","Chili sin Carne mit Reis":"Chili sin carne with rice","Kaiserschmarrn mit Apfelmus":"Kaiserschmarrn with apple sauce","Gnocchi in Tomatensauce mit Mozzarella":"Gnocchi in tomato sauce with mozzarella",
+"Spinat-Tortellini in Sahnesauce":"Spinach tortellini in cream sauce","Halloumi-Grillabend":"Halloumi barbecue night","Hirse-Porridge mit Apfel & Zimt":"Millet porridge with apple & cinnamon","Tofu-Rührei mit Mais-Tortillas":"Tofu scramble with corn tortillas",
+"Reiswaffeln mit Erdnussbutter & Banane":"Rice cakes with peanut butter & banana","Quinoa-Salat mit Kichererbsen":"Quinoa salad with chickpeas","Mais-Tortillas mit Bohnen & Avocado":"Corn tortillas with beans & avocado","Reisnudeln mit Erdnusssauce":"Rice noodles with peanut sauce",
+"Polenta mit Tomaten-Bohnen-Ragout":"Polenta with tomato & bean ragout","Kartoffel-Gemüse-Pfanne":"Potato & veg skillet","Energy Balls (Datteln & Nüsse)":"Energy balls (dates & nuts)","Pfannen-Pizza aus Wraps":"Skillet pizza from wraps",
+"Haferflocken":"Rolled oats","Milchpulver":"Milk powder","Nüsse":"Nuts","Trockenbeeren":"Dried berries","Honig":"Honey","Müsli":"Muesli","Chiasamen":"Chia seeds","Trockenobst":"Dried fruit","Eier":"Eggs","Butter":"Butter","Brot":"Bread",
+"Schnittlauch / Kräuter":"Chives / herbs","Mehl":"Flour","Milch":"Milk","Öl":"Oil","Ahornsirup":"Maple syrup","Käse":"Cheese","Veggie-Aufstrich":"Veggie spread","Tomaten":"Tomatoes","Tortilla-Wraps":"Tortilla wraps","Hummus":"Hummus",
+"Paprika":"Bell pepper","Gurke":"Cucumber","Feta":"Feta","Karotten":"Carrots","Couscous":"Couscous","Olivenöl":"Olive oil","Gemüsebrühe":"Vegetable stock","Kidneybohnen":"Kidney beans","Mais":"Sweetcorn","Frischkäse":"Cream cheese","Salsa":"Salsa",
+"Schokolade":"Chocolate","Müsliriegel":"Cereal bars","Kichererbsen":"Chickpeas","Zwiebeln":"Onions","Ras el Hanout / Paprikapulver":"Ras el hanout / paprika","Instant-Ramen (vegetarisch)":"Instant ramen (vegetarian)","Frühlingszwiebeln":"Spring onions",
+"Erdnussbutter":"Peanut butter","Sojasauce":"Soy sauce","Pasta":"Pasta","Pesto":"Pesto","Parmesan (vegetarisch)":"Parmesan (vegetarian)","Getrocknete Tomaten":"Sun-dried tomatoes","Rote Linsen":"Red lentils","Tomatenmark":"Tomato paste",
+"Currypulver":"Curry powder","Reis":"Rice","Risotto-Reis":"Risotto rice","Getrocknete Pilze":"Dried mushrooms","Kartoffelpüree (Pulver)":"Instant mashed potato","Erbsen (gefriergetrocknet oder Dose)":"Peas (freeze-dried or canned)","Röstzwiebeln":"Crispy fried onions",
+"Gefriergetrocknete Mahlzeit (vegetarisch)":"Freeze-dried meal (vegetarian)","Udon-Nudeln (TK)":"Udon noodles (frozen)","Seidentofu":"Silken tofu","Veganes Hack":"Vegan mince","Champignons":"Mushrooms","Gochujang":"Gochujang","Misopaste":"Miso paste",
+"Crispy Garlic Chili Oil":"Crispy garlic chili oil","Gehackte Tomaten":"Chopped tomatoes","Chilipulver / Kreuzkümmel":"Chili powder / cumin","Zucker":"Sugar","Rosinen":"Raisins","Apfelmus":"Apple sauce","Gnocchi":"Gnocchi","Passierte Tomaten":"Passata",
+"Mozzarella":"Mozzarella","Knoblauch":"Garlic","Tortellini (Käse/Spinat)":"Tortellini (cheese/spinach)","Sahne":"Cream","Babyspinat":"Baby spinach","Halloumi":"Halloumi","Maiskolben":"Corn on the cob","Baguette":"Baguette","Kräuterquark":"Herb quark",
+"Hirseflocken":"Millet flakes","Mandelmus":"Almond butter","Trockenäpfel":"Dried apple","Zimt":"Cinnamon","Tofu natur":"Plain tofu","Kurkuma":"Turmeric","Mais-Tortillas":"Corn tortillas","Reiswaffeln":"Rice cakes","Bananen":"Bananas","Quinoa":"Quinoa",
+"Zitronen":"Lemons","Schwarze Bohnen":"Black beans","Avocados":"Avocados","Limetten":"Limes","Reisnudeln":"Rice noodles","Tamari (glutenfreie Sojasauce)":"Tamari (gluten-free soy sauce)","Erdnüsse":"Peanuts","Polenta (Instant)":"Polenta (instant)",
+"Weiße Bohnen":"White beans","Oregano":"Oregano","Kartoffeln":"Potatoes","Zucchini":"Courgette","Rosmarin":"Rosemary","Datteln":"Dates","Kakaopulver":"Cocoa powder","Oliven":"Olives",
+"Haferflocken, Milchpulver und 250 ml Wasser aufkochen, 3 Min. rühren. Nüsse, Beeren und Honig drüber.":"Bring oats, milk powder and 250 ml water to the boil, stir for 3 min. Top with nuts, berries and honey.",
+"Milchpulver mit 200 ml kaltem Wasser anrühren und übers Müsli.":"Mix milk powder with 200 ml cold water and pour over the muesli.",
+"Abends alles mit 200 ml Wasser in einer Dose mischen, über Nacht quellen lassen.":"In the evening, mix everything with 200 ml water in a container and leave to soak overnight.",
+"Eier verquirlen, in Butter bei mittlerer Hitze stocken lassen, salzen. Mit Brot.":"Whisk the eggs, cook gently in butter over medium heat, salt. Serve with bread.",
+"Mehl, Ei und Milch glatt rühren. Kleine Pancakes in wenig Öl ausbacken, mit Sirup.":"Whisk flour, egg and milk until smooth. Fry small pancakes in a little oil, serve with syrup.",
+"Belegen, fertig.":"Add toppings, done.","Wraps mit Hummus bestreichen, Gemüse in Streifen und Feta drauf, einrollen.":"Spread hummus on the wraps, add veg strips and feta, roll up.",
+"Auspacken, aufschneiden, genießen.":"Unpack, slice, enjoy.",
+"Couscous mit gleicher Menge kochendem Wasser + Brühe übergießen, 5 Min. quellen. Gemüse, Feta und Öl unterheben. Schmeckt auch kalt.":"Pour the same amount of boiling water + stock over the couscous, leave 5 min. Fold in veg, feta and oil. Also good cold.",
+"Bohnen und Mais abtropfen, mit Frischkäse und Salsa in die Wraps.":"Drain beans and corn, fill the wraps with them, cream cheese and salsa.",
+"Für unterwegs in die Deckeltasche.":"Into the lid pocket for on the go.",
+"Zwiebel und Paprika kurz anbraten, Kichererbsen und Gewürz dazu. 120 ml Wasser + Brühe aufkochen, Couscous einrühren, Deckel drauf, 5 Min. ziehen lassen.":"Briefly fry onion and pepper, add chickpeas and spice. Bring 120 ml water + stock to the boil, stir in couscous, lid on, leave 5 min.",
+"Nudeln kochen, Ei 6 Min. mitkochen. Erdnussbutter und Sojasauce in die Brühe rühren, Frühlingszwiebel drüber.":"Cook the noodles, boil the egg with them for 6 min. Stir peanut butter and soy sauce into the broth, top with spring onion.",
+"Pasta in wenig Wasser kochen (spart Gas), abgießen, Pesto und klein geschnittene Tomaten unterrühren, Käse drüber.":"Cook pasta in little water (saves gas), drain, stir in pesto and chopped tomatoes, top with cheese.",
+"Reis kochen. Zwiebel anschwitzen, Curry kurz mitrösten. Linsen mit Tomatenmark und 300 ml Wasser 12 Min. köcheln, salzen. Mit Reis.":"Cook the rice. Sweat the onion, toast the curry briefly. Simmer lentils with tomato paste and 300 ml water for 12 min, salt. Serve with rice.",
+"Pilze einweichen. Reis in Butter glasig, nach und nach Pilzwasser + Brühe (ca. 300 ml) zugeben und rühren, bis er cremig ist. Käse unterrühren.":"Soak the mushrooms. Sweat the rice in butter, gradually add mushroom water + stock (about 300 ml), stirring until creamy. Stir in cheese.",
+"Wasser aufkochen, Erbsen 2 Min. mitkochen, vom Feuer nehmen, Püree- und Milchpulver einrühren. Käse und Röstzwiebeln drauf.":"Boil water, cook the peas in it for 2 min, take off the heat, stir in mash and milk powder. Top with cheese and crispy onions.",
+"Kochendes Wasser in den Beutel, umrühren, 8 Min. warten.":"Pour boiling water into the pouch, stir, wait 8 min.",
+"Hack in der Pfanne krümelig und knusprig braten, Champignons mitbraten. Gochujang, Miso und Sojasauce mit etwas Wasser einrühren, Seidentofu in Würfeln vorsichtig unterheben und kurz ziehen lassen. Udon in heißem Wasser lösen und dazu. Mit Frühlingszwiebeln und Chiliöl servieren – hält aufgewärmt 2–3 Tage.":"Fry the mince in a pan until crumbly and crisp, fry the mushrooms with it. Stir in gochujang, miso and soy sauce with a little water, gently fold in cubed silken tofu and let it warm through. Loosen the udon in hot water and add. Serve with spring onions and chili oil – keeps 2–3 days reheated.",
+"Reis kochen. Zwiebel anbraten, Tomaten, Bohnen, Mais und Gewürze 15 Min. köcheln, salzen.":"Cook the rice. Fry the onion, simmer tomatoes, beans, corn and spices for 15 min, salt.",
+"Teig rühren, in Butter dick einfüllen, wenden, mit zwei Gabeln zerreißen, Rosinen und Zucker dazu, kurz karamellisieren. Mit Apfelmus.":"Mix the batter, pour thickly into butter, flip, tear apart with two forks, add raisins and sugar, caramelise briefly. Serve with apple sauce.",
+"Gnocchi in Öl goldbraun braten, Knoblauch und Tomaten dazu, 5 Min. köcheln, Mozzarella zerzupft drauf.":"Fry gnocchi in oil until golden, add garlic and tomatoes, simmer 5 min, tear mozzarella over the top.",
+"Tortellini kochen, abgießen, Sahne und Spinat dazu, kurz einkochen, Käse drüber.":"Cook the tortellini, drain, add cream and spinach, reduce briefly, top with cheese.",
+"Halloumi in Scheiben, Paprika und Mais grillen oder in der Pfanne braten. Mit Baguette und Quark.":"Grill or pan-fry sliced halloumi, pepper and corn. Serve with baguette and quark.",
+"Hirseflocken mit 250 ml Wasser aufkochen, 3 Min. quellen lassen. Mandelmus einrühren, Äpfel, Sirup und Zimt drüber.":"Bring millet flakes to the boil with 250 ml water, leave 3 min. Stir in almond butter, top with apple, syrup and cinnamon.",
+"Tofu zerbröseln, mit Paprika in Öl anbraten, Kurkuma, Salz und Pfeffer dazu, Frühlingszwiebel drüber. In warmen Tortillas.":"Crumble the tofu, fry with pepper in oil, add turmeric, salt and pepper, top with spring onion. Serve in warm tortillas.",
+"Waffeln bestreichen, Banane in Scheiben drauf.":"Spread the rice cakes, top with sliced banana.",
+"Quinoa mit doppelter Menge Wasser 15 Min. köcheln, abkühlen lassen. Mit Kichererbsen, Gemüse, Zitrone und Öl mischen. Hält bis zum nächsten Tag.":"Simmer quinoa in twice the amount of water for 15 min, let it cool. Mix with chickpeas, veg, lemon and oil. Keeps until the next day.",
+"Avocado zerdrücken, mit Limette und Salz würzen, mit Bohnen und Salsa in die Tortillas.":"Mash the avocado, season with lime and salt, fill the tortillas with it, beans and salsa.",
+"Nudeln 4 Min. in heißem Wasser ziehen lassen, abgießen (etwas Wasser aufheben). Erdnussbutter, Tamari und etwas Nudelwasser verrühren, untermischen, Erdnüsse und Zwiebel drüber.":"Soak the noodles in hot water for 4 min, drain (keep a little water). Mix peanut butter, tamari and some noodle water, toss through, top with peanuts and onion.",
+"Tomaten, Bohnen, Knoblauch und Oregano 5 Min. köcheln, beiseite. 300 ml Wasser + Brühe aufkochen, Polenta einrühren, 3 Min. quellen. Ragout drauf.":"Simmer tomatoes, beans, garlic and oregano for 5 min, set aside. Bring 300 ml water + stock to the boil, stir in polenta, leave 3 min. Top with the ragout.",
+"Kartoffeln in dünnen Scheiben mit Deckel 15 Min. braten, Gemüse dazu, weitere 10 Min. braten, mit Rosmarin und Salz würzen.":"Fry thinly sliced potatoes with a lid for 15 min, add veg, fry another 10 min, season with rosemary and salt.",
+"Zu Hause Datteln und Nüsse fein hacken oder mixen, zu Kugeln rollen, in Kakao wälzen. Halten eine Woche.":"At home, finely chop or blend dates and nuts, roll into balls, coat in cocoa. Keep for a week.",
+"Wrap mit Tomatenmark bestreichen, belegen, Käse drüber, bei kleiner Hitze mit Deckel 5 Min. in der Pfanne backen.":"Spread tomato paste on a wrap, add toppings and cheese, bake in the pan with a lid over low heat for 5 min."
+});
+
 const W_DE={Mo:"Mon",Di:"Tue",Mi:"Wed",Do:"Thu",Fr:"Fri",Sa:"Sat",So:"Sun"};
 const MON_DE={Januar:"January",Februar:"February","März":"March",April:"April",Mai:"May",Juni:"June",Juli:"July",August:"August",September:"September",Oktober:"October",November:"November",Dezember:"December"};
 const B="(?<![A-Za-zÄÖÜäöüß])", E="(?![A-Za-zÄÖÜäöüß])";
 const wordRe=w=>new RegExp(B+w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+E,"g");
 const EN_RULES=[
+  /* Rezept-Mengen: „125 g Pasta“ im Rezept, „500 g – für Pasta Pesto, Dal“ in der Einkaufsliste */
+  [/^([\d,.]+) (g|ml|Stk|EL|TL|Pck|Dose|Würfel|Zehe|Prise)( – für (.+)| (.+))$/,(m,q,u,_x,fr,nm)=>q+" "+({Stk:"pc",EL:"tbsp",TL:"tsp",Pck:"pack",Dose:"can",Würfel:"cube",Zehe:"clove",Prise:"pinch"}[u]||u)+
+    (fr!=null?" – for "+fr.split(", ").map(x=>EN[x]||x).join(", "):" "+(EN[nm]||nm))],
   [/^🔌 (.+?): Steckdose Typ ([A-Z\/]+), (\d+) V – Adapter nötig/,"🔌 $1: socket type $2, $3 V – adapter needed"],[/^🔌 (.+?): Steckdose Typ ([A-Z\/]+), (\d+) V – kein Adapter nötig/,"🔌 $1: socket type $2, $3 V – no adapter needed"],
   [/ · Notruf /," · emergency "],[/ · Währung /," · currency "],[/ · Linksverkehr/," · drives on the left"],[/\(Polizei\)/g,"(police)"],[/\(Rettung\/Feuer\)/g,"(ambulance/fire)"],[/\(Rettung\)/g,"(ambulance)"],
   [/Bergrettung 140/,"mountain rescue 140"],[/\(Luftrettung\)/,"(air rescue)"],[/\(Handy auch 112\)/,"(mobile also 112)"],[/\(Handy\)/,"(mobile)"],
@@ -2029,7 +2101,7 @@ const EN_RULES=[
   [/, oben ca\. (\d+)/,", up high approx. $1"],[/^kurze Tage – dunkel ab ca\. (\S+) Uhr$/,"short days – dark from approx. $1"],[/^UV-Index bis (\d+) – alle 2 h nachcremen$/,"UV index up to $1 – reapply every 2 h"],[/^UV-Index bis (\d+)$/,"UV index up to $1"],
   [/^Reiseadapter Typ (.+)$/,"Travel adapter type $1"],[/^für ([A-ZÄÖÜ][^\s,]*(?: [A-ZÄÖÜ][^\s,]*)*(?:, [A-ZÄÖÜ][^\s,]*(?: [A-ZÄÖÜ][^\s,]*)*)*)$/,"for $1"],
   [/^nur (\d+) V – Ladegeräte \(100–240 V\) gehen, Föhn & Co\. nicht$/,"only $1 V – chargers (100–240 V) work, hair dryers etc. don't"],[/^(\d+) V – nur Geräte mit 100–240 V nutzen$/,"$1 V – only use 100–240 V devices"],
-  [/^Heimatland: (.+) – ändern$/,"Home country: $1 – change"],
+  [/^Heimatland: (.+) – ändern$/,"Home country: $1 – change"],[/^Für diese Reise fehlen dir (\d+) Sachen\.$/,"You are missing $1 items for this trip."],
   [/^🏔 Lawinenregion (\S+): kein aktueller Lawinenbericht \(außerhalb der Saison oder noch nicht veröffentlicht\)\.$/,"🏔 Avalanche region $1: no current bulletin (off season or not yet published)."],
   [/Lawinengefahr (\S+): /,"Avalanche danger $1: "],[/ Stufe (\d) \(gering\)/g," level $1 (low)"],[/ Stufe (\d) \(mäßig\)/g," level $1 (moderate)"],
   [/ Stufe (\d) \(erheblich\)/g," level $1 (considerable)"],[/ Stufe (\d) \(groß\)/g," level $1 (high)"],[/ Stufe (\d) \(sehr groß\)/g," level $1 (very high)"],
@@ -2357,10 +2429,10 @@ function applyPoint(i){
 }
 const isMobile=()=>{try{return matchMedia("(max-width: 860px)").matches;}catch(_){return false;}};
 function setView(v,scroll){
-  if(!["reise","karte","liste","essen","kosten"].includes(v))v="liste";
+  if(!["reise","karte","liste","essen","kosten","ausruestung"].includes(v))v="liste";
   state.view=v;save();
-  const b=document.body;b.classList.remove("view-reise","view-karte","view-liste","view-essen","view-kosten");b.classList.add("view-"+v);
-  const pv=["essen","kosten"].includes(v)?v:"liste";
+  const b=document.body;b.classList.remove("view-reise","view-karte","view-liste","view-essen","view-kosten","view-ausruestung");b.classList.add("view-"+v);
+  const pv=["essen","kosten","ausruestung"].includes(v)?v:"liste";
   document.querySelectorAll(".tab,.pg").forEach(t=>{if(t.dataset.view===(t.classList.contains("pg")?pv:v))t.setAttribute("aria-current","page");else t.removeAttribute("aria-current");});
   if(v==="karte"&&map)setTimeout(()=>map.invalidateSize(),0);
   if(scroll!==false&&isMobile())window.scrollTo(0,0);
@@ -2846,26 +2918,36 @@ function suggestMeals(){
 }
 /* ---------- In der Nähe: Gebiete aus OpenStreetMap + Links zu Seiten/Apps und Führern ---------- */
 const NEAR_R=20000;
-const NEAR_KIND={climb:["🧗","Klettergebiete"],vf:["⛓","Klettersteige"],hut:["🏠","Hütten"],camp:["⛺","Camping & Stellplätze"]};
+const NEAR_KIND={gym:["🏟","Kletter- & Boulderhallen (Plan B bei Regen)"],climb:["🧗","Klettergebiete"],vf:["⛓","Klettersteige"],hut:["🏠","Hütten"],camp:["⛺","Camping & Stellplätze"],bath:["🏊","Restday: Schwimmbäder & Badeplätze"],sight:["🏰","Restday: Sehenswertes & Aussicht"]};
+const NEAR_REST=["bath","sight"];
 const ALPINE=["skitour","skihochtour","hochtour","mehrseil","eis","klettersteig"];
-function nearKinds(l){const S=new Set(l.sports||[]),k=[];
-  if(CLIMB_SUBS.some(x=>x!=="klettersteig"&&S.has(x)))k.push("climb");
+function nearKinds(l,w){const S=new Set(l.sports||[]),k=[];
+  if(CLIMB_SUBS.some(x=>x!=="klettersteig"&&S.has(x))){if(w&&(w.rain||w.wet))k.push("gym");k.push("climb");}
   if(S.has("klettersteig"))k.push("vf");
   if(["skitour","skihochtour","hochtour","backpacking"].some(x=>S.has(x)))k.push("hut");
   if(l.stay==="zelt"||l.stay==="camper")k.push("camp");
+  if(k.includes("climb"))k.push(...NEAR_REST);
   return k;}
 function nearQuery(kinds,lat,lon,camper){
   const a="(around:"+NEAR_R+","+lat.toFixed(4)+","+lon.toFixed(4)+")", q=[];
   if(kinds.includes("climb"))q.push('nwr["sport"="climbing"]["leisure"!="sports_centre"]["building"!~"."]'+a,'nwr["climbing"~"^(crag|area|boulder)$"]'+a);
+  if(kinds.includes("gym"))q.push('nwr["sport"="climbing"]["leisure"="sports_centre"](around:30000,'+lat.toFixed(4)+","+lon.toFixed(4)+")");
+  const b="(around:15000,"+lat.toFixed(4)+","+lon.toFixed(4)+")";
+  if(kinds.includes("bath"))q.push('nwr["leisure"~"^(water_park|bathing_place)$"]["name"]'+b,'nwr["amenity"="public_bath"]["name"]'+b,
+    'nwr["leisure"~"^(sports_centre|swimming_pool)$"]["sport"~"swimming"]["name"]["access"!~"private|customers"]'+b);
+  if(kinds.includes("sight"))q.push('nwr["tourism"~"^(attraction|viewpoint|museum)$"]["name"]'+b,'nwr["historic"~"^(castle|ruins)$"]["name"]'+b);
   if(kinds.includes("vf"))q.push('way["highway"="via_ferrata"]["name"]'+a);
   if(kinds.includes("hut"))q.push('nwr["tourism"~"^(alpine_hut|wilderness_hut)$"]'+a);
   if(kinds.includes("camp"))q.push('nwr["tourism"="camp_site"]'+a,...(camper?['nwr["tourism"="caravan_site"]'+a]:[]));
   return "[out:json][timeout:25];("+q.join(";")+";);out center tags 300;";}
 const kmBetween=(a,b,c,d)=>{const R=6371,r=Math.PI/180,x=Math.sin((c-a)*r/2)**2+Math.cos(a*r)*Math.cos(c*r)*Math.sin((d-b)*r/2)**2;return 2*R*Math.asin(Math.sqrt(x));};
-function nearParse(j,lat,lon){
+function nearParse(j,lat,lon,kinds){
   const seen=new Set(),out=[];
   (j.elements||[]).forEach(e=>{const t=e.tags||{},n=(t["name:"+LANG]||t.name||"").trim();if(!n)return;
-    const kind=t.tourism==="camp_site"||t.tourism==="caravan_site"?"camp":/hut$/.test(t.tourism||"")?"hut":t.highway==="via_ferrata"||t.climbing==="via_ferrata"?"vf":"climb";
+    const kind=t.tourism==="camp_site"||t.tourism==="caravan_site"?"camp":/hut$/.test(t.tourism||"")?"hut":
+      /swimming/.test(t.sport||"")||/^(water_park|bathing_place|swimming_pool)$/.test(t.leisure||"")||t.amenity==="public_bath"?"bath":
+      t.leisure==="sports_centre"?"gym":/^(attraction|viewpoint|museum)$/.test(t.tourism||"")||/^(castle|ruins)$/.test(t.historic||"")?"sight":t.highway==="via_ferrata"||t.climbing==="via_ferrata"?"vf":"climb";
+    if(kinds&&!kinds.includes(kind))return;
     const k=kind+"|"+n.toLowerCase();if(seen.has(k))return;seen.add(k);
     const la=e.lat??(e.center&&e.center.lat),lo=e.lon??(e.center&&e.center.lon);if(la==null)return;
     const g=["french","uiaa","uia","yds_class"].map(s=>[t["climbing:grade:"+s+":min"],t["climbing:grade:"+s+":max"]]).find(x=>x[0]||x[1]);
@@ -2878,8 +2960,11 @@ function nearParse(j,lat,lon){
 async function loadNear(i){
   const w=state.wx[i],l=state.inputs.legs[i];if(!w||w.lat==null)return;
   state.near=state.near||{};state.near[i]={key:w.lat+","+w.lon,busy:true};renderNear();
-  try{const j=await getJSON("https://overpass-api.de/api/interpreter?data="+encodeURIComponent(nearQuery(nearKinds(l),w.lat,w.lon,l.stay==="camper")));
-    state.near[i]={key:w.lat+","+w.lon,items:nearParse(j,w.lat,w.lon)};}
+  /* Restday-Ideen als eigene Abfrage hinterher, damit viele Sehenswürdigkeiten die Klettergebiete nicht verdrängen (nacheinander, wie Overpass es will) */
+  const K=nearKinds(l,w),main=K.filter(k=>!NEAR_REST.includes(k)),rest=K.filter(k=>NEAR_REST.includes(k)),q=k=>getJSON("https://overpass-api.de/api/interpreter?data="+encodeURIComponent(nearQuery(k,w.lat,w.lon,l.stay==="camper")));
+  try{const items=main.length?nearParse(await q(main),w.lat,w.lon,main):[];
+    if(rest.length)items.push(...nearParse(await q(rest),w.lat,w.lon,rest));
+    state.near[i]={key:w.lat+","+w.lon,items};}
   catch(e){state.near[i]={key:w.lat+","+w.lon,err:"OpenStreetMap antwortet gerade nicht – bitte später nochmal versuchen."};}
   save();renderNear();updateLegMarkers(false);}
 /* Suchmaschine für die Links – eine Webseite kann die Standardsuche des Browsers nicht abfragen, darum wählbar */
@@ -2924,12 +3009,13 @@ function nearLinks(l,w){
 function renderNear(){
   const box=$("nearBox");if(!box)return;
   const legs=state.items.length?state.inputs.legs.map((l,i)=>({l,i,w:state.wx[i]})).filter(x=>x.w&&x.w.lat!=null):[];
-  const blocks=legs.map(({l,i,w})=>{const kinds=nearKinds(l),{links,books}=nearLinks(l,w);
+  const blocks=legs.map(({l,i,w})=>{const kinds=nearKinds(l,w),{links,books}=nearLinks(l,w);
     if(!kinds.length&&!links.length&&!books.length)return null;
     const b=el("div",{class:"near-leg"});
     if(legs.length>1)b.append(el("h4",{},"Etappe "+(i+1)+" · "+(placeName(l.place)||w.loc)));
     const n=(state.near||{})[i],fresh=n&&n.key===w.lat+","+w.lon;
     if(kinds.length){
+      if(kinds.includes("gym"))b.append(el("p",{class:"wx-top wx-warn"},"🌧 Regen angesagt – Plan B: Kletter- und Boulderhallen in der Nähe (bis 30 km)."));
       if(fresh&&n.busy)b.append(el("p",{class:"hint"},"Suche in OpenStreetMap …"));
       else if(fresh&&n.items){
         if(!n.items.length)b.append(el("p",{class:"hint"},"Im Umkreis von 20 km nichts eingetragen."));
@@ -2941,7 +3027,7 @@ function renderNear(){
               el("a",{href:"https://www.openstreetmap.org/"+x.osm,target:"_blank",rel:"noopener",class:"near-osm","aria-label":"In OpenStreetMap öffnen"},"↗"));})));});
         const again=el("button",{type:"button",class:"linkbtn"},"neu suchen");again.addEventListener("click",()=>loadNear(i));
         b.append(el("p",{class:"hint"},"Daten © ",el("a",{href:"https://www.openstreetmap.org/copyright",target:"_blank",rel:"noopener"},"OpenStreetMap-Mitwirkende")," · ",again));
-      }else{const go=el("button",{type:"button",class:"btn ghost small"},"In der Nähe suchen: "+kinds.map(k=>NEAR_KIND[k][1]).join(", "));
+      }else{const go=el("button",{type:"button",class:"btn ghost small"},"In der Nähe suchen: "+kinds.filter(k=>!NEAR_REST.includes(k)).map(k=>NEAR_KIND[k][1].replace(/ \(.*\)$/,"")).join(", ")+(kinds.some(k=>NEAR_REST.includes(k))?" + Restday-Ideen":""));
         go.addEventListener("click",()=>loadNear(i));b.append(go);
         if(fresh&&n.err)b.append(el("p",{class:"err"},n.err));}}
     const row=(lab,L)=>L.length?el("p",{class:"near-links"},el("span",{class:"hint"},lab+" "),...L.flatMap(([t,u],k)=>[k?" · ":"",el("a",{href:u,target:"_blank",rel:"noopener"},t+" ↗")])):"";
@@ -2951,6 +3037,45 @@ function renderNear(){
   const es=el("select",{"aria-label":"Suchmaschine",class:"near-engine"},...Object.entries(ENGINES).map(([k,[n]])=>el("option",{value:k},n)));es.value=engine();
   es.addEventListener("change",()=>{try{localStorage.setItem("packapp.search",es.value);}catch(_){}renderNear();});
   box.replaceChildren(el("h3",{},el("span",{},"In der Nähe")),...blocks,el("label",{class:"near-eng hint"},"Suchen mit ",es));}
+/* ---------- Meine Ausrüstung: was ich besitze; die Packliste markiert, was fehlt ----------
+   Lokal gespeichert, mit Konto über user_data.custom (kind:"gear", ohne name-Feld → ältere App-Versionen ignorieren sie) */
+const GEAR_L="packapp.gear";
+let myGear=[];
+function loadGear(){try{const r=JSON.parse(localStorage.getItem(GEAR_L)||"[]");myGear=Array.isArray(r)?r.filter(x=>x&&x.id&&x.n):[];}catch(_){myGear=[];}}
+function saveGear(){try{localStorage.setItem(GEAR_L,JSON.stringify(myGear));}catch(_){toast("Speicher voll – Ausrüstung nicht gespeichert");}if(typeof scheduleCloud==="function")scheduleCloud();}
+loadGear();
+const gearKey=n=>String(n||"").trim().toLowerCase();
+const ownsGear=n=>myGear.some(g=>gearKey(g.n)===gearKey(n));
+function setGear(names,on){[].concat(names).forEach(n=>{n=String(n||"").trim().slice(0,120);if(!n)return;
+  if(on&&!ownsGear(n))myGear.push({id:"g_"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),kind:"gear",n,upd:Date.now()});
+  if(!on)myGear=myGear.filter(g=>{if(gearKey(g.n)!==gearKey(n))return true;addTomb(g.id);return false;});});
+  saveGear();render();}
+/* fehlt mir? nur wenn ich schon etwas eingetragen habe; Einkauf und Sachen, die jemand anderes mitbringt, zählen nicht */
+const gearMissing=it=>myGear.length>0&&it.cat!==MEAL_CAT&&!(state.shared&&it.who&&it.who!==myName(false))&&!ownsGear(it.name);
+function renderGear(){
+  const box=$("gearBox");if(!box)return;
+  const inp=el("input",{type:"text",placeholder:"z. B. Kletterseil 60 m",maxLength:120,autocomplete:"off","aria-label":"Ausrüstung hinzufügen"});
+  const add=el("form",{class:"gear-add"},inp,el("button",{type:"submit",class:"btn small"},"Hinzufügen"));
+  add.addEventListener("submit",e=>{e.preventDefault();setGear(inp.value,true);});
+  const parts=[el("h3",{},el("span",{},"Meine Ausrüstung"),el("span",{class:"cat-count"},String(myGear.length))),
+    el("p",{class:"hint"},"Trag ein, was du besitzt. In der Packliste steht dann bei allem, was dir noch fehlt, „fehlt“ – zum Kaufen oder Leihen."),add];
+  const its=state.items.filter(i=>i.cat!==MEAL_CAT);
+  if(its.length){
+    const miss=its.filter(gearMissing).length;
+    parts.push(el("div",{class:"near-h"},"Aus der aktuellen Packliste"),
+      el("p",{class:"hint"},myGear.length?(miss?"Für diese Reise fehlen dir "+miss+" Sachen.":"Du hast alles für diese Reise."):"Hak an, was du schon hast."));
+    catOrder(its).forEach(cat=>{const L=its.filter(i=>i.cat===cat);
+      const all=el("button",{type:"button",class:"linkbtn"},"alle hab ich");all.addEventListener("click",()=>setGear(L.map(i=>i.name),true));
+      parts.push(el("div",{class:"gear-cat"},el("span",{class:"gear-cat-h"},cat," · ",all),...L.map(it=>{
+        const cb=el("input",{type:"checkbox"});cb.checked=ownsGear(it.name);cb.addEventListener("change",()=>setGear(it.name,cb.checked));
+        return el("label",{class:"check gear-it"+(cb.checked?" on":"")},cb,el("span",{},it.name));})));});
+  }
+  const own=[...myGear].sort((a,b)=>a.n.localeCompare(b.n,"de"));
+  parts.push(el("div",{class:"near-h"},"Alles, was ich habe"),own.length?el("div",{class:"gear-all"},...own.map(g=>{
+    const x=el("button",{type:"button",class:"del","aria-label":g.n+" entfernen"},"×");x.addEventListener("click",()=>setGear(g.n,false));
+    return el("span",{class:"gear-chip"},el("span",{class:"no-tr"},g.n),x);})):el("p",{class:"hint"},"Noch nichts eingetragen."));
+  box.replaceChildren(...parts);
+}
 let mealShopSec=null;
 function renderMeals(){
   const box=$("mealBox");if(!box)return;
@@ -3312,10 +3437,10 @@ async function cloudSync(){
     const {data:uds,error:e1}=await c.from("user_data").select("*").eq("user_id",u.id);if(e1)throw e1;
     const ud=(uds||[])[0]||{};
     Object.entries(ud.tombs||{}).forEach(([k,v])=>{if(!tombs[k]||tombs[k]<v)tombs[k]=v;});
-    const allC=mergeById([...custom,...myRecipes],ud.custom||[]);custom=allC.filter(x=>x.kind!=="recipe");myRecipes=allC.filter(x=>x.kind==="recipe");try{localStorage.setItem(REC_L,JSON.stringify(myRecipes));}catch(_){}templates=mergeById(templates,ud.templates||[]);
+    const allC=mergeById([...custom,...myRecipes,...myGear],ud.custom||[]);custom=allC.filter(x=>x.kind!=="recipe"&&x.kind!=="gear");myRecipes=allC.filter(x=>x.kind==="recipe");myGear=allC.filter(x=>x.kind==="gear");try{localStorage.setItem(REC_L,JSON.stringify(myRecipes));localStorage.setItem(GEAR_L,JSON.stringify(myGear));}catch(_){}templates=mergeById(templates,ud.templates||[]);
     try{localStorage.setItem(CUSTOM_KEY,JSON.stringify(custom));localStorage.setItem(TPL_L,JSON.stringify(templates));}catch(_){}
     const tb={};const cut=Date.now()-400*864e5;Object.entries(tombs).forEach(([k,v])=>{if(v>cut)tb[k]=v;});tombs=tb;saveTombs();
-    const {error:e2}=await c.from("user_data").upsert({user_id:u.id,custom:[...custom,...myRecipes],templates,tombs,updated_at:new Date().toISOString()});if(e2)throw e2;
+    const {error:e2}=await c.from("user_data").upsert({user_id:u.id,custom:[...custom,...myRecipes,...myGear],templates,tombs,updated_at:new Date().toISOString()});if(e2)throw e2;
     /* Reisen */
     const {data:rows,error:e3}=await c.from("trips").select("id,upd,deleted,data");if(e3)throw e3;
     let curChanged=null;
