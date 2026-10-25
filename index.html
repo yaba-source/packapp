@@ -31,7 +31,7 @@
 :root{
   --bg:#ECF0EF; --surface:#FFFFFF; --ink:#16202A; --muted:#5A676E; --line:#D2DAD8;
   --accent:#1D5C89; --accent-ink:#FFFFFF; --sign:#F2C200; --sign-ink:#16202A;
-  --new-bg:#E3EEF7; --new-ink:#1D5C89; --warn:#9A3B1E;
+  --new-bg:#E3EEF7; --new-ink:#1D5C89; --warn:#9A3B1E; --miss-bg:#FDECEA; --miss-ink:#B42318;
   --f-display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
   --f-body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
@@ -39,11 +39,11 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#11171C; --surface:#19222A; --ink:#E5ECEE; --muted:#93A2A9; --line:#2B3740;
   --accent:#74AEDB; --accent-ink:#0E1A24; --sign:#E9B900; --sign-ink:#14191D;
-  --new-bg:#1E3344; --new-ink:#9CC6E8; --warn:#F09A7C; color-scheme:dark}}
+  --new-bg:#1E3344; --new-ink:#9CC6E8; --warn:#F09A7C; --miss-bg:#3B1F1B; --miss-ink:#F4A99A; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#11171C; --surface:#19222A; --ink:#E5ECEE; --muted:#93A2A9; --line:#2B3740;
   --accent:#74AEDB; --accent-ink:#0E1A24; --sign:#E9B900; --sign-ink:#14191D;
-  --new-bg:#1E3344; --new-ink:#9CC6E8; --warn:#F09A7C; color-scheme:dark}
+  --new-bg:#1E3344; --new-ink:#9CC6E8; --warn:#F09A7C; --miss-bg:#3B1F1B; --miss-ink:#F4A99A; color-scheme:dark}
 
 *{box-sizing:border-box}
 html{-webkit-text-size-adjust:100%;color-scheme:light}
@@ -98,7 +98,7 @@ input:focus-visible,select:focus-visible,button:focus-visible,.chip:has(input:fo
 .notes p{margin:0}
 .notes ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px}
 .klima{font-weight:600}
-.wx-top{color:var(--accent,#1D5C89);font-weight:600}.linkbtn{background:none;border:0;padding:4px 0;font:inherit;color:var(--accent);text-decoration:underline;cursor:pointer}.wx-warn{color:#B4471F}
+.wx-top{color:var(--accent,#1D5C89);font-weight:600}.linkbtn{background:none;border:0;padding:4px 0;font:inherit;color:var(--accent);text-decoration:underline;cursor:pointer}.wx-warn{color:var(--warn)}
 .busy{display:flex;gap:10px;align-items:center;color:var(--muted);font-size:.92rem}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 1s ease-in-out infinite}
 @keyframes pulse{50%{opacity:.25}}
@@ -237,13 +237,16 @@ ul.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
 .item .detail::placeholder{color:var(--muted);font-size:.85rem}
 .item .tag.grp{background:transparent;border:1px solid var(--accent);color:var(--accent)}
 .who-menu .menu-sep{border-top:1px solid var(--line);border-radius:0 0 6px 6px;font-size:.88rem;color:var(--muted)}
+.who-menu .danger{color:var(--warn)}
+.notes-d>summary{cursor:pointer;font-weight:600;list-style-position:inside}
+.notes-body{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 .who.set{border-color:var(--accent);color:var(--accent);font-weight:600}
 .share-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;border:1px solid var(--accent);border-radius:8px;padding:10px 12px;margin:0 0 12px;background:var(--surface)}
 .share-bar .sb-text{flex:1 1 12em;min-width:0;font-size:.9rem}
 .share-bar .sb-state{font-size:.78rem;color:var(--muted);display:block}
 .share-bar .sb-state.live{color:#2E7D32}
 .item.done .name{text-decoration:line-through;color:var(--muted)}
-.del{background:none;border:0;color:var(--muted);cursor:pointer;font-size:1.05rem;line-height:1;padding:2px 4px;border-radius:4px}
+.del{background:none;border:0;color:var(--muted);cursor:pointer;font-size:1.05rem;line-height:1;padding:2px 4px;border-radius:4px;min-width:32px;min-height:32px}
 .del:hover{color:var(--warn)}
 .hide-done .item.done{display:none}
 
@@ -319,7 +322,7 @@ body.view-ausruestung #gearBox{margin-top:0}
 .gear-it{font-size:.92rem}
 .gear-all{display:flex;flex-wrap:wrap;gap:6px}.gear-chip{display:inline-flex;align-items:center;gap:2px;border:1px solid var(--line);border-radius:999px;padding:2px 4px 2px 10px;font-size:.88rem}
 .gear-chip .del{width:26px;height:26px}
-.tag.miss{background:#FDECEA;color:#B42318}
+.tag.miss{background:var(--miss-bg);color:var(--miss-ink)}
 .by.owns{color:var(--accent)}
 body.view-essen .toast:empty,body.view-kosten .toast:empty{display:none}
 body.view-essen #mealBox,body.view-kosten #costBox{margin-top:0}
@@ -335,9 +338,9 @@ body.view-essen #mealBox,body.view-kosten #costBox{margin-top:0}
   body.view-reise .main{display:none}
   body.view-karte .panel,body.view-liste .panel,body.view-essen .panel,body.view-kosten .panel,body.view-ausruestung .panel{display:none}
   .pages{display:none!important}
-  .tab{font-size:.66rem;padding:6px 1px}
-  body.view-karte .main > :not(.mapcard){display:none}
-  body.view-liste .main > .mapcard{display:none}
+  .tab{font-size:.75rem;padding:6px 0;letter-spacing:-.01em}
+  body.view-karte .main > :not(.mapcard):not(#nearBox){display:none}
+  body.view-liste .main > .mapcard,body.view-liste .main > #nearBox{display:none}
   .map-head .btn{display:none}
   #mapBody[hidden]{display:flex!important}
   body.view-karte .map{height:min(58vh,560px)}
@@ -572,12 +575,13 @@ body.view-essen #mealBox,body.view-kosten #costBox{margin-top:0}
     <div class="tools">
       <label class="check"><input id="hideDone" type="checkbox"> Gepacktes ausblenden</label>
       <button class="btn small" id="share" type="button">Liste teilen</button>
-      <button class="btn ghost small" id="copyRem" type="button">Für Erinnerungen kopieren</button>
-      <button class="btn ghost small" id="copy" type="button">Als Text kopieren</button>
-      <button class="btn ghost small" id="uncheck" type="button">Alle Haken entfernen</button>
-      <button class="btn ghost small" id="tplSave" type="button">Als Vorlage speichern</button>
-      <button class="btn ghost small" id="reviewBtn" type="button">Reise auswerten</button>
-      <button class="btn ghost small" id="reset" type="button">Neue Reise</button>
+      <button class="btn ghost small" id="moreBtn" type="button" aria-haspopup="menu">Mehr …</button>
+      <button class="btn ghost small" id="copyRem" type="button" hidden>Für Erinnerungen kopieren</button>
+      <button class="btn ghost small" id="copy" type="button" hidden>Als Text kopieren</button>
+      <button class="btn ghost small" id="uncheck" type="button" hidden>Alle Haken entfernen</button>
+      <button class="btn ghost small" id="tplSave" type="button" hidden>Als Vorlage speichern</button>
+      <button class="btn ghost small" id="reviewBtn" type="button" hidden>Reise auswerten</button>
+      <button class="btn ghost small" id="reset" type="button" hidden>Neue Reise</button>
     </div>
     <div class="toast" id="toast" role="status"></div>
 
@@ -1294,7 +1298,7 @@ async function fetchAva(loc,s,e,signal){
   return{...reg,now,days:out,max:out.length?Math.max(...out.map(x=>x.max)):null};
 }
 function avaLink(a){
-  if(a.link)return a.link;
+  if(/^https:\/\//i.test(a.link||""))return a.link;   /* kommt von fremden APIs bzw. aus lists.meta anderer Mitglieder */
   const id=a.id||"", t=a.top||"", d=a.days&&a.days.length?a.days[a.days.length-1].d:iso(todayUTC());
   if(/^(AT-07|IT-32-BZ|IT-32-TN)/.test(id))return(LANG==="en"?"https://avalanche.report":"https://lawinen.report")+"/bulletin/"+d;
   if(t.startsWith("CH"))return"https://www.slf.ch/de/lawinenbulletin-und-schneesituation/";
@@ -1511,6 +1515,7 @@ function legInput(l,wx){const fly=l.fly;return{...sunCountry([wx]),days:l.days,s
 /* ---------- Darstellung ---------- */
 function catOrder(items){const o=[];items.forEach(it=>{if(!o.includes(it.cat))o.push(it.cat);});return o;}
 function sportsOf(l){return l.sports.map(sportLabel);}
+let notesOpen=null;
 function render(){
   const inp=state.inputs, ranges=legRanges(inp), multi=inp.legs.length>1;
   const s=ranges[0].s, e=ranges[ranges.length-1].e;
@@ -1557,7 +1562,10 @@ function render(){
     hb.addEventListener("click",setHome);attrib.append(el("br"),hb);}
   const avs=[...new Set(wxs.filter(x=>x.w.ava).map(x=>x.w.ava.src||"EAWS"))];
   if(avs.length)attrib.append(" · Lawinen: ",...avs.flatMap((k,n)=>{const[t,u]=AVA_SRC[k]||AVA_SRC.EAWS;return[n?", ":"",el("a",{href:u,target:"_blank",rel:"noopener"},t)];}));
-  notes.replaceChildren(...blocks,attrib);
+  if(notesOpen==null)notesOpen=!isMobile();   /* Wetter & Infos: auf dem Handy zu, am Desktop offen; die Kurzzeile ist die Überschrift */
+  const det=el("details",{class:"notes-d"},el("summary",{},$("source").textContent),el("div",{class:"notes-body"},...blocks,attrib));
+  det.open=notesOpen;det.addEventListener("toggle",()=>{notesOpen=det.open;});
+  notes.replaceChildren(det);$("source").hidden=!!wxs.length;
 
   const cats=catOrder(state.items), box=$("cats");
   const catSection=cat=>{
@@ -1573,7 +1581,7 @@ function render(){
     its.forEach(it=>{
       const id="it"+state.items.indexOf(it);
       const cb=el("input",{type:"checkbox",id});cb.checked=it.done;
-      const grp=isGrp(it), me=myName(false);
+      const grp=isGrp(it), me=myName(false)||"Ich";
       cb.addEventListener("change",()=>{it.done=cb.checked;
         if(state.shared){if(grp)it.done_by=cb.checked?me:"";
           else{const base=synced.has(it.id)?synced.get(it.id).done_by:it.done_by;const L=splitNames(base).filter(n=>n!==me);if(cb.checked)L.push(me);it.done_by=L.join(", ");}}
@@ -1581,7 +1589,7 @@ function render(){
       const lab=el("label",{htmlFor:id},el("span",{class:"name"},it.name));
       if(it.qty)lab.append(el("span",{class:"qty"},"×"+it.qty));
       if(it.src==="custom")lab.append(el("span",{class:"tag"},"eigen"));
-      if(gearMissing(it))lab.append(el("span",{class:"tag miss",title:"Nicht in deiner Ausrüstung – kaufen oder leihen"},"fehlt"));
+      if(!it.done&&gearMissing(it))lab.append(el("span",{class:"tag miss",title:"Nicht in deiner Ausrüstung – kaufen oder leihen"},"fehlt"));
       if(state.shared&&grp)lab.append(el("span",{class:"tag grp"},"gemeinsam"));
       if(state.shared){const by=grp?(it.done?splitNames(it.done_by):[]):splitNames(it.done_by).filter(n=>n!==me);
         if(by.length)lab.append(el("span",{class:"by no-tr"},"✓ "+by.join(", ")));}
@@ -1902,7 +1910,7 @@ const EN={
 "Reise-Angaben":"Trip details","Karte & Bedingungen":"Map & conditions","Karte und Bedingungen":"Map and conditions",
 "Auf einen Punkt klicken: Wetter, Schnee und Wellen für die nächsten 7 Tage.":"Tap a point: weather, snow and waves for the next 7 days.",
 "Ausblenden":"Hide","Einblenden":"Show","Karte, zum Abfragen klicken":"Map, tap to check conditions",
-"Gepacktes ausblenden":"Hide packed","Für Erinnerungen kopieren":"Copy for Reminders","Als Text kopieren":"Copy as text","Alle Haken entfernen":"Uncheck all","Neue Reise":"New trip",
+"Gepacktes ausblenden":"Hide packed","Mehr …":"More …","Für Erinnerungen kopieren":"Copy for Reminders","Als Text kopieren":"Copy as text","Alle Haken entfernen":"Uncheck all","Neue Reise":"New trip",
 "Eigenen Gegenstand hinzufügen":"Add your own item","Gegenstand":"Item","Kategorie":"Category","Hinzufügen":"Add","Stopp":"Stop",
 "Wetter wird abgefragt …":"Fetching weather …","Wetter wird abgefragt":"Fetching weather","Ansicht":"View","Suchen mit ":"Search with ","Suchmaschine":"Search engine","In der Nähe":"Nearby","Restday: Schwimmbäder & Badeplätze":"Rest day: pools & swimming spots","Restday: Sehenswertes & Aussicht":"Rest day: sights & viewpoints","Ausrüstung":"Gear","Meine Ausrüstung":"My gear","besitzt das":"owns it","Geteilte Liste: Bei Gruppen-Sachen (z. B. Seil, Kocher) sehen die anderen mit 🎒, dass du sie hast – nur diese, nicht deine ganze Ausrüstung.":"Shared list: for group items (e.g. rope, stove) the others see with 🎒 that you own them – only those, not your whole gear.","alle hab ich":"own all","z. B. Kletterseil 60 m":"e.g. climbing rope 60 m","Ausrüstung hinzufügen":"Add gear","Trag ein, was du besitzt. In der Packliste steht dann bei allem, was dir noch fehlt, „fehlt“ – zum Kaufen oder Leihen.":"Add what you own. The packing list then marks everything you are missing with “missing” – to buy or borrow.","Aus der aktuellen Packliste":"From the current packing list","Hak an, was du schon hast.":"Tick what you already own.","Du hast alles für diese Reise.":"You have everything for this trip.","Alles, was ich habe":"Everything I own","Noch nichts eingetragen.":"Nothing added yet.","fehlt":"missing","Nicht in deiner Ausrüstung – kaufen oder leihen":"Not in your gear – buy or borrow","Speicher voll – Ausrüstung nicht gespeichert":"Storage full – gear not saved","Kletter- & Boulderhallen (Plan B bei Regen)":"Climbing & bouldering gyms (plan B for rain)","🌧 Regen angesagt – Plan B: Kletter- und Boulderhallen in der Nähe (bis 30 km).":"🌧 Rain forecast – plan B: climbing and bouldering gyms nearby (up to 30 km).","Klettergebiete":"Climbing areas","Klettersteige":"Via ferratas","Hütten":"Huts","Camping & Stellplätze":"Campsites & pitches","Seiten & Apps:":"Sites & apps:","Führer:":"Guidebooks:","Bergführer vor Ort":"Local mountain guides","Suche in OpenStreetMap …":"Searching OpenStreetMap …","Im Umkreis von 20 km nichts eingetragen.":"Nothing mapped within 20 km.","neu suchen":"search again","OpenStreetMap-Mitwirkende":"OpenStreetMap contributors","In OpenStreetMap öffnen":"Open in OpenStreetMap","OpenStreetMap antwortet gerade nicht – bitte später nochmal versuchen.":"OpenStreetMap is not responding – please try again later.","Camptocamp (Touren & Berichte)":"Camptocamp (routes & reports)","Seite":"Page","Packliste":"Packing list","Essen":"Food","Erstelle zuerst unter „Reise“ eine Packliste – dann kannst du hier planen.":"First create a packing list under “Trip” – then you can plan here.","Reise":"Trip","Karte":"Map","Liste":"List",
 "Zeitraum":"Dates","Liste teilen":"Share list","Link senden":"Send link","Nicht mehr teilen":"Stop sharing","Wirklich?":"Sure?","wer?":"who?","Meine Reisen":"My trips","Jede Liste wird automatisch gespeichert. Nach der Reise „Auswerten“: packapp merkt sich, was du nicht gebraucht hast.":"Every list is saved automatically. After the trip, “Review”: packapp remembers what you did not use.","Konto & Sync":"Account & sync","Melde dich an, um Reisen, Vorlagen und eigene Sportarten auf allen Geräten zu haben.":"Sign in to have trips, templates and your own activities on all devices.","Mit E-Mail anmelden":"Sign in with email","Abmelden":"Sign out","Jetzt synchronisieren":"Sync now","Auswerten: Tippe bei allem, was du auf dieser Reise nicht benutzt hast, auf „✓ gebraucht“ – es wird zu „✕ nicht gebraucht“.":"Review: tap “✓ used” on everything you did not use on this trip – it turns into “✕ not used”.","Fertig":"Done","Reise auswerten":"Review trip","Auswertung ändern":"Edit review","nicht gebraucht":"not used","gebraucht":"used","Antippen zum Umschalten":"Tap to toggle","letztes Mal nicht gebraucht":"not used last time","weglassen":"drop","aktuell":"current","ausgewertet":"reviewed","Laden":"Load","Auswerten":"Review","Aus dem Archiv löschen":"Delete from archive","Reise aus dem Archiv löschen?":"Delete trip from archive?","Kosten":"Costs","Wer teilt:":"Shared by:","+ Person":"+ Person","Was? z. B. Sprit":"What? e.g. fuel","Betrag":"Amount","Alles ausgeglichen.":"All settled.","Bitte „Was“ und einen Betrag eingeben":"Please enter “what” and an amount","Name:":"Name:","Währung":"Currency","Bezahlt von":"Paid by","Was":"What","E-Mail-Adresse:":"Email address:","Ungültige E-Mail-Adresse":"Invalid email address","Angemeldet – deine Daten werden synchronisiert":"Signed in – your data is being synced","Zu viele Versuche – bitte kurz warten":"Too many attempts – please wait a moment","Code falsch oder abgelaufen":"Code wrong or expired","Abmelden? Deine Daten bleiben auf diesem Gerät.":"Sign out? Your data stays on this device.","Tippe an, was du nicht gebraucht hast":"Tap what you did not use","Gespeichert – packapp merkt sich das für die nächste Reise":"Saved – packapp will remember this for the next trip","Speicher voll – Reise nicht archiviert":"Storage full – trip not archived","Liste aktualisiert":"List updated","Packliste aktualisieren":"Update packing list","Reise geändert (Ort, Zeitraum oder Höhe) – das Wetter muss neu geladen werden.":"Trip changed (place, dates or altitude) – the weather needs to be reloaded.","🌊 Die Wellenvorhersage gibt es etwa 7 Tage vorher. Bis dahin: auf der Karte aufs Meer tippen.":"🌊 Wave forecasts are available about 7 days ahead. Until then: tap on the sea on the map.","Boardshorts / Bikini":"Boardshorts / bikini","Neopren-Booties":"Wetsuit booties","Neopren-Haube":"Wetsuit hood","Neopren-Handschuhe":"Wetsuit gloves","🌊 Keine Wellendaten für diesen Ort – auf der Karte direkt aufs Meer tippen.":"🌊 No wave data for this place – tap directly on the sea on the map.","🌊 Wellen gibt es ab 16 Tage vorher als Vorhersage. Bis dahin: auf der Karte aufs Meer tippen.":"🌊 Wave forecasts start 16 days ahead. Until then: tap on the sea on the map.","Reise planen":"Plan a trip","Meine Vorlagen":"My templates","Als Vorlage speichern":"Save as template","Tippen zum Laden, Hinzufügen oder Teilen. Vorlagen bleiben auch bei „Neue Reise“ erhalten.":"Tap to load, add or share. Templates are kept when you start a new trip.","Name der Vorlage:":"Template name:","Vorlage überschreiben?":"Overwrite template?","Aktuelle Liste durch die Vorlage ersetzen?":"Replace the current list with the template?","Als neue Liste laden":"Load as new list","Zur aktuellen Liste hinzufügen":"Add to current list","Vorlage teilen":"Share template","Vorlage löschen?":"Delete template?","Vorlage speichern?":"Save template?","Sachen":"items","Packliste als Vorlage":"Packing list template","Ungültiger Vorlagen-Link":"Invalid template link","Dieser Browser kann die Vorlage nicht öffnen":"This browser cannot open the template","Speicher voll – Vorlage nicht gespeichert":"Storage full – template not saved","Sicherheitsprüfung fehlgeschlagen":"Security check failed","Sicherheitsprüfung abgelaufen":"Security check expired","Eintrag ist zu lang":"Entry is too long","jeder":"each","gemeinsam":"shared","Als persönlich markieren":"Mark as personal","Als gemeinsam markieren":"Mark as shared","Persönlich: jeder packt sein eigenes und hakt selbst ab.":"Personal: everyone packs their own and ticks it off themselves.","Länge / Art, z. B. 60 m Einfachseil":"Length / type, e.g. 60 m single rope","Details, z. B. Art oder Größe":"Details, e.g. type or size","– niemand":"– nobody","Noch keine Namen":"No names yet","Geteilte Liste":"Shared list","● live":"● live","verbinde …":"connecting …","offline – wird abgeglichen, sobald du wieder online bist":"offline – will sync when you are back online","Link kopiert – z. B. in WhatsApp einfügen":"Link copied – paste it into WhatsApp, for example","Geteilte Liste geöffnet":"Shared list opened","Liste ist jetzt nur noch auf diesem Gerät":"The list is now only on this device","Teilen braucht eine Internetverbindung":"Sharing needs an internet connection","Teilen ist noch nicht eingerichtet":"Sharing is not set up yet","Anonyme Anmeldung ist in Supabase noch ausgeschaltet":"Anonymous sign-in is still disabled in Supabase","Dein Name (sehen die anderen in der Liste):":"Your name (shown to the others on the list):","Packliste zum gemeinsamen Abhaken":"Packing list to tick off together","Die geteilte Liste ersetzt deine aktuelle Liste auf diesem Gerät. Fortfahren?":"The shared list replaces your current list on this device. Continue?","Liste nicht gefunden – vielleicht wurde der Link falsch kopiert oder erneuert":"List not found – maybe the link was copied incorrectly or renewed","Verwalten":"Manage","entfernen":"remove","Link erneuern":"Renew link","Liste verlassen":"Leave list","Liste für alle löschen":"Delete list for everyone","wiederherstellen":"restore","Wiederhergestellt":"Restored","Neuer Link – die alten Links gelten nicht mehr":"New link – the old links no longer work","Neuen Link erstellen? Alte Links gelten danach nicht mehr – wer schon dabei ist, bleibt dabei.":"Create a new link? Old links will stop working – people who already joined stay in.","Liste verlassen? Sie bleibt als Kopie auf diesem Gerät.":"Leave the list? A copy stays on this device.","Liste für alle löschen? Das lässt sich nicht rückgängig machen.":"Delete the list for everyone? This cannot be undone.","Aus der Liste entfernen?":"Remove from the list?","GPX laden":"Load GPX","GPX ersetzen":"Replace GPX","GPX entfernen":"Remove GPX","GPX wird gelesen …":"Reading GPX …","Keine Trackpunkte in der Datei gefunden":"No track points found in the file","Datei konnte nicht gelesen werden":"Could not read the file","Datei ist zu groß (max. 15 MB)":"File is too large (max. 15 MB)","Höchster Punkt (m, optional)":"Highest point (m, optional)","z. B. 2400 für Pass oder Gipfel":"e.g. 2400 for a pass or summit","Kalender schließen":"Close calendar","Voriger Monat":"Previous month","Nächster Monat":"Next month","Zurücksetzen":"Reset","Übernehmen":"Apply",
@@ -2467,7 +2475,7 @@ function saveAsTpl(){
 function applyTpl(t,mode){
   if(mode==="replace"){
     if(state.items.length&&!confirm(tr("Aktuelle Liste durch die Vorlage ersetzen?")))return;
-    saveCurrentTrip();state.tripId=null;state.costs=[];state.reviewed=false;state.review=false;
+    saveCurrentTrip();if(state.shared)stopShare();   /* sonst würde die Vorlage die geteilte Liste für alle ersetzen */state.tripId=null;state.costs=[];state.reviewed=false;state.review=false;
     state.items=t.items.map(fromTpl);state.wx=[];state.catLegs={};state.tplName=t.name;
   }else{
     const have=new Set(state.items.map(i=>i.name.toLowerCase()));let n=0;
@@ -2582,7 +2590,8 @@ async function turnstileToken(){
   });
 }
 function myName(ask){let n="";try{n=localStorage.getItem(NAME_L)||"";}catch(_){}
-  if(!n&&ask){n=(prompt(tr("Dein Name (sehen die anderen in der Liste):"),"")||"").trim().slice(0,30);if(n)try{localStorage.setItem(NAME_L,n);}catch(_){}}
+  /* ohne Namen ein fester Ersatzname – die Haken bei persönlichen Sachen hängen am Namen */
+  if(!n&&ask){n=(prompt(tr("Dein Name (sehen die anderen in der Liste):"),"")||"").trim().slice(0,30)||"Gast "+(100+Math.floor(Math.random()*900));try{localStorage.setItem(NAME_L,n);}catch(_){}}
   return n;}
 function shareErr(e){const m=String((e&&e.message)||e||"");
   if(/anonymous/i.test(m))return "Anonyme Anmeldung ist in Supabase noch ausgeschaltet";
@@ -2594,7 +2603,7 @@ function shareErr(e){const m=String((e&&e.message)||e||"");
 /* Persönliche Sachen: done_by = Liste aller, die es schon gepackt haben; mein Haken = mein Name steht drin. Gemeinsame: ein Haken für alle. */
 const itemOf=r=>{const it={id:r.id,cat:r.cat,name:r.name,qty:r.qty||"",note:r.note||"",who:r.who||"",done_by:r.done_by||"",src:r.src||"base",pos:r.pos||0,
   detail:r.detail||"",grp:r.grp==null?null:!!r.grp};
-  it.done=isGrp(it)?!!r.done:splitNames(r.done_by).includes(myName(false)||"\u0000");return it;};
+  it.done=isGrp(it)?!!r.done:splitNames(r.done_by).includes(myName(false)||"Ich");return it;};   /* „Ich“ wie in pushDiff */
 function metaOf(){const inputs=JSON.parse(JSON.stringify(state.inputs));inputs.legs.forEach(l=>{if(l.gpx)delete l.gpx.pts;});
   return{inputs,wx:state.wx,catLegs:state.catLegs};}
 function setShareState(st,why){shareState=st;shareWhy=st==="live"?"":(why||shareWhy);renderShareBar();}
@@ -2637,10 +2646,12 @@ async function pushDiff(){
   if(syncing){scheduleSync();return;}
   syncing=true;
   try{
-    const c=await sbClient(), lid=state.shared.id;
+    const c=await sbClient(), lid=state.shared.id, known=new Set(synced.keys());
     /* vor dem Vergeben neuer IDs den Server-Stand holen, sonst entstehen bei veraltetem Abgleich Duplikate */
     if(state.items.some(i=>!i.id)){const {data:rows,error}=await c.from("items").select("*").eq("list_id",lid).eq("deleted",false);
-      if(!error&&rows)synced=new Map(rows.map(r=>[r.id,r]));}
+      if(!error&&rows){synced=new Map(rows.map(r=>[r.id,r]));
+        /* inzwischen von anderen gelöscht: lokal auch weg, statt es wieder anzulegen */
+        state.items=state.items.filter(i=>!known.has(i.id)||synced.has(i.id));}}
     dedupeItems();
     /* neue Einträge bekommen die ID eines gleichnamigen Eintrags (z. B. nach „Packliste erstellen“), sonst eine neue */
     const taken=new Set(state.items.filter(i=>i.id).map(i=>i.id));
@@ -2650,6 +2661,8 @@ async function pushDiff(){
       if(id){it.id=id;byKey.delete(k);const o=synced.get(id);it.pos=o.pos;
         /* nach „Packliste erstellen“: Zuweisung, Details, Art und die Haken der anderen übernehmen */
         if(it.who==null||it.who==="")it.who=o.who||"";if(!it.detail)it.detail=o.detail||"";if(it.grp==null&&o.grp!=null)it.grp=o.grp;if(!it.done_by)it.done_by=o.done_by||"";}else{it.id=uuid();it.pos=++maxPos;}}});
+    /* Einträge der anderen, die dieses Gerät (z. B. offline) noch nicht kannte, übernehmen statt sie zu löschen */
+    const have=new Set(state.items.map(i=>i.id));synced.forEach(r=>{if(!known.has(r.id)&&!have.has(r.id))state.items.push(itemOf(r));});
     const ups=[], seen=new Set();
     state.items.forEach(it=>{seen.add(it.id);const o=synced.get(it.id);
       const g=isGrp(it), me=myName(false)||"Ich";
@@ -2658,7 +2671,7 @@ async function pushDiff(){
       const r={id:it.id,list_id:lid,cat:it.cat,name:it.name,qty:it.qty||"",note:it.note||"",done:g?!!it.done:false,who:g?(it.who||""):"",done_by:it.done_by||"",
         src:it.src||"base",pos:it.pos||0,detail:it.detail||"",grp:it.grp==null?null:!!it.grp,deleted:false};
       if(!o||SYNC_F.some(f=>(o[f]??"")!==r[f]))ups.push(r);});
-    const dels=[...synced.keys()].filter(id=>!seen.has(id));
+    const dels=[...known].filter(id=>synced.has(id)&&!seen.has(id));
     if(ups.length){const {error}=await c.from("items").upsert(ups);if(error)throw error;ups.forEach(r=>synced.set(r.id,r));}
     if(dels.length){/* nur markieren: echtes Löschen darf nur der Besitzer, markierte räumt der Server nach 30 Tagen weg */
       const {error}=await c.from("items").update({deleted:true}).in("id",dels);if(error)throw error;dels.forEach(id=>synced.delete(id));}
@@ -2770,7 +2783,8 @@ async function openListMenu(btn){
   const rpc=async(fn,a)=>{const {data,error}=await c.rpc(fn,a);if(error)throw error;return data;};
   if(owner)mem.filter(x=>x.user_id!==me).forEach(x=>add(el("span",{},el("span",{class:"no-tr"},x.name)," – ","entfernen"),async()=>{
     if(!confirm(x.name+": "+tr("Aus der Liste entfernen?")))return;
-    await rpc("remove_member",{l:id,u:x.user_id});refreshMembers();}));
+    await rpc("remove_member",{l:id,u:x.user_id});await resync();   /* Entfernen erneuert den Link: neuen Code holen */
+    try{history.replaceState(null,"",shareUrl().slice(shareUrl().indexOf("#")));}catch(_){}}));
   if(owner)add("Link erneuern",async()=>{if(!confirm(tr("Neuen Link erstellen? Alte Links gelten danach nicht mehr – wer schon dabei ist, bleibt dabei.")))return;
     state.shared.code=await rpc("reset_link",{l:id});saveLocal();
     try{history.replaceState(null,"",shareUrl().slice(shareUrl().indexOf("#")));}catch(_){}
@@ -3530,15 +3544,20 @@ function init(){
   $("reset").addEventListener("click",()=>{
     if(Date.now()-resetArmed>4000){resetArmed=Date.now();$("reset").textContent="Wirklich alles löschen?";
       setTimeout(()=>{if(Date.now()-resetArmed>=4000)$("reset").textContent="Neue Reise";},4100);return;}
-    resetArmed=0;$("reset").textContent="Neue Reise";
+    resetArmed=0;$("reset").textContent="Neue Reise";newTrip();});
+  function newTrip(){
     saveCurrentTrip();
     const keep={mapHidden:state.mapHidden,hideDone:state.hideDone};
     if(state.shared){if(sbChan&&sb)sb.removeChannel(sbChan);sbChan=null;synced=new Map();try{history.replaceState(null,"",location.pathname);}catch(_){}}
     state={...JSON.parse(JSON.stringify(defaults)),...keep};save();
     $("err").hidden=true;$("formErr").hidden=true;
     renderLegs(state.inputs);render();setView("reise");toast("Alles geleert");
-  });
-  $("uncheck").addEventListener("click",()=>{const me=myName(false);
+  }
+  /* Werkzeugleiste: Teilen bleibt sichtbar, der Rest kommt über „Mehr …“ (die Knöpfe bleiben als Ziel im DOM) */
+  $("moreBtn").addEventListener("click",e=>{e.stopPropagation();
+    popMenu(e.currentTarget,[...["copyRem","copy","uncheck","tplSave","reviewBtn"].map(id=>({label:$(id).textContent,fn:()=>$(id).click()})),
+      {label:tr("Neue Reise")+" …",cls:"menu-sep danger",fn:()=>{if(confirm(tr("Wirklich alles löschen?")))newTrip();}}]);});
+  $("uncheck").addEventListener("click",()=>{const me=myName(false)||"Ich";
     /* geteilt: nur meine Haken entfernen, nicht die der anderen */
     state.items.forEach(i=>{if(!state.shared||!isGrp(i)||splitNames(i.done_by).includes(me))i.done=false;});save();render();toast("Alle Haken entfernt");});
   $("addForm").addEventListener("submit",e=>{e.preventDefault();const n=$("addName").value.trim();if(!n)return;
