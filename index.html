@@ -168,6 +168,12 @@ ul.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
 .meal-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px solid var(--line);padding-top:8px}
 .meal-shop{margin-top:6px}
 .near-leg{display:flex;flex-direction:column;gap:6px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;align-self:flex-start}
+.seg label{position:relative;cursor:pointer}.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:block;padding:8px 14px;font-size:.92rem;font-weight:600;color:var(--muted)}
+.seg label+label span{border-left:1px solid var(--line)}
+.seg input:checked+span{background:var(--new-bg);color:var(--accent)}
+.seg input:focus-visible+span{outline:2px solid var(--accent);outline-offset:-2px}
 .near-leg+.near-leg{border-top:1px solid var(--line);padding-top:10px}
 .near-leg h4{margin:0;font-size:.95rem}
 .near-h{font-weight:600;font-size:.85rem;margin-top:4px}
@@ -491,6 +497,14 @@ body.view-essen #mealBox,body.view-kosten #costBox{margin-top:0}
     <form id="form" style="display:flex;flex-direction:column;gap:18px">
       <div class="legs" id="legs"></div>
       <button class="btn ghost small" id="addLeg" type="button">+ Etappe hinzufügen</button>
+      <div class="field">
+        <span class="label" id="wearLbl">Kleidung für</span>
+        <div class="seg" role="radiogroup" aria-labelledby="wearLbl" id="wear">
+          <label><input type="radio" name="wear" value="herren" checked><span>Herren</span></label>
+          <label><input type="radio" name="wear" value="damen"><span>Damen</span></label>
+          <label><input type="radio" name="wear" value="beide"><span>beide</span></label>
+        </div>
+      </div>
       <details class="keybox">
         <summary>meteoblue-Key (optional)</summary>
         <div class="field">
@@ -533,7 +547,7 @@ body.view-essen #mealBox,body.view-kosten #costBox{margin-top:0}
       <button class="pg" type="button" data-view="liste">Packliste</button>
       <button class="pg" type="button" data-view="essen">Essen</button>
       <button class="pg" type="button" data-view="kosten">Kosten</button>
-      <button class="pg" type="button" data-view="ausruestung">Ausrüstung</button>
+      <button class="pg" type="button" data-view="ausruestung">Meine Ausrüstung</button>
     </nav>
     <p class="hint page-empty" id="pageEmpty">Erstelle zuerst unter „Reise“ eine Packliste – dann kannst du hier planen.</p>
 
@@ -650,7 +664,7 @@ body.view-essen #mealBox,body.view-kosten #costBox{margin-top:0}
   <button class="tab" type="button" data-view="liste"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7l1.8 1.8L9 5.5M4 14l1.8 1.8L9 12.5"/><path d="M12 7.5h8M12 14.5h8M5 20h15"/></svg><span>Liste <span class="count" id="tabCount"></span></span></button>
   <button class="tab" type="button" data-view="essen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11h18"/><path d="M5 11v5a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4v-5"/><path d="M9 7c0-1 1-1.5 1-2.5M13 7c0-1 1-1.5 1-2.5"/></svg>Essen</button>
   <button class="tab" type="button" data-view="kosten"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M15 9.2a3.2 3.2 0 1 0 0 5.6M8 11h5M8 13h5"/></svg>Kosten</button>
-  <button class="tab" type="button" data-view="ausruestung"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7V5a4 4 0 0 1 8 0v2"/><rect x="5" y="7" width="14" height="14" rx="3"/><path d="M9 14h6v3H9z"/></svg>Ausrüstung</button>
+  <button class="tab" type="button" data-view="ausruestung"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7V5a4 4 0 0 1 8 0v2"/><rect x="5" y="7" width="14" height="14" rx="3"/><path d="M9 14h6v3H9z"/></svg>Meine Ausrüstung</button>
 </nav>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH" crossorigin="anonymous"></script>
@@ -702,6 +716,10 @@ function buildBase(inp){
     add(K,"Unterhosen",Math.min(n,6)+1,wash);add(K,"Socken",Math.min(n,6)+1,wash);add(K,"T-Shirts",Math.ceil(c/2)+1,wash);add(K,"Lange Hose",n>3?2:1);
     add(K,"Fleece / Pullover",1);add(K,"Schlafsachen");add(K,"Bequeme Schuhe für abends");
   }
+  /* Damen: Auswahl „Kleidung für“ – bei „beide“ mit Hinweis, für wen */
+  const fem=inp.wear==="damen"||inp.wear==="beide", forF=inp.wear==="beide"?"für die Damen":"";
+  if(fem){if([...S].some(x=>x!=="chillen"))add(K,"Sport-BH",light?2:Math.min(Math.ceil(c/2)+1,4),forF);
+    if(!light)add(K,"BH",2,forF);}
   /* Zelt / Camper: abends wird es draußen schnell kalt – Daunenjacke außer bei Hitze */
   if((ST.has("zelt")||ST.has("camper"))&&!(WS.size&&[...WS].every(w=>w==="heiss")))add(K,"Daunen- / Isolationsjacke","","für kühle Abende und Nächte draußen");
   if(S.has("hochtour")){
@@ -930,6 +948,8 @@ function buildBase(inp){
   const G="Hygiene & Gesundheit";
   if(inp.uv>=6)add(G,"Sonnencreme LSF 50","","UV-Index bis "+inp.uv+" – alle 2 h nachcremen");
   add(G,"Zahnbürste & Zahnpasta",0,light?"Reisegröße":"");add(G,"Duschgel / Shampoo",0,light?"fest (Seifenstück) spart Gewicht":"");add(G,"Deo");add(G,"Sonnencreme LSF 50");add(G,"Lippenpflege mit LSF");
+  if(fem){add(G,"Periodenprodukte","",(forF?forF+" – ":"")+"Tampons, Binden oder Menstruationstasse – auch wenn nicht fällig");
+    add(G,"Haargummis & Bürste","",forF);if(nonHotel||light)add(G,"Kleine Müllbeutel","","für Hygieneartikel unterwegs");}
   add(G,"Persönliche Medikamente");add(G,"Blasenpflaster");add(G,"Schmerzmittel");if(nonHotel)add(G,"Mikrofaserhandtuch");
   const E="Elektronik";
   add(E,"Handy + Ladekabel");add(E,"Powerbank","",inp.fly?"nur ins Handgepäck":"");add(E,"Kopfhörer");(inp.adapters||[]).forEach(a=>add(E,"Reiseadapter Typ "+plugTxt(a.plugs),"","für "+a.names.join(", ")));
@@ -1065,6 +1085,7 @@ function gpxField(p,l,i){
   return el("div",{style:"position:relative"},row,err);
 }
 function renderLegs(inp){
+  const wr=document.querySelector('#wear input[value="'+(inp.wear||"herren")+'"]');if(wr)wr.checked=true;
   const box=$("legs"), ranges=legRanges(inp), multi=inp.legs.length>1;
   box.replaceChildren(...inp.legs.map((l,i)=>{
     const p="leg"+i+"-";
@@ -1127,7 +1148,7 @@ function readForm(){
     return{place:readPlace(g("place")),from,to,days:spanDays(from,to),
       sports:[...div.querySelectorAll("input[data-sport]:checked")].map(x=>x.value),skiOpen:g("grp-ski").checked,climbOpen:g("grp-climb").checked,bikeOpen:!!(g("grp-bike")&&g("grp-bike").checked),
       stay:g("stay").value,weather:g("weather").value,rain:g("rain").checked,fly:g("fly").checked,pass:g("pass").value,maxAlt:readAlt(g("alt")),gpx:div._gpx||null};});
-  return{start:(legs[0]&&legs[0].from)||"",fly:legs.some(l=>l.fly),legs};
+  return{start:(legs[0]&&legs[0].from)||"",fly:legs.some(l=>l.fly),wear:(document.querySelector("#wear input:checked")||{}).value||"herren",legs};
 }
 
 /* ---------- Wetter ---------- */
@@ -1501,7 +1522,7 @@ function sunCountry(wxs){
 }
 function mergedInput(inp,wxs){
   const sportDays={};inp.legs.forEach(l=>l.sports.forEach(x=>{sportDays[x]=(sportDays[x]||0)+(l.days||0);}));
-  return{days:totalDays(inp),sportDays,sports:[...new Set(inp.legs.flatMap(l=>l.sports))],
+  return{days:totalDays(inp),sportDays,wear:inp.wear||"herren",sports:[...new Set(inp.legs.flatMap(l=>l.sports))],
     weathers:inp.legs.map((l,i)=>legWeather(l,wxs[i])),topsMount:inp.legs.flatMap((l,i)=>topMount(l,wxs[i])),topsBike:inp.legs.flatMap((l,i)=>topBike(l,wxs[i])),stays:inp.legs.map(l=>l.stay),
     rain:inp.legs.some((l,i)=>!snowLeg(l)&&(manRain(l,wxs[i])||(wxs[i]&&wxs[i].rain))),wet:inp.legs.some((l,i)=>!snowLeg(l)&&(manRain(l,wxs[i])||(wxs[i]&&wxs[i].wet))),
     snowWet:inp.legs.some((l,i)=>snowLeg(l)&&(manRain(l,wxs[i])||(wxs[i]&&wxs[i].rain))),fly:inp.legs.some(l=>l.fly),flySports:[...new Set(inp.legs.filter(l=>l.fly).flatMap(l=>l.sports))],
@@ -1510,7 +1531,7 @@ function mergedInput(inp,wxs){
     ava:Math.max(0,...inp.legs.map((l,i)=>wxs[i]&&wxs[i].ava&&wxs[i].ava.max||0)),
     water:(t=>t.length?Math.min(...t):null)(inp.legs.map((l,i)=>l.sports.includes("surfen")&&wxs[i]&&wxs[i].waves&&wxs[i].waves.water!=null?wxs[i].waves.water:null).filter(x=>x!=null))};
 }
-function legInput(l,wx){const fly=l.fly;return{...sunCountry([wx]),days:l.days,sports:l.sports,weathers:[legWeather(l,wx)],topsMount:topMount(l,wx),topsBike:topBike(l,wx),stays:[l.stay],rain:!snowLeg(l)&&(manRain(l,wx)||!!(wx&&wx.rain)),wet:!snowLeg(l)&&(manRain(l,wx)||!!(wx&&wx.wet)),snowWet:snowLeg(l)&&(manRain(l,wx)||!!(wx&&wx.rain)),fly:!!fly,passes:l.sports.some(x=>LIFT.includes(x))?[l.pass||"kaufen"]:[],ava:(wx&&wx.ava&&wx.ava.max)||0,water:l.sports.includes("surfen")&&wx&&wx.waves&&wx.waves.water!=null?wx.waves.water:null};}
+function legInput(l,wx){const fly=l.fly;return{...sunCountry([wx]),wear:(state.inputs&&state.inputs.wear)||"herren",days:l.days,sports:l.sports,weathers:[legWeather(l,wx)],topsMount:topMount(l,wx),topsBike:topBike(l,wx),stays:[l.stay],rain:!snowLeg(l)&&(manRain(l,wx)||!!(wx&&wx.rain)),wet:!snowLeg(l)&&(manRain(l,wx)||!!(wx&&wx.wet)),snowWet:snowLeg(l)&&(manRain(l,wx)||!!(wx&&wx.rain)),fly:!!fly,passes:l.sports.some(x=>LIFT.includes(x))?[l.pass||"kaufen"]:[],ava:(wx&&wx.ava&&wx.ava.max)||0,water:l.sports.includes("surfen")&&wx&&wx.waves&&wx.waves.water!=null?wx.waves.water:null};}
 
 /* ---------- Darstellung ---------- */
 function catOrder(items){const o=[];items.forEach(it=>{if(!o.includes(it.cat))o.push(it.cat);});return o;}
@@ -1658,7 +1679,7 @@ async function generate(){
   const noRange=form.legs.findIndex(l=>!l.from||!l.to);
   if(noRange>=0){fe.textContent="Bitte bei Etappe "+(noRange+1)+" den Zeitraum im Kalender wählen.";fe.hidden=false;$("leg"+noRange+"-range").focus();return;}
   if(isMobile())setView("liste");
-  const inp={start:form.start,fly:form.fly,legs:form.legs}, ranges=legRanges(inp);
+  const inp={start:form.start,fly:form.fly,wear:form.wear,legs:form.legs}, ranges=legRanges(inp);
   const wxs=inp.legs.map(()=>null), errs=[];
   $("err").hidden=true;
   const todo=inp.legs.map((l,i)=>i).filter(i=>inp.legs[i].weather==="auto"&&inp.legs[i].place);
@@ -1698,12 +1719,12 @@ function checkFormEdit(force){
   if(ctl||!state.items.length||!state.inputs||!state.inputs.legs.length)return;
   let f;try{f=readForm();}catch(_){return;}
   const old=state.inputs.legs;
-  if(force!==true&&f.legs.length===old.length&&f.legs.every((l,i)=>legSig(l)===legSig(old[i]))){setStale(false);return;}
+  if(force!==true&&f.wear===(state.inputs.wear||"herren")&&f.legs.length===old.length&&f.legs.every((l,i)=>legSig(l)===legSig(old[i]))){setStale(false);return;}
   const valid=f.legs.every(l=>l.from&&l.to&&!(l.skiOpen&&!l.sports.some(x=>SKI_SUBS.includes(x)))&&!(l.climbOpen&&!l.sports.some(x=>CLIMB_SUBS.includes(x)))&&!(l.bikeOpen&&!l.sports.some(x=>BIKE_SUBS.includes(x))));
   const sameWx=f.legs.length===old.length&&f.legs.every((l,i)=>wxSig(l)===wxSig(old[i]));
   if(valid&&sameWx){
     const ae=document.activeElement, aeId=ae&&ae.id;
-    applyList({start:f.start,fly:f.fly,legs:f.legs},state.wx.slice());toast("Liste aktualisiert",2000);
+    applyList({start:f.start,fly:f.fly,wear:f.wear,legs:f.legs},state.wx.slice());toast("Liste aktualisiert",2000);
     if(aeId&&$(aeId))try{$(aeId).focus({preventScroll:true});}catch(_){}
     refreshLegData();
   }else if(valid&&f.legs.every((l,i)=>!l.place||(old[i]&&placeName(old[i].place)===placeName(l.place))||/\(\s*-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?\s*\)\s*$/.test(l.place)))autoRefresh(f);   /* frei getippter, nicht ausgewählter Ort: lieber nachfragen */
@@ -1711,7 +1732,7 @@ function checkFormEdit(force){
 }
 /* Ort, Zeitraum, Höhe oder Etappen geändert: Wetter der betroffenen Etappen still neu laden, dann Liste anpassen. */
 async function autoRefresh(f){
-  const inp={start:f.start,fly:f.fly,legs:f.legs}, ranges=legRanges(inp), old=state.inputs.legs;
+  const inp={start:f.start,fly:f.fly,wear:f.wear,legs:f.legs}, ranges=legRanges(inp), old=state.inputs.legs;
   const wxs=inp.legs.map((l,i)=>old[i]&&wxSig(old[i])===wxSig(l)?state.wx[i]:null);
   const todo=inp.legs.map((l,i)=>i).filter(i=>!wxs[i]&&inp.legs[i].weather==="auto"&&inp.legs[i].place);
   if(bgCtl)bgCtl.abort();const c=bgCtl=new AbortController(), errs=[];
@@ -1912,7 +1933,7 @@ const EN={
 "Ausblenden":"Hide","Einblenden":"Show","Karte, zum Abfragen klicken":"Map, tap to check conditions",
 "Gepacktes ausblenden":"Hide packed","Mehr …":"More …","Für Erinnerungen kopieren":"Copy for Reminders","Als Text kopieren":"Copy as text","Alle Haken entfernen":"Uncheck all","Neue Reise":"New trip",
 "Eigenen Gegenstand hinzufügen":"Add your own item","Gegenstand":"Item","Kategorie":"Category","Hinzufügen":"Add","Stopp":"Stop",
-"Wetter wird abgefragt …":"Fetching weather …","Wetter wird abgefragt":"Fetching weather","Ansicht":"View","Suchen mit ":"Search with ","Suchmaschine":"Search engine","In der Nähe":"Nearby","Restday: Schwimmbäder & Badeplätze":"Rest day: pools & swimming spots","Restday: Sehenswertes & Aussicht":"Rest day: sights & viewpoints","Ausrüstung":"Gear","Meine Ausrüstung":"My gear","besitzt das":"owns it","Geteilte Liste: Bei Gruppen-Sachen (z. B. Seil, Kocher) sehen die anderen mit 🎒, dass du sie hast – nur diese, nicht deine ganze Ausrüstung.":"Shared list: for group items (e.g. rope, stove) the others see with 🎒 that you own them – only those, not your whole gear.","alle hab ich":"own all","z. B. Kletterseil 60 m":"e.g. climbing rope 60 m","Ausrüstung hinzufügen":"Add gear","Trag ein, was du besitzt. In der Packliste steht dann bei allem, was dir noch fehlt, „fehlt“ – zum Kaufen oder Leihen.":"Add what you own. The packing list then marks everything you are missing with “missing” – to buy or borrow.","Aus der aktuellen Packliste":"From the current packing list","Hak an, was du schon hast.":"Tick what you already own.","Du hast alles für diese Reise.":"You have everything for this trip.","Alles, was ich habe":"Everything I own","Noch nichts eingetragen.":"Nothing added yet.","fehlt":"missing","Nicht in deiner Ausrüstung – kaufen oder leihen":"Not in your gear – buy or borrow","Speicher voll – Ausrüstung nicht gespeichert":"Storage full – gear not saved","Kletter- & Boulderhallen (Plan B bei Regen)":"Climbing & bouldering gyms (plan B for rain)","🌧 Regen angesagt – Plan B: Kletter- und Boulderhallen in der Nähe (bis 30 km).":"🌧 Rain forecast – plan B: climbing and bouldering gyms nearby (up to 30 km).","Klettergebiete":"Climbing areas","Klettersteige":"Via ferratas","Hütten":"Huts","Camping & Stellplätze":"Campsites & pitches","Seiten & Apps:":"Sites & apps:","Führer:":"Guidebooks:","Bergführer vor Ort":"Local mountain guides","Suche in OpenStreetMap …":"Searching OpenStreetMap …","Im Umkreis von 20 km nichts eingetragen.":"Nothing mapped within 20 km.","neu suchen":"search again","OpenStreetMap-Mitwirkende":"OpenStreetMap contributors","In OpenStreetMap öffnen":"Open in OpenStreetMap","OpenStreetMap antwortet gerade nicht – bitte später nochmal versuchen.":"OpenStreetMap is not responding – please try again later.","Camptocamp (Touren & Berichte)":"Camptocamp (routes & reports)","Seite":"Page","Packliste":"Packing list","Essen":"Food","Erstelle zuerst unter „Reise“ eine Packliste – dann kannst du hier planen.":"First create a packing list under “Trip” – then you can plan here.","Reise":"Trip","Karte":"Map","Liste":"List",
+"Wetter wird abgefragt …":"Fetching weather …","Wetter wird abgefragt":"Fetching weather","Ansicht":"View","Suchen mit ":"Search with ","Suchmaschine":"Search engine","In der Nähe":"Nearby","Restday: Schwimmbäder & Badeplätze":"Rest day: pools & swimming spots","Restday: Sehenswertes & Aussicht":"Rest day: sights & viewpoints","Ausrüstung":"Gear","Meine Ausrüstung":"My gear","Kleidung für":"Clothing for","Herren":"Men","Damen":"Women","beide":"both","Sport-BH":"Sports bra","BH":"Bra","für die Damen":"for the women","Periodenprodukte":"Period products","Tampons, Binden oder Menstruationstasse – auch wenn nicht fällig":"tampons, pads or menstrual cup – even if not due","für die Damen – Tampons, Binden oder Menstruationstasse – auch wenn nicht fällig":"for the women – tampons, pads or menstrual cup – even if not due","Haargummis & Bürste":"Hair ties & brush","Kleine Müllbeutel":"Small waste bags","für Hygieneartikel unterwegs":"for hygiene products on the go","besitzt das":"owns it","Geteilte Liste: Bei Gruppen-Sachen (z. B. Seil, Kocher) sehen die anderen mit 🎒, dass du sie hast – nur diese, nicht deine ganze Ausrüstung.":"Shared list: for group items (e.g. rope, stove) the others see with 🎒 that you own them – only those, not your whole gear.","alle hab ich":"own all","z. B. Kletterseil 60 m":"e.g. climbing rope 60 m","Ausrüstung hinzufügen":"Add gear","Dein Ausrüstungsschrank: Trag ein, was du besitzt – Seil, Zelt, Kocher, Ski … In der Packliste steht dann bei Ausrüstung, die dir fehlt, „fehlt“ – zum Kaufen oder Leihen.":"Your gear closet: add what you own – rope, tent, stove, skis … The packing list then marks gear you are missing with “missing” – to buy or borrow.","Aus der aktuellen Packliste":"From the current packing list","Hak an, was du schon hast.":"Tick what you already own.","Du hast alles für diese Reise.":"You have everything for this trip.","Alles, was ich habe":"Everything I own","Noch nichts eingetragen.":"Nothing added yet.","fehlt":"missing","Nicht in deiner Ausrüstung – kaufen oder leihen":"Not in your gear – buy or borrow","Speicher voll – Ausrüstung nicht gespeichert":"Storage full – gear not saved","Kletter- & Boulderhallen (Plan B bei Regen)":"Climbing & bouldering gyms (plan B for rain)","🌧 Regen angesagt – Plan B: Kletter- und Boulderhallen in der Nähe (bis 30 km).":"🌧 Rain forecast – plan B: climbing and bouldering gyms nearby (up to 30 km).","Klettergebiete":"Climbing areas","Klettersteige":"Via ferratas","Hütten":"Huts","Camping & Stellplätze":"Campsites & pitches","Seiten & Apps:":"Sites & apps:","Führer:":"Guidebooks:","Bergführer vor Ort":"Local mountain guides","Suche in OpenStreetMap …":"Searching OpenStreetMap …","Im Umkreis von 20 km nichts eingetragen.":"Nothing mapped within 20 km.","neu suchen":"search again","OpenStreetMap-Mitwirkende":"OpenStreetMap contributors","In OpenStreetMap öffnen":"Open in OpenStreetMap","OpenStreetMap antwortet gerade nicht – bitte später nochmal versuchen.":"OpenStreetMap is not responding – please try again later.","Camptocamp (Touren & Berichte)":"Camptocamp (routes & reports)","Seite":"Page","Packliste":"Packing list","Essen":"Food","Erstelle zuerst unter „Reise“ eine Packliste – dann kannst du hier planen.":"First create a packing list under “Trip” – then you can plan here.","Reise":"Trip","Karte":"Map","Liste":"List",
 "Zeitraum":"Dates","Liste teilen":"Share list","Link senden":"Send link","Nicht mehr teilen":"Stop sharing","Wirklich?":"Sure?","wer?":"who?","Meine Reisen":"My trips","Jede Liste wird automatisch gespeichert. Nach der Reise „Auswerten“: packapp merkt sich, was du nicht gebraucht hast.":"Every list is saved automatically. After the trip, “Review”: packapp remembers what you did not use.","Konto & Sync":"Account & sync","Melde dich an, um Reisen, Vorlagen und eigene Sportarten auf allen Geräten zu haben.":"Sign in to have trips, templates and your own activities on all devices.","Mit E-Mail anmelden":"Sign in with email","Abmelden":"Sign out","Jetzt synchronisieren":"Sync now","Auswerten: Tippe bei allem, was du auf dieser Reise nicht benutzt hast, auf „✓ gebraucht“ – es wird zu „✕ nicht gebraucht“.":"Review: tap “✓ used” on everything you did not use on this trip – it turns into “✕ not used”.","Fertig":"Done","Reise auswerten":"Review trip","Auswertung ändern":"Edit review","nicht gebraucht":"not used","gebraucht":"used","Antippen zum Umschalten":"Tap to toggle","letztes Mal nicht gebraucht":"not used last time","weglassen":"drop","aktuell":"current","ausgewertet":"reviewed","Laden":"Load","Auswerten":"Review","Aus dem Archiv löschen":"Delete from archive","Reise aus dem Archiv löschen?":"Delete trip from archive?","Kosten":"Costs","Wer teilt:":"Shared by:","+ Person":"+ Person","Was? z. B. Sprit":"What? e.g. fuel","Betrag":"Amount","Alles ausgeglichen.":"All settled.","Bitte „Was“ und einen Betrag eingeben":"Please enter “what” and an amount","Name:":"Name:","Währung":"Currency","Bezahlt von":"Paid by","Was":"What","E-Mail-Adresse:":"Email address:","Ungültige E-Mail-Adresse":"Invalid email address","Angemeldet – deine Daten werden synchronisiert":"Signed in – your data is being synced","Zu viele Versuche – bitte kurz warten":"Too many attempts – please wait a moment","Code falsch oder abgelaufen":"Code wrong or expired","Abmelden? Deine Daten bleiben auf diesem Gerät.":"Sign out? Your data stays on this device.","Tippe an, was du nicht gebraucht hast":"Tap what you did not use","Gespeichert – packapp merkt sich das für die nächste Reise":"Saved – packapp will remember this for the next trip","Speicher voll – Reise nicht archiviert":"Storage full – trip not archived","Liste aktualisiert":"List updated","Packliste aktualisieren":"Update packing list","Reise geändert (Ort, Zeitraum oder Höhe) – das Wetter muss neu geladen werden.":"Trip changed (place, dates or altitude) – the weather needs to be reloaded.","🌊 Die Wellenvorhersage gibt es etwa 7 Tage vorher. Bis dahin: auf der Karte aufs Meer tippen.":"🌊 Wave forecasts are available about 7 days ahead. Until then: tap on the sea on the map.","Boardshorts / Bikini":"Boardshorts / bikini","Neopren-Booties":"Wetsuit booties","Neopren-Haube":"Wetsuit hood","Neopren-Handschuhe":"Wetsuit gloves","🌊 Keine Wellendaten für diesen Ort – auf der Karte direkt aufs Meer tippen.":"🌊 No wave data for this place – tap directly on the sea on the map.","🌊 Wellen gibt es ab 16 Tage vorher als Vorhersage. Bis dahin: auf der Karte aufs Meer tippen.":"🌊 Wave forecasts start 16 days ahead. Until then: tap on the sea on the map.","Reise planen":"Plan a trip","Meine Vorlagen":"My templates","Als Vorlage speichern":"Save as template","Tippen zum Laden, Hinzufügen oder Teilen. Vorlagen bleiben auch bei „Neue Reise“ erhalten.":"Tap to load, add or share. Templates are kept when you start a new trip.","Name der Vorlage:":"Template name:","Vorlage überschreiben?":"Overwrite template?","Aktuelle Liste durch die Vorlage ersetzen?":"Replace the current list with the template?","Als neue Liste laden":"Load as new list","Zur aktuellen Liste hinzufügen":"Add to current list","Vorlage teilen":"Share template","Vorlage löschen?":"Delete template?","Vorlage speichern?":"Save template?","Sachen":"items","Packliste als Vorlage":"Packing list template","Ungültiger Vorlagen-Link":"Invalid template link","Dieser Browser kann die Vorlage nicht öffnen":"This browser cannot open the template","Speicher voll – Vorlage nicht gespeichert":"Storage full – template not saved","Sicherheitsprüfung fehlgeschlagen":"Security check failed","Sicherheitsprüfung abgelaufen":"Security check expired","Eintrag ist zu lang":"Entry is too long","jeder":"each","gemeinsam":"shared","Als persönlich markieren":"Mark as personal","Als gemeinsam markieren":"Mark as shared","Persönlich: jeder packt sein eigenes und hakt selbst ab.":"Personal: everyone packs their own and ticks it off themselves.","Länge / Art, z. B. 60 m Einfachseil":"Length / type, e.g. 60 m single rope","Details, z. B. Art oder Größe":"Details, e.g. type or size","– niemand":"– nobody","Noch keine Namen":"No names yet","Geteilte Liste":"Shared list","● live":"● live","verbinde …":"connecting …","offline – wird abgeglichen, sobald du wieder online bist":"offline – will sync when you are back online","Link kopiert – z. B. in WhatsApp einfügen":"Link copied – paste it into WhatsApp, for example","Geteilte Liste geöffnet":"Shared list opened","Liste ist jetzt nur noch auf diesem Gerät":"The list is now only on this device","Teilen braucht eine Internetverbindung":"Sharing needs an internet connection","Teilen ist noch nicht eingerichtet":"Sharing is not set up yet","Anonyme Anmeldung ist in Supabase noch ausgeschaltet":"Anonymous sign-in is still disabled in Supabase","Dein Name (sehen die anderen in der Liste):":"Your name (shown to the others on the list):","Packliste zum gemeinsamen Abhaken":"Packing list to tick off together","Die geteilte Liste ersetzt deine aktuelle Liste auf diesem Gerät. Fortfahren?":"The shared list replaces your current list on this device. Continue?","Liste nicht gefunden – vielleicht wurde der Link falsch kopiert oder erneuert":"List not found – maybe the link was copied incorrectly or renewed","Verwalten":"Manage","entfernen":"remove","Link erneuern":"Renew link","Liste verlassen":"Leave list","Liste für alle löschen":"Delete list for everyone","wiederherstellen":"restore","Wiederhergestellt":"Restored","Neuer Link – die alten Links gelten nicht mehr":"New link – the old links no longer work","Neuen Link erstellen? Alte Links gelten danach nicht mehr – wer schon dabei ist, bleibt dabei.":"Create a new link? Old links will stop working – people who already joined stay in.","Liste verlassen? Sie bleibt als Kopie auf diesem Gerät.":"Leave the list? A copy stays on this device.","Liste für alle löschen? Das lässt sich nicht rückgängig machen.":"Delete the list for everyone? This cannot be undone.","Aus der Liste entfernen?":"Remove from the list?","GPX laden":"Load GPX","GPX ersetzen":"Replace GPX","GPX entfernen":"Remove GPX","GPX wird gelesen …":"Reading GPX …","Keine Trackpunkte in der Datei gefunden":"No track points found in the file","Datei konnte nicht gelesen werden":"Could not read the file","Datei ist zu groß (max. 15 MB)":"File is too large (max. 15 MB)","Höchster Punkt (m, optional)":"Highest point (m, optional)","z. B. 2400 für Pass oder Gipfel":"e.g. 2400 for a pass or summit","Kalender schließen":"Close calendar","Voriger Monat":"Previous month","Nächster Monat":"Next month","Zurücksetzen":"Reset","Übernehmen":"Apply",
 "Eigene Sportart":"Own activity","Name":"Name","z. B. Kanu, Paragliding, Fotografie":"e.g. canoe, paragliding, photography","Packliste dieser Sportart":"Packing list for this activity",
 "Anz.":"Qty","Anzahl":"Quantity","Löschen":"Delete","Speichern":"Save","Schließen":"Close","Sportart bearbeiten":"Edit activity",
@@ -3089,16 +3110,19 @@ function setGear(names,on){[].concat(names).forEach(n=>{n=String(n||"").trim().s
   if(!on)myGear=myGear.filter(g=>{if(gearKey(g.n)!==gearKey(n))return true;addTomb(g.id);return false;});});
   saveGear();render();}
 /* fehlt mir? nur wenn ich schon etwas eingetragen habe; Einkauf und Sachen, die jemand anderes mitbringt, zählen nicht */
-const gearMissing=it=>myGear.length>0&&it.cat!==MEAL_CAT&&!(state.shared&&it.who&&it.who!==myName(false))&&!ownsGear(it.name)&&!(state.shared&&isGrp(it)&&gearOwners(it).length);
+/* Ausrüstungsschrank: Kleidung, Hygiene, Dokumente und Essen gehören nicht dazu */
+const GEAR_SKIP=["Dokumente & Geld","Kleidung","Wetter","Hygiene & Gesundheit","Anreise Flug","Sportverpflegung","Verpflegung Camper"];
+const isGearCat=c=>c!==MEAL_CAT&&!GEAR_SKIP.includes(c);
+const gearMissing=it=>myGear.length>0&&isGearCat(it.cat)&&!(state.shared&&it.who&&it.who!==myName(false))&&!ownsGear(it.name)&&!(state.shared&&isGrp(it)&&gearOwners(it).length);
 function renderGear(){
   const box=$("gearBox");if(!box)return;
   const inp=el("input",{type:"text",placeholder:"z. B. Kletterseil 60 m",maxLength:120,autocomplete:"off","aria-label":"Ausrüstung hinzufügen"});
   const add=el("form",{class:"gear-add"},inp,el("button",{type:"submit",class:"btn small"},"Hinzufügen"));
   add.addEventListener("submit",e=>{e.preventDefault();setGear(inp.value,true);});
   const parts=[el("h3",{},el("span",{},"Meine Ausrüstung"),el("span",{class:"cat-count"},String(myGear.length))),
-    el("p",{class:"hint"},"Trag ein, was du besitzt. In der Packliste steht dann bei allem, was dir noch fehlt, „fehlt“ – zum Kaufen oder Leihen."),
+    el("p",{class:"hint"},"Dein Ausrüstungsschrank: Trag ein, was du besitzt – Seil, Zelt, Kocher, Ski … In der Packliste steht dann bei Ausrüstung, die dir fehlt, „fehlt“ – zum Kaufen oder Leihen."),
     ...(state.shared?[el("p",{class:"hint"},"Geteilte Liste: Bei Gruppen-Sachen (z. B. Seil, Kocher) sehen die anderen mit 🎒, dass du sie hast – nur diese, nicht deine ganze Ausrüstung.")]:[]),add];
-  const its=state.items.filter(i=>i.cat!==MEAL_CAT);
+  const its=state.items.filter(i=>isGearCat(i.cat));
   if(its.length){
     const miss=its.filter(gearMissing).length;
     parts.push(el("div",{class:"near-h"},"Aus der aktuellen Packliste"),
