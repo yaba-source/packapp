@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Kg6zRpHicZOUqG+La1luPzEYmhGhRaHrSg86ZNFDseU=' https://unpkg.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://unpkg.com; font-src 'self'; img-src 'self' data: blob: https://unpkg.com https://*.tile.opentopomap.org https://tile.openstreetmap.org https://server.arcgisonline.com; connect-src 'self' https://*.open-meteo.com https://my.meteoblue.com https://photon.komoot.io https://nominatim.openstreetmap.org https://regions.avalanches.org https://static.avalanche.report https://api.avalanche.org https://avcan-services-api.prod.avalanche.ca https://api01.nve.no https://overpass-api.de https://xcuiygrxvmtipjdplgzm.supabase.co wss://xcuiygrxvmtipjdplgzm.supabase.co; frame-src https://challenges.cloudflare.com; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-X0UZNjrPtd8fBOEP7DL3PGGokJFX2oyqQW06yXTa/dg=' https://unpkg.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://unpkg.com; font-src 'self'; img-src 'self' data: blob: https://unpkg.com https://*.tile.opentopomap.org https://tile.openstreetmap.org https://server.arcgisonline.com; connect-src 'self' https://*.open-meteo.com https://my.meteoblue.com https://photon.komoot.io https://nominatim.openstreetmap.org https://regions.avalanches.org https://static.avalanche.report https://api.avalanche.org https://avcan-services-api.prod.avalanche.ca https://api01.nve.no https://overpass-api.de https://xcuiygrxvmtipjdplgzm.supabase.co wss://xcuiygrxvmtipjdplgzm.supabase.co; frame-src https://challenges.cloudflare.com; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>packapp</title>
 <meta name="description" content="Packliste nach Ort, Etappen und Sportarten, mit Wetter, Schnee und Wellen auf der Karte">
@@ -718,7 +718,7 @@ function buildBase(inp){
   const n=Math.max(1,Math.min(60,Math.round(+inp.days)||1)), c=Math.min(n,7);
   const wash=n>7?"reicht für eine Woche, dann waschen":"";
   const skiSocks=n<=1?1:n<=4?2:3;
-  const out=[], seen=new Set();
+  let out=[]; const seen=new Set();
   const add=(cat,name,qty,note)=>{const k=name.toLowerCase();if(seen.has(k))return;seen.add(k);out.push({cat,name,qty:qty?String(qty):"",note:note||"",src:"base",done:false});};
   const daysOf=id=>inp.sportDays&&inp.sportDays[id]!=null?inp.sportDays[id]:n;
   const S=new Set(inp.sports), ski=["skitour","skihochtour","freeride","snowboard","offpiste","eis","hochtour"].some(x=>S.has(x));
@@ -986,6 +986,8 @@ function buildBase(inp){
   (inp.voltNotes||[]).forEach(v=>add(E,"Netzteile auf 100–240 V prüfen","",v));
   if(inp.minDay!=null&&inp.minDay<10.5&&[...S].some(x=>x!=="chillen"))add(E,"Stirnlampe","","kurze Tage – dunkel ab ca. "+inp.darkAt+" Uhr");
   if(outdoor||nonHotel)add(E,"Stirnlampe");
+  /* Klettern: die lange Kletterhose ersetzt die normale lange Hose */
+  if(out.some(it=>it.name==="Kletterhose lang"))out=out.filter(it=>it.name!=="Lange Hose");
   const day=ST.size>0&&[...ST].every(x=>x==="tag")?dayTrip(out):out;
   return inp.ul?ultralight(day,inp):day;
 }
