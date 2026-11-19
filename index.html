@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-ftEIXqufSPbBMpeH6D6QIEY4vCgTW1RHu2fcQoY7GdI=' https://unpkg.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://unpkg.com; font-src 'self'; img-src 'self' data: blob: https://unpkg.com https://*.tile.opentopomap.org https://tile.openstreetmap.org https://server.arcgisonline.com; connect-src 'self' https://*.open-meteo.com https://my.meteoblue.com https://photon.komoot.io https://nominatim.openstreetmap.org https://regions.avalanches.org https://static.avalanche.report https://api.avalanche.org https://avcan-services-api.prod.avalanche.ca https://api01.nve.no https://overpass-api.de https://xcuiygrxvmtipjdplgzm.supabase.co wss://xcuiygrxvmtipjdplgzm.supabase.co; frame-src https://challenges.cloudflare.com; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Kg6zRpHicZOUqG+La1luPzEYmhGhRaHrSg86ZNFDseU=' https://unpkg.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://unpkg.com; font-src 'self'; img-src 'self' data: blob: https://unpkg.com https://*.tile.opentopomap.org https://tile.openstreetmap.org https://server.arcgisonline.com; connect-src 'self' https://*.open-meteo.com https://my.meteoblue.com https://photon.komoot.io https://nominatim.openstreetmap.org https://regions.avalanches.org https://static.avalanche.report https://api.avalanche.org https://avcan-services-api.prod.avalanche.ca https://api01.nve.no https://overpass-api.de https://xcuiygrxvmtipjdplgzm.supabase.co wss://xcuiygrxvmtipjdplgzm.supabase.co; frame-src https://challenges.cloudflare.com; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>packapp</title>
 <meta name="description" content="Packliste nach Ort, Etappen und Sportarten, mit Wetter, Schnee und Wellen auf der Karte">
@@ -723,7 +723,7 @@ function buildBase(inp){
   const daysOf=id=>inp.sportDays&&inp.sportDays[id]!=null?inp.sportDays[id]:n;
   const S=new Set(inp.sports), ski=["skitour","skihochtour","freeride","snowboard","offpiste","eis","hochtour"].some(x=>S.has(x));
   const outdoor=S.size>0;
-  const WS=new Set(inp.weathers||[]), ST=new Set(inp.stays||["hotel"]), nonHotel=[...ST].some(x=>x!=="hotel");
+  const WS=new Set(inp.weathers||[]), ST=new Set(inp.stays||["hotel"]), nonHotel=[...ST].some(x=>x!=="hotel"&&x!=="tag");
   /* Höchster Punkt: Bergsport ist den ganzen Tag oben → Kleidung auch dafür. Rad: nur kurz oben → Extras für die Abfahrt (TB). */
   (inp.topsMount||[]).forEach(c=>WS.add(c));
   const TB=new Set(inp.topsBike||[]);
@@ -986,7 +986,21 @@ function buildBase(inp){
   (inp.voltNotes||[]).forEach(v=>add(E,"Netzteile auf 100–240 V prüfen","",v));
   if(inp.minDay!=null&&inp.minDay<10.5&&[...S].some(x=>x!=="chillen"))add(E,"Stirnlampe","","kurze Tage – dunkel ab ca. "+inp.darkAt+" Uhr");
   if(outdoor||nonHotel)add(E,"Stirnlampe");
-  return inp.ul?ultralight(out,inp):out;
+  const day=ST.size>0&&[...ST].every(x=>x==="tag")?dayTrip(out):out;
+  return inp.ul?ultralight(day,inp):day;
+}
+/* Tagesausflug: keine Übernachtung – nur, was man für den Tag braucht, Wechselsachen statt Kleidung für mehrere Tage */
+const DAY_DROP=/^(Unterhosen|Schlafsachen|Bequeme Schuhe für abends|Bequeme Kleidung|Zahnbürste|Duschgel|Deo$|Rasierer|Haargummis|Kopfhörer|Reiseadapter|Netzteile auf|Packing Cubes|Ohrstöpsel|Buch \/ E-Reader|Reisewaschmittel|Wäscheleine)/;
+function dayTrip(out){
+  const L=out.filter(it=>!DAY_DROP.test(it.name));
+  L.forEach(it=>{if(it.name==="Socken"){it.name="Wechselsocken";it.qty="1";it.note="";}
+    if(it.name==="T-Shirts"){it.name="Wechselshirt";it.qty="1";it.note="";}
+    if(it.name==="Handy + Ladekabel"){it.name="Handy (voll geladen)";}});
+  const has=re=>L.some(it=>re.test(it.name)),x=(cat,name,note)=>L.push({cat,name,qty:"",note,src:"base",done:false});
+  if(!has(/^Trinkflasche|^Trinkrucksack|^Faltbare Trinkflasche/))x("Unterwegs","Trinkflasche","voll – 1–1,5 l für den Tag");
+  if(!has(/^Snacks|^Riegel|^Proviant/))x("Unterwegs","Proviant & Snacks","");
+  if(!has(/Rucksack|Lawinenrucksack/))x("Unterwegs","Tagesrucksack","");
+  return L;
 }
 /* Ultraleicht packen: nur, was unbedingt nötig ist – Komfort, Optionales und Bequemes bleibt daheim; leichte Varianten als Hinweis */
 const UL_DROP=["Bluetooth-Lautsprecher","Buch / E-Reader","Kissen","Hängematte","Slackline","Campingstühle","Kartenspiel","Bequeme Schuhe für abends","Bequeme Kleidung",
@@ -1567,7 +1581,7 @@ function sunCountry(wxs){
 function mergedInput(inp,wxs){
   const sportDays={};inp.legs.forEach(l=>l.sports.forEach(x=>{sportDays[x]=(sportDays[x]||0)+(l.days||0);}));
   return{days:totalDays(inp),sportDays,wear:inp.wear||"herren",ul:!!inp.ul,sports:[...new Set(inp.legs.flatMap(l=>l.sports))],
-    weathers:inp.legs.map((l,i)=>legWeather(l,wxs[i])),topsMount:inp.legs.flatMap((l,i)=>topMount(l,wxs[i])),topsBike:inp.legs.flatMap((l,i)=>topBike(l,wxs[i])),stays:inp.legs.map(l=>l.stay),
+    weathers:inp.legs.map((l,i)=>legWeather(l,wxs[i])),topsMount:inp.legs.flatMap((l,i)=>topMount(l,wxs[i])),topsBike:inp.legs.flatMap((l,i)=>topBike(l,wxs[i])),stays:totalDays(inp)===1?["tag"]:inp.legs.map(l=>l.stay),
     rain:inp.legs.some((l,i)=>!snowLeg(l)&&(manRain(l,wxs[i])||(wxs[i]&&wxs[i].rain))),wet:inp.legs.some((l,i)=>!snowLeg(l)&&(manRain(l,wxs[i])||(wxs[i]&&wxs[i].wet))),
     snowWet:inp.legs.some((l,i)=>snowLeg(l)&&(manRain(l,wxs[i])||(wxs[i]&&wxs[i].rain))),fly:inp.legs.some(l=>l.fly),flySports:[...new Set(inp.legs.filter(l=>l.fly).flatMap(l=>l.sports))],
     passes:inp.legs.filter(l=>l.sports.some(x=>LIFT.includes(x))).map(l=>l.pass||"kaufen"),
@@ -1575,7 +1589,7 @@ function mergedInput(inp,wxs){
     ava:Math.max(0,...inp.legs.map((l,i)=>wxs[i]&&wxs[i].ava&&wxs[i].ava.max||0)),
     water:(t=>t.length?Math.min(...t):null)(inp.legs.map((l,i)=>l.sports.includes("surfen")&&wxs[i]&&wxs[i].waves&&wxs[i].waves.water!=null?wxs[i].waves.water:null).filter(x=>x!=null))};
 }
-function legInput(l,wx){const fly=l.fly;return{...sunCountry([wx]),wear:(state.inputs&&state.inputs.wear)||"herren",ul:!!(state.inputs&&state.inputs.ul),days:l.days,sports:l.sports,weathers:[legWeather(l,wx)],topsMount:topMount(l,wx),topsBike:topBike(l,wx),stays:[l.stay],rain:!snowLeg(l)&&(manRain(l,wx)||!!(wx&&wx.rain)),wet:!snowLeg(l)&&(manRain(l,wx)||!!(wx&&wx.wet)),snowWet:snowLeg(l)&&(manRain(l,wx)||!!(wx&&wx.rain)),fly:!!fly,passes:l.sports.some(x=>LIFT.includes(x))?[l.pass||"kaufen"]:[],ava:(wx&&wx.ava&&wx.ava.max)||0,water:l.sports.includes("surfen")&&wx&&wx.waves&&wx.waves.water!=null?wx.waves.water:null};}
+function legInput(l,wx){const fly=l.fly;return{...sunCountry([wx]),wear:(state.inputs&&state.inputs.wear)||"herren",ul:!!(state.inputs&&state.inputs.ul),days:l.days,sports:l.sports,weathers:[legWeather(l,wx)],topsMount:topMount(l,wx),topsBike:topBike(l,wx),stays:state.inputs&&totalDays(state.inputs)===1?["tag"]:[l.stay],rain:!snowLeg(l)&&(manRain(l,wx)||!!(wx&&wx.rain)),wet:!snowLeg(l)&&(manRain(l,wx)||!!(wx&&wx.wet)),snowWet:snowLeg(l)&&(manRain(l,wx)||!!(wx&&wx.rain)),fly:!!fly,passes:l.sports.some(x=>LIFT.includes(x))?[l.pass||"kaufen"]:[],ava:(wx&&wx.ava&&wx.ava.max)||0,water:l.sports.includes("surfen")&&wx&&wx.waves&&wx.waves.water!=null?wx.waves.water:null};}
 
 /* ---------- Darstellung ---------- */
 function catOrder(items){const o=[];items.forEach(it=>{if(!o.includes(it.cat))o.push(it.cat);});return o;}
@@ -1597,7 +1611,7 @@ function render(){
   }
   const noPlace=inp.legs.every(l=>!placeName(l.place));
   $("signPlace").textContent=noPlace&&state.tplName?state.tplName:(inp.legs.map(l=>placeName(l.place)||"?").join(" → ")||"Ohne Ort");
-  $("signMeta").textContent=[dmy(s)+" – "+dmy(e),totalDays(inp)+" Tage",[...new Set(inp.legs.flatMap(sportsOf))].join(" · ")].filter(Boolean).join("  ·  ");
+  $("signMeta").textContent=[totalDays(inp)===1?dmy(s)+" · Tagesausflug":dmy(s)+" – "+dmy(e),totalDays(inp)===1?"":totalDays(inp)+" Tage",[...new Set(inp.legs.flatMap(sportsOf))].join(" · ")].filter(Boolean).join("  ·  ");
   $("source").textContent=inp.legs.map((l,i)=>{const w=state.wx[i];
     return (multi?"Etappe "+(i+1)+": ":"Wetter: ")+(w?CAT_LABEL[w.cat]+(w.topCat&&w.topCat!==w.cat?", oben "+CAT_LABEL[w.topCat]:"")+(w.rain?", nass":"")+" ("+(w.kind==="forecast"?"Vorhersage":"Klima")+")"
       :l.weather==="auto"?"Standardannahme":"manuell "+CAT_LABEL[l.weather]);}).join(" · ");
@@ -1988,7 +2002,7 @@ const EN={
 "Ort festgelegt":"Place set","Ort, Gipfel, Skigebiet oder Strand":"Town, peak, ski resort or beach","z. B. Ericeira, Niseko, Zugspitze":"e.g. Ericeira, Niseko, Zugspitze",
 "Ortsvorschläge":"Place suggestions","Suche: Photon · Daten © OpenStreetMap":"Search: Photon · data © OpenStreetMap",
 "Zeitraum wählen":"Choose dates","Anreise mit Flug":"Arriving by plane","Weiterreise mit Flug":"Continuing by plane","Regen oder Schnee wahrscheinlich":"Rain or snow likely","Regen oder Schnee wahrscheinlich (nur ohne Wetterdaten)":"Rain or snow likely (only without weather data)",
-"Hotel / Wohnung":"Hotel / apartment","Hütte":"Mountain hut","Zelt":"Tent","Camper":"Camper van",
+"Hotel / Wohnung":"Hotel / apartment","Tagesausflug":"Day trip","Nur ein Tag – keine Übernachtung. Schlafsachen, Zahnbürste & Co. bleiben daheim, dafür kommen Wechselsachen, Trinkflasche und Proviant mit.":"Just one day – no overnight. Sleepwear, toothbrush & co. stay home; spare clothes, water bottle and food come along.","Wechselsocken":"Spare socks","Wechselshirt":"Spare shirt","Handy (voll geladen)":"Phone (fully charged)","Unterwegs":"On the go","Trinkflasche":"Water bottle","voll – 1–1,5 l für den Tag":"full – 1–1.5 l for the day","Proviant & Snacks":"Food & snacks","Tagesrucksack":"Daypack","Hütte":"Mountain hut","Zelt":"Tent","Camper":"Camper van",
 "Automatisch abrufen":"Fetch automatically","Kalt, unter 0 °C":"Cold, below 0 °C","Kühl, 0–15 °C":"Cool, 0–15 °C","Mild, 15–25 °C":"Mild, 15–25 °C","Heiß, über 25 °C":"Hot, above 25 °C",
 "Vor Ort kaufen":"Buy on site","Online vorab kaufen":"Buy online in advance","Saisonpass vorhanden":"I have a season pass","Kein Lift nötig":"No lift needed",
 "+ Eigene Sportart":"+ Own activity","Bearbeiten":"Edit","Etappe entfernen":"Remove stage",
@@ -3225,9 +3239,9 @@ function renderMeals(){
 }
 let mealFilter={t:"",c:"",all:false};
 /* Was lässt sich bei dieser Unterkunft kochen? Zelt/Hütte: Gaskocher; Camper und Wohnung: auch Pfannengerichte */
-const STAY_COOK={zelt:["gas","none"],huette:["gas","none"],camper:["camper","gas","none"],hotel:["camper","gas","none"]};
-const STAY_NAME={zelt:"Zelt",huette:"Hütte",camper:"Camper",hotel:"Hotel / Wohnung"};
-function cookModes(){const st=state.inputs?[...new Set(state.inputs.legs.map(l=>l.stay||"hotel"))]:["hotel"];
+const STAY_COOK={zelt:["gas","none"],huette:["gas","none"],camper:["camper","gas","none"],hotel:["camper","gas","none"],tag:["none"]};
+const STAY_NAME={zelt:"Zelt",huette:"Hütte",camper:"Camper",hotel:"Hotel / Wohnung",tag:"Tagesausflug"};
+function cookModes(){const st=!state.inputs?["hotel"]:totalDays(state.inputs)===1?["tag"]:[...new Set(state.inputs.legs.map(l=>l.stay||"hotel"))];
   return{stays:st,modes:new Set(st.flatMap(x=>STAY_COOK[x]||STAY_COOK.hotel))};}
 const cookOk=r=>cookModes().modes.has(r.c);
 const dietOk=r=>(!(state.diet||{}).vg||r.vg)&&(!(state.diet||{}).gf||r.gf);
@@ -3352,14 +3366,15 @@ function renderWiz(){
       const i=el("input",{type:"checkbox"});i.checked=d.sports.includes(k);
       i.addEventListener("change",()=>{d.sports=i.checked?[...d.sports,k]:d.sports.filter(x=>x!==k);$("wizNext").disabled=!wizOk();});
       return el("label",{},i,el("span",{},sportLabel(k)));}))));}
-  if(wiz.step===3)parts.push(el("h3",{},"Wo schläfst du?"),radio("wizStay",STAY_OPTS,d.stay,v=>{d.stay=v;}));
+  if(wiz.step===3){if(d.from&&d.from===d.to)parts.push(el("h3",{},"Tagesausflug"),el("p",{class:"hint"},"Nur ein Tag – keine Übernachtung. Schlafsachen, Zahnbürste & Co. bleiben daheim, dafür kommen Wechselsachen, Trinkflasche und Proviant mit."));
+    else parts.push(el("h3",{},"Wo schläfst du?"),radio("wizStay",STAY_OPTS,d.stay,v=>{d.stay=v;}));}
   if(wiz.step===4){const fl=el("input",{type:"checkbox"});fl.checked=d.fly;fl.addEventListener("change",()=>{d.fly=fl.checked;});
     const ul=el("input",{type:"checkbox"});ul.checked=d.ul;ul.addEventListener("change",()=>{d.ul=ul.checked;});
     parts.push(el("h3",{},"Anreise & Kleidung"),el("label",{class:"check"},fl,el("span",{},"Anreise mit Flug")),el("label",{class:"check"},ul,el("span",{},"Ultraleicht packen")),
       el("div",{class:"wiz-grp"},"Kleidung für"),radio("wizWear",[["herren","Herren"],["damen","Damen"],["beide","beide"]],d.wear,v=>{d.wear=v;}));}
   if(wiz.step===5)parts.push(el("h3",{},"Passt das so?"),el("ul",{class:"wiz-sum"},
     el("li",{},d.place.trim()),el("li",{},dm(parseD(d.from))+" – "+dm(parseD(d.to))),el("li",{},d.sports.map(sportLabel).join(", ")),
-    el("li",{},(STAY_OPTS.find(x=>x[0]===d.stay)||["",""])[1]+(d.fly?" · Flug":"")+(d.ul?" · ultraleicht":"")),el("li",{},"Kleidung: "+({herren:"Herren",damen:"Damen",beide:"beide"})[d.wear])));
+    el("li",{},(d.from===d.to?"Tagesausflug":(STAY_OPTS.find(x=>x[0]===d.stay)||["",""])[1])+(d.fly?" · Flug":"")+(d.ul?" · ultraleicht":"")),el("li",{},"Kleidung: "+({herren:"Herren",damen:"Damen",beide:"beide"})[d.wear])));
   const back=el("button",{type:"button",class:"btn ghost small"},"Zurück");back.disabled=wiz.step===0;back.addEventListener("click",()=>{wiz.step--;renderWiz();});
   const next=el("button",{type:"button",class:"btn",id:"wizNext"},wiz.step===N-1?"Packliste erstellen":"Weiter");next.disabled=!wizOk();
   next.addEventListener("click",()=>{if(!wizOk())return;if(wiz.step===N-1)wizCreate();else{wiz.step++;renderWiz();}});
