@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-K1EvGAJ8ObKXqLcwZ9OX7WLUvrrSy+UMyhqXXr4PHN8=' https://unpkg.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://unpkg.com; font-src 'self'; img-src 'self' data: blob: https://unpkg.com https://*.tile.opentopomap.org https://tile.openstreetmap.org https://server.arcgisonline.com; connect-src 'self' https://*.open-meteo.com https://my.meteoblue.com https://photon.komoot.io https://nominatim.openstreetmap.org https://regions.avalanches.org https://static.avalanche.report https://api.avalanche.org https://avcan-services-api.prod.avalanche.ca https://api01.nve.no https://overpass-api.de https://xcuiygrxvmtipjdplgzm.supabase.co wss://xcuiygrxvmtipjdplgzm.supabase.co; frame-src https://challenges.cloudflare.com; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-KXGmZda6uEQ6Jz+KR7pBpTz40e/gKm2NmHmbylCx9Rs=' https://unpkg.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://unpkg.com; font-src 'self'; img-src 'self' data: blob: https://unpkg.com https://*.tile.opentopomap.org https://tile.openstreetmap.org https://server.arcgisonline.com; connect-src 'self' https://*.open-meteo.com https://my.meteoblue.com https://photon.komoot.io https://nominatim.openstreetmap.org https://regions.avalanches.org https://static.avalanche.report https://api.avalanche.org https://avcan-services-api.prod.avalanche.ca https://api01.nve.no https://overpass-api.de https://xcuiygrxvmtipjdplgzm.supabase.co wss://xcuiygrxvmtipjdplgzm.supabase.co; frame-src https://challenges.cloudflare.com; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>packapp</title>
 <meta name="description" content="Packliste nach Ort, Etappen und Sportarten, mit Wetter, Schnee und Wellen auf der Karte">
@@ -168,6 +168,10 @@ ul.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
 .meal-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px solid var(--line);padding-top:8px}
 .meal-shop{margin-top:6px}
 .near-leg{display:flex;flex-direction:column;gap:6px}
+.undo-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:4000;display:flex;align-items:center;gap:12px;max-width:calc(100% - 24px);background:#1d2a33;color:#fff;padding:8px 8px 8px 14px;border-radius:12px;font-size:.9rem;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.undo-bar span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.undo-btn{font:inherit;font-weight:700;color:#9fd3ff;background:none;border:0;padding:8px 10px;border-radius:8px;cursor:pointer;flex:none}
+@media (max-width:860px){.undo-bar{bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
 .err-pop{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:5000;background:#B42318;color:#fff;padding:10px 12px;border-radius:10px;font-size:.85rem;box-shadow:0 4px 14px rgba(0,0,0,.3)}
 .modes{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:var(--line);border-radius:14px;margin-bottom:18px}
 .modes .pg{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 8px;border-radius:11px;color:var(--muted);background:transparent;text-align:center}
@@ -1682,7 +1686,7 @@ function render(){
       if(state.shared){const by=grp?(it.done?splitNames(it.done_by):[]):splitNames(it.done_by).filter(n=>n!==me);
         if(by.length)lab.append(el("span",{class:"by no-tr"},"✓ "+by.join(", ")));}
       if(it.hint&&!state.review){const h=el("span",{class:"hint-tag"},it.hint.n===1?"letztes Mal nicht gebraucht":"in "+it.hint.u+" von "+it.hint.n+" Reisen nicht gebraucht");
-        const drop=el("button",{type:"button"},"weglassen");drop.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();state.items.splice(state.items.indexOf(it),1);save();render();});
+        const drop=el("button",{type:"button"},"weglassen");drop.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();removeItem(it);});
         h.append(drop);lab.append(h);}
       if(it.note)lab.append(el("span",{class:"note"},it.note));
       let det=null;
@@ -1691,7 +1695,7 @@ function render(){
         det.addEventListener("change",()=>{it.detail=det.value.trim().slice(0,60);save();});
         det.addEventListener("blur",()=>{if(renderPending){renderPending=false;setTimeout(render,0);}});}
       const del=el("button",{type:"button",class:"del","aria-label":it.name+" entfernen"},"×");
-      del.addEventListener("click",()=>{state.items.splice(state.items.indexOf(it),1);save();render();});
+      del.addEventListener("click",()=>removeItem(it));
       const body=det?el("div",{class:"item-body"},lab,det):lab;
       if(state.review){
         const ub=el("button",{type:"button",class:"unused-btn"+(it.unused?" on":""),"aria-pressed":String(!!it.unused),title:"Antippen zum Umschalten"},
@@ -1734,6 +1738,18 @@ function render(){
   updateLegMarkers(false);
 }
 function toast(msg,ms){$("toast").textContent=msg;clearTimeout(toast.t);toast.t=setTimeout(()=>{$("toast").textContent="";},ms||2500);}
+/* Rückgängig-Leiste nach dem Entfernen (unten, ein paar Sekunden sichtbar) */
+function undoBar(msg,undo){
+  let b=$("undoBar");if(!b){b=el("div",{id:"undoBar",class:"undo-bar",role:"status"});document.body.append(b);}
+  const btn=el("button",{type:"button",class:"undo-btn no-tr"},LANG==="en"?"Undo":"Rückgängig");
+  btn.addEventListener("click",()=>{clearTimeout(undoBar.t);b.hidden=true;undo();});
+  b.replaceChildren(el("span",{class:"no-tr"},msg),btn);b.hidden=false;
+  clearTimeout(undoBar.t);undoBar.t=setTimeout(()=>{b.hidden=true;},7000);
+}
+function removeItem(it){
+  const i=state.items.indexOf(it);if(i<0)return;state.items.splice(i,1);save();render();
+  undoBar((LANG==="en"?"Removed: ":"Entfernt: ")+it.name,()=>{state.items.splice(Math.min(i,state.items.length),0,it);save();render();});
+}
 
 /* ---------- Erstellen ---------- */
 async function generate(){
@@ -1773,7 +1789,8 @@ function applyList(inp,wxs){
   const prevDone=new Set(state.items.filter(i=>i.done).map(i=>i.name.toLowerCase()));
   const custom=state.items.filter(i=>i.src==="custom"||i.src==="tpl"||i.src==="meal");
   const base=buildBase(mergedInput(inp,wxs)).map(i=>(i.done=prevDone.has(i.name.toLowerCase()),i)), baseNames=new Set(base.map(i=>i.name.toLowerCase()));
-  const items=base.concat(custom.filter(i=>i.src!=="meal"||i.cat===MEAL_CAT||!baseNames.has(i.name.toLowerCase())));
+  const day=totalDays(inp)===1;   /* Tagesausflug: kein Kochen – Küchensachen aus dem Essensplan bleiben weg */
+  const items=base.concat(custom.filter(i=>i.src!=="meal"||i.cat===MEAL_CAT||(!day&&!baseNames.has(i.name.toLowerCase()))));
   const us=usageStats();items.forEach(i=>{const u=us[i.name.toLowerCase()];i.hint=u&&u.u>0&&u.u/u.n>=0.5?{u:u.u,n:u.n}:null;});
   const catLegs={};
   inp.legs.forEach((l,i)=>{new Set(buildBase(legInput(l,wxs[i])).map(x=>x.cat)).forEach(c=>{(catLegs[c]=catLegs[c]||[]).push(i);});});
@@ -3017,7 +3034,8 @@ function applyMeals(){
   state.items=state.items.filter(i=>i.src!=="meal");
   const have=new Set(state.items.map(i=>i.name.toLowerCase())), hasKit=state.items.some(i=>/kochgeschirr/i.test(i.name));
   const {ings,gear}=mealShopping();
-  gear.forEach(g=>{if(have.has(g.toLowerCase())||(hasKit&&/Topf|Pfanne|Besteck|Spork/.test(g)))return;
+  const day=state.inputs&&totalDays(state.inputs)===1;
+  gear.forEach(g=>{if(day||have.has(g.toLowerCase())||(hasKit&&/Topf|Pfanne|Besteck|Spork/.test(g)))return;
     state.items.push({cat:MEAL_GEAR_CAT,name:g,qty:"",note:"für den Essensplan",src:"meal",done:done.has(g.toLowerCase())});});
   ings.forEach(x=>state.items.push({cat:MEAL_CAT,name:x.name,qty:"",note:x.amount+" – für "+x.for.join(", "),src:"meal",done:done.has(x.name.toLowerCase())}));
   save();render();
@@ -3526,7 +3544,10 @@ async function costAdd(c){
     catch(e){toast(shareErr(e),5000);}}
 }
 async function costDel(id){
-  state.costs=(state.costs||[]).filter(c=>c.id!==id);save();render();
+  const L=state.costs||[],i=L.findIndex(c=>c.id===id),c=L[i];
+  state.costs=L.filter(c=>c.id!==id);save();render();
+  if(c)undoBar((LANG==="en"?"Removed: ":"Entfernt: ")+c.what,async()=>{state.costs.splice(Math.min(i,state.costs.length),0,c);save();render();
+    if(state.shared){try{const cl=await sbClient();await cl.from("costs").update({deleted:false}).eq("id",id);}catch(_){}}});
   if(state.shared){try{const cl=await sbClient();await cl.from("costs").update({deleted:true}).eq("id",id);}catch(_){}}
 }
 function applyCostRemote(p){
