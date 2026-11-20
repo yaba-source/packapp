@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-KXGmZda6uEQ6Jz+KR7pBpTz40e/gKm2NmHmbylCx9Rs=' https://unpkg.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://unpkg.com; font-src 'self'; img-src 'self' data: blob: https://unpkg.com https://*.tile.opentopomap.org https://tile.openstreetmap.org https://server.arcgisonline.com; connect-src 'self' https://*.open-meteo.com https://my.meteoblue.com https://photon.komoot.io https://nominatim.openstreetmap.org https://regions.avalanches.org https://static.avalanche.report https://api.avalanche.org https://avcan-services-api.prod.avalanche.ca https://api01.nve.no https://overpass-api.de https://xcuiygrxvmtipjdplgzm.supabase.co wss://xcuiygrxvmtipjdplgzm.supabase.co; frame-src https://challenges.cloudflare.com; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-yPnn5cuC7HJ9IEuCyOFFOTnRE7xvZTiHdRuqCa4tZjo=' https://unpkg.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://unpkg.com; font-src 'self'; img-src 'self' data: blob: https://unpkg.com https://*.tile.opentopomap.org https://tile.openstreetmap.org https://server.arcgisonline.com; connect-src 'self' https://*.open-meteo.com https://my.meteoblue.com https://photon.komoot.io https://nominatim.openstreetmap.org https://regions.avalanches.org https://static.avalanche.report https://api.avalanche.org https://avcan-services-api.prod.avalanche.ca https://api01.nve.no https://overpass-api.de https://xcuiygrxvmtipjdplgzm.supabase.co wss://xcuiygrxvmtipjdplgzm.supabase.co; frame-src https://challenges.cloudflare.com; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>packapp</title>
 <meta name="description" content="Packliste nach Ort, Etappen und Sportarten, mit Wetter, Schnee und Wellen auf der Karte">
@@ -273,6 +273,8 @@ button:active,.btn:active,.tab:active,.pg:active,.linkbtn:active,.wiz-chips labe
 .who-menu .menu-sep{border-top:1px solid var(--line);border-radius:0 0 6px 6px;font-size:.88rem;color:var(--muted)}
 .who-menu .danger{color:var(--warn)}
 .notes-d>summary{cursor:pointer;font-weight:600;list-style-position:inside}
+.notes-d>summary .wx-src{font-size:.8rem;font-weight:500;color:var(--muted)}
+.wx-glance{display:block;font-weight:600;margin-top:2px}
 .notes-body{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 .who.set{border-color:var(--accent);color:var(--accent);font-weight:600}
 .share-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;border:1px solid var(--accent);border-radius:8px;padding:10px 12px;margin:0 0 12px;background:var(--surface)}
@@ -373,7 +375,7 @@ body.view-essen #mealBox,body.view-kosten #costBox{margin-top:0}
   body.view-karte .panel,body.view-liste .panel,body.view-essen .panel,body.view-kosten .panel,body.view-ausruestung .panel{display:none}
   .pages{display:none!important}
   .tab{font-size:.75rem;padding:6px 0;letter-spacing:-.01em}
-  body.view-karte .main > :not(.mapcard):not(#nearBox){display:none}
+  body.view-karte .main > :not(.mapcard):not(#nearBox):not(#notes){display:none}
   body.view-liste .main > .mapcard,body.view-liste .main > #nearBox{display:none}
   .map-head .btn{display:none}
   #mapBody[hidden]{display:flex!important}
@@ -1655,7 +1657,10 @@ function render(){
   const avs=[...new Set(wxs.filter(x=>x.w.ava).map(x=>x.w.ava.src||"EAWS"))];
   if(avs.length)attrib.append(" · Lawinen: ",...avs.flatMap((k,n)=>{const[t,u]=AVA_SRC[k]||AVA_SRC.EAWS;return[n?", ":"",el("a",{href:u,target:"_blank",rel:"noopener"},t)];}));
   if(notesOpen==null)notesOpen=!isMobile();   /* Wetter & Infos: auf dem Handy zu, am Desktop offen; die Kurzzeile ist die Überschrift */
-  const det=el("details",{class:"notes-d"},el("summary",{},$("source").textContent),el("div",{class:"notes-body"},...blocks,attrib));
+  /* Kopfzeile immer sichtbar: das Wetter selbst (je Etappe) + Lawinenwarnung ab Stufe 3; Details zum Aufklappen */
+  const glance=wxs.map(({w,i})=>el("span",{class:"wx-glance"},(multi?placeName(inp.legs[i].place)+": ":"")+w.line,
+    w.ava&&w.ava.max>=3?el("span",{class:"wx-warn"}," · ⚠ Lawinenstufe "+w.ava.max):""));
+  const det=el("details",{class:"notes-d"},el("summary",{},el("span",{class:"wx-src"},$("source").textContent),...glance),el("div",{class:"notes-body"},...blocks,attrib));
   det.open=notesOpen;det.addEventListener("toggle",()=>{notesOpen=det.open;});
   notes.replaceChildren(det);$("source").hidden=!!wxs.length;
 
