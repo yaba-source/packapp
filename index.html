@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-X0UZNjrPtd8fBOEP7DL3PGGokJFX2oyqQW06yXTa/dg=' https://unpkg.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://unpkg.com; font-src 'self'; img-src 'self' data: blob: https://unpkg.com https://*.tile.opentopomap.org https://tile.openstreetmap.org https://server.arcgisonline.com; connect-src 'self' https://*.open-meteo.com https://my.meteoblue.com https://photon.komoot.io https://nominatim.openstreetmap.org https://regions.avalanches.org https://static.avalanche.report https://api.avalanche.org https://avcan-services-api.prod.avalanche.ca https://api01.nve.no https://overpass-api.de https://xcuiygrxvmtipjdplgzm.supabase.co wss://xcuiygrxvmtipjdplgzm.supabase.co; frame-src https://challenges.cloudflare.com; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-lv85UmMkAIOzihR7JGemVzWzPD9JC32Nwz3L0WSy5ao=' https://unpkg.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://unpkg.com; font-src 'self'; img-src 'self' data: blob: https://unpkg.com https://*.tile.opentopomap.org https://tile.openstreetmap.org https://server.arcgisonline.com; connect-src 'self' https://*.open-meteo.com https://my.meteoblue.com https://photon.komoot.io https://nominatim.openstreetmap.org https://regions.avalanches.org https://static.avalanche.report https://api.avalanche.org https://avcan-services-api.prod.avalanche.ca https://api01.nve.no https://overpass-api.de https://xcuiygrxvmtipjdplgzm.supabase.co wss://xcuiygrxvmtipjdplgzm.supabase.co; frame-src https://challenges.cloudflare.com; worker-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>packapp</title>
 <meta name="description" content="Packliste nach Ort, Etappen und Sportarten, mit Wetter, Schnee und Wellen auf der Karte">
@@ -168,6 +168,7 @@ ul.items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
 .meal-acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-top:1px solid var(--line);padding-top:8px}
 .meal-shop{margin-top:6px}
 .near-leg{display:flex;flex-direction:column;gap:6px}
+.err-pop{position:fixed;left:12px;right:12px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:5000;background:#B42318;color:#fff;padding:10px 12px;border-radius:10px;font-size:.85rem;box-shadow:0 4px 14px rgba(0,0,0,.3)}
 .modes{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:var(--line);border-radius:14px;margin-bottom:18px}
 .modes .pg{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 8px;border-radius:11px;color:var(--muted);background:transparent;text-align:center}
 .modes .pg .mode-t{font-weight:700;font-size:.95rem}.modes .pg .mode-s{font-size:.72rem;font-weight:500;line-height:1.25}
@@ -699,6 +700,11 @@ body.view-essen #mealBox,body.view-kosten #costBox{margin-top:0}
 <script>
 (function(){
 "use strict";
+/* Fehler sichtbar machen (v. a. am iPhone, wo es keine Konsole gibt): unten einblenden, antippen schließt */
+window.addEventListener("error",e=>{try{
+  const b=document.getElementById("errPop")||document.body.appendChild(Object.assign(document.createElement("div"),{id:"errPop",className:"err-pop"}));
+  b.textContent="⚠ Fehler: "+(e.message||"unbekannt")+(e.lineno?" (Zeile "+e.lineno+")":"")+" – Screenshot an Yannick/Claude schicken";
+  b.onclick=()=>b.remove();}catch(_){}});
 const SPORTS=[
  ["freeride","Piste"],["snowboard","Snowboard"],["offpiste","Freeride"],["skitour","Skitouren"],["skihochtour","Skihochtouren"],["surfen","Surfen"],["rennrad","Rennrad"],["gravel","Gravel"],["mtb","Mountainbike"],
  ["sport","Sportklettern"],["trad","Trad"],["mehrseil","Mehrseillängen"],["bouldern","Bouldern"],["klettersteig","Klettersteig"],["eis","Eisklettern"],["hochtour","Hochtouren"],["laufen","Laufen"],["backpacking","Backpacking"],["bikepacking","Bikepacking"],["chillen","Chillen"]
